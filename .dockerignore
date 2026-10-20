@@ -2,7 +2,8 @@
 .env*
 data
 analysis
-deploy
+deploy/*
+!deploy/create-dev-env.mjs
 node_modules
 private
 *.har

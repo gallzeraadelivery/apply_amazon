@@ -4,7 +4,8 @@ COPY package.json ./
 COPY src ./src
 COPY public ./public
 COPY test ./test
-RUN node --check src/app.mjs && node --check src/apex.mjs && node --check public/app.mjs && node --disable-warning=ExperimentalWarning --test test/app.test.mjs
+COPY deploy/create-dev-env.mjs ./deploy/create-dev-env.mjs
+RUN node --check src/app.mjs && node --check src/apex.mjs && node --check public/app.mjs && node --disable-warning=ExperimentalWarning --test test/*.test.mjs
 
 FROM node:22-alpine
 ENV NODE_ENV=production PORT=8080 DB_PATH=/data/app.sqlite

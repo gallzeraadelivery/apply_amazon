@@ -5,5 +5,6 @@ const app = createApp({
   origin: process.env.APP_ORIGIN || 'https://apply.gdapps.online', production: process.env.NODE_ENV !== 'development',
 });
 const port = Number(process.env.PORT || 8080);
-app.server.listen(port, '0.0.0.0', () => console.log(JSON.stringify({ event: 'listening', port })));
+const host = process.env.HOST || (process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0');
+app.server.listen(port, host, () => console.log(JSON.stringify({ event: 'listening', host, port })));
 for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => { app.close(); process.exit(0); });

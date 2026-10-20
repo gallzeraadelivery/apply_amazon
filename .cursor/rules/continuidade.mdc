@@ -1,0 +1,10 @@
+---
+description: Continuidade do GD Apply em qualquer computador e salvamento autorizado no Git
+alwaysApply: true
+---
+
+Leia e siga AGENTS.md na raiz do projeto.
+Leia docs/CONTINUAR-EM-OUTRO-PC.md e docs/ESTADO-DO-PROJETO.md antes de continuar trabalho existente.
+Ao concluir uma tarefa, atualize a documentação afetada, valide, faça commit dos arquivos da tarefa e push ao remoto autorizado, salvo orientação contrária do usuário.
+Nunca inclua credenciais, private/, .env, HARs brutos, bancos de dados ou backups no repositório público.
+Distinga funcionalidade implementada, testada com respostas controladas, validada no serviço real e efetivamente implantada.

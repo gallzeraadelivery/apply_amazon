@@ -1,6 +1,12 @@
-param([string]$OutputDirectory = 'Y:\apllyapex\analysis')
+param(
+  [Parameter(Mandatory = $true)][string[]]$HarFiles,
+  [string]$OutputDirectory = $PSScriptRoot
+)
 $ErrorActionPreference = 'Stop'
-$files = @('Z:\FLUXOGRAMA-PERSONAL-COMPLETO.har','Z:\FLUXOGRAMA-PERSONAL-COMPLETO-2.har')
+$files = $HarFiles
+if (-not (Test-Path -LiteralPath $OutputDirectory -PathType Container)) {
+  New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
+}
 function Normalize-Path([string]$path) {
   $path = $path -replace '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}', '{uuid}'
   $path = $path -replace 'inq_[A-Za-z0-9]+','{inquiryId}' -replace 'amzn1\.account\.[A-Za-z0-9]+','{accountId}'
@@ -60,11 +66,11 @@ foreach ($file in $files) {
   }
   $name = [IO.Path]::GetFileNameWithoutExtension($file)
   $result = [pscustomobject]@{
-    Source=[IO.Path]::GetFileName($file); CaptureDate='2026-08-29'; Entries=$entries.Count
+    Source=[IO.Path]::GetFileName($file); CaptureDate=([string]($entries | Select-Object -First 1).startedDateTime); Entries=$entries.Count
     SourceSHA256=(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash
     HostCounts=@($rows | Group-Object Host | Sort-Object Count -Descending | ForEach-Object { [pscustomobject]@{Host=$_.Name;Count=$_.Count} })
     NormalizedRoutes=$inventory; OnboardingStateHistory=$stateHistory
-    Notes=@('Only field names, status and normalized paths are exported; credentials and body values excluded.','Request and response body fingerprints were used separately to establish 745 shared entries and 16 additions in file 2.','An uploaded HAR is evidence of its recorded contents, not independent proof of capture authenticity or Apex backend behavior.')
+    Notes=@('Only field names, status and normalized paths are exported; credentials and body values excluded.','This script inventories each file independently; overlap comparison is documented separately for the original reference captures.','An uploaded HAR is evidence of its recorded contents, not independent proof of capture authenticity or Apex backend behavior.')
   }
   [IO.File]::WriteAllText((Join-Path $OutputDirectory ($name+'.sanitized.json')),($result | ConvertTo-Json -Depth 30))
   $summary += [pscustomobject]@{File=$result.Source;Entries=$entries.Count;Hosts=$result.HostCounts.Count;Routes=$inventory.Count;StatusReads=$stateHistory.Count}

@@ -2,6 +2,12 @@
 
 Painel e backend próprio para gerenciar a conexão Apex e acompanhar operações de onboarding.
 
+## Continuar em outro computador
+
+Comece pelo [guia de continuidade](docs/CONTINUAR-EM-OUTRO-PC.md). Ele cobre uso do site, clonagem, configuração local e SSH. Consulte também [estado e pendências](docs/ESTADO-DO-PROJETO.md), [operação e backup](docs/OPERACAO-E-BACKUP.md) e [histórico](CHANGELOG.md).
+
+As orientações permanentes estão em [AGENTS.md](AGENTS.md): manter a evolução documentada e salvar as alterações da tarefa no Git autorizado, sem incluir segredos. O repositório é público.
+
 ## Estado atual
 
 - Login administrativo próprio, troca obrigatória da senha inicial e sessões HttpOnly/Secure.
@@ -17,13 +23,13 @@ Requer Node.js 22.18+ com `node:sqlite`; sem dependências npm externas. Gere um
 
 Produção: `docker compose up -d --build`. O build executa testes antes de gerar a imagem de produção, sem usuário root. O volume SQLite e a MASTER_KEY precisam ser preservados nas atualizações e backups.
 
-Desenvolvimento: configure NODE_ENV=development, APP_ORIGIN=http://127.0.0.1:8080, DB_PATH=./data/app.sqlite e demais variáveis do exemplo; execute `npm start`. O Node precisa receber essas variáveis pelo ambiente. Não use a senha de produção localmente.
+Desenvolvimento: execute `npm run dev:setup` e `npm run dev`. Isso usa `.env.development`, credenciais em `private/dev-access.txt` e banco isolado em `data/development.sqlite`. Abra http://127.0.0.1:8080. Não use a senha ou a chave de produção localmente. Se o PowerShell bloquear npm.ps1, use npm.cmd no lugar de npm; não é necessário mudar a política de execução do computador.
 
 Verificação: `npm run check` e `npm test`. Os testes incluem autenticação/CSRF, troca inicial, criptografia, isolamento de credenciais, contratos multipart, falhas sem repetição automática e serialização de operações.
 
 ## API do painel
 
-- `/api/auth/login`, `/session`, `/logout`, `/password`: autenticação local.
+- `/api/auth/login`, `/api/auth/session`, `/api/auth/logout`, `/api/auth/password`: autenticação local.
 - `/api/integrations`: estado das conexões; `/api/integrations/apex/connect`: login remoto; DELETE `/api/integrations/apex`: remoção do token local.
 - GET `/api/apex/accounts`, `/api/apex/accounts/{id}`, `/api/apex/credits`, `/api/apex/runs/{id}`: consultas Apex.
 - POST `/api/apex/accounts/{id}/application-data`: `{confirm:true,fields:{...}}`.
