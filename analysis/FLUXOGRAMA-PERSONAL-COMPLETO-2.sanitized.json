@@ -1,0 +1,2974 @@
+{
+  "Source": "FLUXOGRAMA-PERSONAL-COMPLETO-2.har",
+  "CaptureDate": "2026-08-29",
+  "Entries": 761,
+  "SourceSHA256": "963C9612D8E5CA7EDBB8918148E9AC6A8456554B4DA09FAF90D4485145554666",
+  "HostCounts": [
+    {
+      "Host": "logistics.amazon.com",
+      "Count": 302
+    },
+    {
+      "Host": "stream-sentry.last-mile.amazon.dev",
+      "Count": 100
+    },
+    {
+      "Host": "m.media-amazon.com",
+      "Count": 57
+    },
+    {
+      "Host": "dataplane.rum.us-east-1.amazonaws.com",
+      "Count": 45
+    },
+    {
+      "Host": "prod.us-east-1.api.app-attestation.last-mile.amazon.dev",
+      "Count": 44
+    },
+    {
+      "Host": "withpersona.com",
+      "Count": 30
+    },
+    {
+      "Host": "unagi.amazon.com",
+      "Count": 26
+    },
+    {
+      "Host": "d3ei7jh4srzt7p.cloudfront.net",
+      "Count": 21
+    },
+    {
+      "Host": "firehose.us-east-1.amazonaws.com",
+      "Count": 14
+    },
+    {
+      "Host": "fls-na.amazon.com",
+      "Count": 14
+    },
+    {
+      "Host": "flex-capacity-na.amazon.com",
+      "Count": 13
+    },
+    {
+      "Host": "a3crlm7u5apdqk-ats.iot.us-east-1.amazonaws.com",
+      "Count": 10
+    },
+    {
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Count": 9
+    },
+    {
+      "Host": "prod-na.transporter-chat.last-mile.amazon.dev",
+      "Count": 9
+    },
+    {
+      "Host": "webrtc-consumer.withpersona.com",
+      "Count": 8
+    },
+    {
+      "Host": "content-autofill.googleapis.com",
+      "Count": 8
+    },
+    {
+      "Host": "45cea089c0b6fdc79f061094cd3bcbf9ee53ad244b9bfadd436329d499be52d.us-east-1.prod.service.minerva.devices.a2z.com",
+      "Count": 8
+    },
+    {
+      "Host": "rabbitinstruction-na.amazon.com",
+      "Count": 6
+    },
+    {
+      "Host": "odcs-na-extern.amazon.com",
+      "Count": 5
+    },
+    {
+      "Host": "tas-na-extern.amazon.com",
+      "Count": 4
+    },
+    {
+      "Host": "96.30.206.128",
+      "Count": 4
+    },
+    {
+      "Host": "device-metrics-us.amazon.com",
+      "Count": 3
+    },
+    {
+      "Host": "android.httptoolkit.tech",
+      "Count": 3
+    },
+    {
+      "Host": "play.googleapis.com",
+      "Count": 2
+    },
+    {
+      "Host": "rabbitapp.triggers-v1.prod.mobile.weblab.a2z.com",
+      "Count": 2
+    },
+    {
+      "Host": "d1jt27rpxxb4oi.cloudfront.net",
+      "Count": 2
+    },
+    {
+      "Host": "us-east-1.prod.message-broker.last-mile.amazon.dev",
+      "Count": 2
+    },
+    {
+      "Host": "otsms-na-extern.amazon.com",
+      "Count": 2
+    },
+    {
+      "Host": "www.amazon.com",
+      "Count": 2
+    },
+    {
+      "Host": "play-fe.googleapis.com",
+      "Count": 1
+    },
+    {
+      "Host": "images-na.ssl-images-amazon.com",
+      "Count": 1
+    },
+    {
+      "Host": "firebaselogging.googleapis.com",
+      "Count": 1
+    },
+    {
+      "Host": "session.prod.bugsnag.bunny.last-mile.amazon.dev",
+      "Count": 1
+    },
+    {
+      "Host": "clientservices.googleapis.com",
+      "Count": 1
+    },
+    {
+      "Host": "texmex-na-prod.amazon.com",
+      "Count": 1
+    }
+  ],
+  "NormalizedRoutes": [
+    {
+      "Method": "POST",
+      "Host": "45cea089c0b6fdc79f061094cd3bcbf9ee53ad244b9bfadd436329d499be52d.us-east-1.prod.service.minerva.devices.a2z.com",
+      "Path": "/metric-batch",
+      "Count": 8,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 8
+    },
+    {
+      "Method": "POST",
+      "Host": "96.30.206.128",
+      "Path": "/v1/compat",
+      "Count": 4,
+      "Statuses": [
+        404
+      ],
+      "RequestFieldNames": [
+        "abi",
+        "app",
+        "board",
+        "cs",
+        "cs_size",
+        "daemon",
+        "device",
+        "fingerprint",
+        "google",
+        "hardware",
+        "hook",
+        "incremental",
+        "key",
+        "lab",
+        "magisk",
+        "maker",
+        "model",
+        "patch",
+        "render",
+        "root",
+        "sdk",
+        "serial",
+        "supported",
+        "who"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 4
+    },
+    {
+      "Method": "GET",
+      "Host": "a3crlm7u5apdqk-ats.iot.us-east-1.amazonaws.com",
+      "Path": "/mqtt",
+      "Count": 10,
+      "Statuses": [
+        101
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "X-Amz-Algorithm",
+        "X-Amz-Credential",
+        "X-Amz-Date",
+        "X-Amz-Security-Token",
+        "X-Amz-Signature",
+        "X-Amz-SignedHeaders"
+      ],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "android.httptoolkit.tech",
+      "Path": "/config",
+      "Count": 3,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 3
+    },
+    {
+      "Method": "GET",
+      "Host": "clientservices.googleapis.com",
+      "Path": "/chrome-variations/seed",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "channel",
+        "milestone",
+        "osname"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBIsCX6m1KkS2PgUEgsNguVqlyoEEAIYASEoVe0SaFMRXimu3qVVSaGG5TICCAcS2wIJVElCyqXYD9YSDQ2NKVoIKgYQAhgBIAESDQ1En0lKKgYQBhgBIAISDQ0cZD19KgYQARgBIAISDQ296MDHKgYQBBgBIAUSDQ2RhXPMKgYQAhgBIAUSCw3rrXjhKgQQARgBEgsNcWpHNyoEEAIYARILDRTD77gqBBADGAESCw1jcXzRKgQQBRgBEgsNjCg7BioEEAYYARILDfqeUq8qBBAGGAESCw1d-CSyKgQQAhgBEgsNrmeYrCoEEAAYARILDfaVRisqBBABGAESCw3r66ZzKgQQAxgBEg8NAoIPUyoIEAUYASADKAMSDw06N2GqKggQBxgBIAAoABIPDYcdRJQqCBAAGAEgBSgFEg0NLQxqlCoGEAUYASAEEgsNs7VhtCoEEAQYARINDShbdFMqBhACGAEgABINDfpjylEqBhAHGAEgBSFJeZVGZSxP_ylJeZVGZSxP_zIECAQgBhLNAwmZEy_9rN1yFBIPDYJlbzcqCBAHGAEgBygHEg8NXkcKHioIEAYYASACKAISEw1z_PiJKgwIABAAGAUgASgBSAYSDw0T2F0yKggQAxgBIAA4ABIPDQIefJYqCBAHGAEgATgBEg0N3u4yMSoGEAMYASABEg0NT7qdMyoGEAMYASABEg0NRvsfWyoGEAQYASABEhMNry1slSoMCAQQBBgFIAEoAUgGEg8NNiS92CoIEAAYASABOAESDQ3LFeKaKgYQBBgBIAESDQ3IXYHmKgYQBxgBIAESEw15WYtbKgwIAxADGAUgBigGSAYSEQ2xDpFjKgoQBhgBIAIoADgCEhENOT6adCoKEAQYASAEKAQ4BBIRDbPnaHEqChAEGAEgAygCOAMSEw3cyDM0KgwIBhAGGAUgAygDSAYSEw1ZEwtQKgwIBRAFGAUgAygDSAYSEQ065fqWKgoQAxgBIAUoAjgFEhENZFWpUSoKEAAYASAHKAQ4BxIRDc6OSroqChAHGAEgACgEOAASEQ2RnML1KgoQBRgBIAAoBDgAEg0NS-XbWioGEAUYASACEg0NDd-FJioGEAMYASAFIdOVD9XDJtdkKdOVD9XDJtdkMgQIBiAE",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBIuCZ3Bcsw21WHrEg8NBWvqdioICAcYASAAKAQh5bR9ltoMRIcprt6lVUmhhuUyAA==",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBKgAQmh69B1oVssSxIRDWtomm4qCggAEAcYASAAKAASEQ0xI9QrKgoIARAAGAEgBygHEhENT54n-CoKCAEQBBgBIAEoARIRDZTUWx4qCggHEAYYASAGKAYSEQ1GZxV9KgoIBhABGAEgAigCEhENzwR52CoKCAcQAhgBIAEoARIPDQGiuq0qCAgCGAEgBSgFIbP-EZ5k3g4JKbP-EZ5k3g4JMgA=",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBKgAQnYJ2eggwSGLxIRDWtomm4qCggEEAcYASAAKAASEQ0xI9QrKgoIAhAAGAEgBygHEhENT54n-CoKCAEQBBgBIAEoARIRDZTUWx4qCggDEAYYASAGKAYSEQ1GZxV9KgoIBRABGAEgAigCEhENzwR52CoKCAIQAhgBIAEoARIPDfwtmp0qCAgHGAEgBSgFIbP-EZ5k3g4JKbP-EZ5k3g4JMgA=",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBLBAQmjmu8LDOn-HxIRDSIGa-EqCggAEAAYBSAASAYSDQ3lZMJpKgYQAxgBIAcSDQ1hW-h2KgYIAxgBIAQSDw1SuyD9KggIBhAGGAEgBhINDVWG7YQqBggDEAMYARIPDXBOCB0qCAgHEAIYByAAEg0NoTnSgioGCAQYASAEEg8NGIHE3ioICAcQBxgBIAISDw0lZx4WKggIAxADGAEgBxIPDXObn0sqCAgEEAQYASAEIULdk5OzgVU8KULdk5OzgVU8MgASMAkJG4UZdIpMlBIRDSIGa-EqCggAEAAYBSAASAYhQt2Tk7OBVTwpQt2Tk7OBVTwyABKuAQn2ms0YnJ9poRINDeVkwmkqBhADGAEgBxINDWFb6HYqBggDGAEgBBIPDVK7IP0qCAgGEAYYASAGEg0NVYbthCoGCAMQAxgBEg8NcE4IHSoICAcQAhgHIAASDQ2hOdKCKgYIBBgBIAQSDw0YgcTeKggIBxAHGAEgAhIPDSVnHhYqCAgDEAMYASAHEg8Nc5ufSyoICAQQBBgBIAQhQt2Tk7OBVTwpQt2Tk7OBVTwyAA==",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBLhAQlKUgUSHZzvRxIRDSIGa-EqCggAEAAYBSAASAYSDw3uxvt7KggQABgBIAYoBhITDWOaWSgqDAgCEAIYBSAHKAdIBhILDYwoOwYqBBAGGAESDQ1hW-h2KgYIAxgBIAMSDw1SuyD9KggIBhAGGAEgABINDVWG7YQqBggDEAMYARIPDXBOCB0qCAgHEAIYByAAEg0NoTnSgioGCAQYASAEEg8NGIHE3ioICAcQBxgBIAISDQ2m31bsKgYQABgBIAUSDQ0c3wj6KgYQABgBIAUhKjLU7ML2aRwpKjLU7ML2aRwyABIwCQkbhRl0ikyUEhENIgZr4SoKCAAQABgFIABIBiEqMtTswvZpHCkqMtTswvZpHDIAEkMJGx8QzvLV8zsSDw3uxvt7KggQABgBIAYoBhITDWOaWSgqDAgCEAIYBSAHKAdIBiEqMtTswvZpHCkqMtTswvZpHDIAEooBCSwwkdaZyU-MEgsNjCg7BioEEAYYARINDWFb6HYqBggDGAEgAxIPDVK7IP0qCAgGEAYYASAAEg0NVYbthCoGCAMQAxgBEg8NcE4IHSoICAcQAhgHIAASDQ2hOdKCKgYIBBgBIAQSDw0YgcTeKggIBxAHGAEgAiEqMtTswvZpHCkqMtTswvZpHDIAEjsJcf9zlBdfxQ0SDQ2m31bsKgYQABgBIAUSDQ0c3wj6KgYQABgBIAUhKjLU7ML2aRwpKjLU7ML2aRwyAA==",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBLhAQmtRYH8MCvfhBIPDe7G-3sqCBAAGAEgBigGEhMNY5pZKCoMCAIQAhgFIAcoB0gGEgsNjCg7BioEEAYYARINDWFb6HYqBggDGAEgAxIPDVK7IP0qCAgGEAYYASAAEg0NVYbthCoGCAMQAxgBEg8NcE4IHSoICAcQAhgHIAASDQ2hOdKCKgYIBBgBIAQSDw0YgcTeKggIBxAHGAEgAhINDabfVuwqBhAAGAEgBRINDRzfCPoqBhAAGAEgBRIRDSIGa-EqCggAEAAYBSAASAYhOHEjl1IP69wpOHEjl1IP69wyABJDCRsfEM7y1fM7Eg8N7sb7eyoIEAAYASAGKAYSEw1jmlkoKgwIAhACGAUgBygHSAYhOHEjl1IP69wpOHEjl1IP69wyABKKAQksMJHWmclPjBILDYwoOwYqBBAGGAESDQ1hW-h2KgYIAxgBIAMSDw1SuyD9KggIBhAGGAEgABINDVWG7YQqBggDEAMYARIPDXBOCB0qCAgHEAIYByAAEg0NoTnSgioGCAQYASAEEg8NGIHE3ioICAcQBxgBIAIhOHEjl1IP69wpOHEjl1IP69wyABI7CXH_c5QXX8UNEg0Npt9W7CoGEAAYASAFEg0NHN8I-ioGEAAYASAFIThxI5dSD-vcKThxI5dSD-vcMgASMAkJG4UZdIpMlBIRDSIGa-EqCggAEAAYBSAASAYhOHEjl1IP69wpOHEjl1IP69wyAA==",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "content-autofill.googleapis.com",
+      "Path": "/v1/pages/ChRDaHJvbWUvMTUyLjAuNzk3Ny42NBLPBglX-XhlSQmmoRILDYLlapcqBBACGAESDQ2NKVoIKgYQAhgBIAESDQ1En0lKKgYQBhgBIAISDQ0cZD19KgYQARgBIAISDQ296MDHKgYQBBgBIAUSDQ2RhXPMKgYQAhgBIAUSCw3rrXjhKgQQARgBEgsNcWpHNyoEEAIYARILDRTD77gqBBADGAESCw1jcXzRKgQQBRgBEgsNjCg7BioEEAYYARILDfqeUq8qBBAGGAESCw1d-CSyKgQQAhgBEgsNrmeYrCoEEAAYARILDfaVRisqBBABGAESCw3r66ZzKgQQAxgBEg8NAoIPUyoIEAUYASADKAMSDw06N2GqKggQBxgBIAAoABIPDYcdRJQqCBAAGAEgBSgFEg0NLQxqlCoGEAUYASAEEgsNs7VhtCoEEAQYARINDShbdFMqBhACGAEgABINDfpjylEqBhAHGAEgBRITDfdjVc0qDAgCEAIYBSAHKAdIBhITDR3GSSEqDAgFEAUYBSADKANIBhITDUr3yJYqDAgGEAYYBSAFKAVIBhIPDYJlbzcqCBAHGAEgBygHEg8NXkcKHioIEAYYASACKAISEw1z_PiJKgwIABAAGAUgASgBSAYSDw0T2F0yKggQAxgBIAA4ABIPDQIefJYqCBAHGAEgATgBEg0N3u4yMSoGEAMYASABEg0NT7qdMyoGEAMYASABEg0NRvsfWyoGEAQYASABEhMNry1slSoMCAQQBBgFIAEoAUgGEg8NNiS92CoIEAAYASABOAESDQ3LFeKaKgYQBBgBIAESDQ3IXYHmKgYQBxgBIAESEw15WYtbKgwIAxADGAUgBigGSAYSEQ2xDpFjKgoQBhgBIAIoADgCEhENOT6adCoKEAQYASAEKAQ4BBIRDbPnaHEqChAEGAEgAygCOAMSEw3cyDM0KgwIBhAGGAUgAygDSAYSEw1ZEwtQKgwIBRAFGAUgAygDSAYSEQ065fqWKgoQAxgBIAUoAjgFEhENZFWpUSoKEAAYASAHKAQ4BxIRDc6OSroqChAHGAEgACgEOAASEQ2RnML1KgoQBRgBIAAoBDgAEg0NS-XbWioGEAUYASACEg0NDd-FJioGEAMYASAFIRfFM1O6Y35jKRfFM1O6Y35jMgASKgl-ptSpEtj4FBILDYLlapcqBBACGAEhF8UzU7pjfmMpF8UzU7pjfmMyABLXAglUSULKpdgP1hINDY0pWggqBhACGAEgARINDUSfSUoqBhAGGAEgAhINDRxkPX0qBhABGAEgAhINDb3owMcqBhAEGAEgBRINDZGFc8wqBhACGAEgBRILDeuteOEqBBABGAESCw1xakc3KgQQAhgBEgsNFMPvuCoEEAMYARILDWNxfNEqBBAFGAESCw2MKDsGKgQQBhgBEgsN-p5SryoEEAYYARILDV34JLIqBBACGAESCw2uZ5isKgQQABgBEgsN9pVGKyoEEAEYARILDevrpnMqBBADGAESDw0Cgg9TKggQBRgBIAMoAxIPDTo3YaoqCBAHGAEgACgAEg8Nhx1ElCoIEAAYASAFKAUSDQ0tDGqUKgYQBRgBIAQSCw2ztWG0KgQQBBgBEg0NKFt0UyoGEAIYASAAEg0N-mPKUSoGEAcYASAFIRfFM1O6Y35jKRfFM1O6Y35jMgASRwmpcsLUPPDCjBITDfdjVc0qDAgCEAIYBSAHKAdIBhITDR3GSSEqDAgFEAUYBSADKANIBiEXxTNTumN-YykXxTNTumN-YzIAEjIJigwZZF7kjnUSEw1K98iWKgwIBhAGGAUgBSgFSAYhF8UzU7pjfmMpF8UzU7pjfmMyABLJAwmZEy_9rN1yFBIPDYJlbzcqCBAHGAEgBygHEg8NXkcKHioIEAYYASACKAISEw1z_PiJKgwIABAAGAUgASgBSAYSDw0T2F0yKggQAxgBIAA4ABIPDQIefJYqCBAHGAEgATgBEg0N3u4yMSoGEAMYASABEg0NT7qdMyoGEAMYASABEg0NRvsfWyoGEAQYASABEhMNry1slSoMCAQQBBgFIAEoAUgGEg8NNiS92CoIEAAYASABOAESDQ3LFeKaKgYQBBgBIAESDQ3IXYHmKgYQBxgBIAESEw15WYtbKgwIAxADGAUgBigGSAYSEQ2xDpFjKgoQBhgBIAIoADgCEhENOT6adCoKEAQYASAEKAQ4BBIRDbPnaHEqChAEGAEgAygCOAMSEw3cyDM0KgwIBhAGGAUgAygDSAYSEw1ZEwtQKgwIBRAFGAUgAygDSAYSEQ065fqWKgoQAxgBIAUoAjgFEhENZFWpUSoKEAAYASAHKAQ4BxIRDc6OSroqChAHGAEgACgEOAASEQ2RnML1KgoQBRgBIAAoBDgAEg0NS-XbWioGEAUYASACEg0NDd-FJioGEAMYASAFIRfFM1O6Y35jKRfFM1O6Y35jMgA=",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "alt"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "d1jt27rpxxb4oi.cloudfront.net",
+      "Path": "/i18n/translation-en.json",
+      "Count": 1,
+      "Statuses": [
+        304
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "d1jt27rpxxb4oi.cloudfront.net",
+      "Path": "/i18n/translation.json",
+      "Count": 1,
+      "Statuses": [
+        304
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "d3ei7jh4srzt7p.cloudfront.net",
+      "Path": "/Flex/en_US/{uuid}/amazon-flex-app-overview-US-EN-12192025.mp4",
+      "Count": 3,
+      "Statuses": [
+        206
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "GET",
+      "Host": "d3ei7jh4srzt7p.cloudfront.net",
+      "Path": "/Flex/en_US/{uuid}/amazon-package-pickup-reminders-US-EN-12192025.mp4",
+      "Count": 3,
+      "Statuses": [
+        206
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "GET",
+      "Host": "d3ei7jh4srzt7p.cloudfront.net",
+      "Path": "/Flex/en_US/{uuid}/making-age-verified-deliveries-us-en-03032026.mp4",
+      "Count": 4,
+      "Statuses": [
+        206,
+        304
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "d3ei7jh4srzt7p.cloudfront.net",
+      "Path": "/Flex/en_US/{uuid}/making-deliveries-to-customers-US-EN-12192025.mp4",
+      "Count": 3,
+      "Statuses": [
+        206
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "GET",
+      "Host": "d3ei7jh4srzt7p.cloudfront.net",
+      "Path": "/Flex/en_US/{uuid}/safety-reminders-US-EN-12192025.mp4",
+      "Count": 5,
+      "Statuses": [
+        206
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 3
+    },
+    {
+      "Method": "GET",
+      "Host": "d3ei7jh4srzt7p.cloudfront.net",
+      "Path": "/Flex/en_US/{uuid}/what-to-expect-on-your-first-delivery-US-EN-12192025.mp4",
+      "Count": 3,
+      "Statuses": [
+        206
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "OPTIONS",
+      "Host": "dataplane.rum.us-east-1.amazonaws.com",
+      "Path": "/appmonitors/{uuid}",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "POST",
+      "Host": "dataplane.rum.us-east-1.amazonaws.com",
+      "Path": "/appmonitors/{uuid}",
+      "Count": 44,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "AppMonitorDetails",
+        "BatchId",
+        "RumEvents",
+        "UserDetails"
+      ],
+      "QueryFieldNames": [
+        "X-Amz-Algorithm",
+        "X-Amz-Content-Sha256",
+        "X-Amz-Credential",
+        "X-Amz-Date",
+        "X-Amz-Expires",
+        "X-Amz-Security-Token",
+        "X-Amz-Signature",
+        "X-Amz-SignedHeaders"
+      ],
+      "ResponsesWithBody": 44
+    },
+    {
+      "Method": "POST",
+      "Host": "device-metrics-us.amazon.com",
+      "Path": "/metricsBatch",
+      "Count": 3,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "POST",
+      "Host": "firebaselogging.googleapis.com",
+      "Path": "/v0cc/log/batch",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "logRequest"
+      ],
+      "QueryFieldNames": [
+        "format"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "firehose.us-east-1.amazonaws.com",
+      "Path": "/",
+      "Count": 14,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "DeliveryStreamName",
+        "Records"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 14
+    },
+    {
+      "Method": "GET",
+      "Host": "flex-capacity-na.amazon.com",
+      "Path": "/eligibleServiceAreas",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "flex-capacity-na.amazon.com",
+      "Path": "/realTimeAvailability",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "flex-capacity-na.amazon.com",
+      "Path": "/regions/23",
+      "Count": 5,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 5
+    },
+    {
+      "Method": "GET",
+      "Host": "flex-capacity-na.amazon.com",
+      "Path": "/scheduledAssignments",
+      "Count": 6,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 6
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ctb%3D1%26m%3D1%26sc%3DTAYWEJKCVPAWSBHHMQCH%26pc%3D121861%26at%3D121862%26t%3D1788048268838%26ec%3D7%26ecf%3D6%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:121863",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ctb%3D1%26m%3D1%26sc%3DTAYWEJKCVPAWSBHHMQCH%26pc%3D131858%26at%3D131859%26t%3D1788048278835%26ec%3D16%26ecf%3D15%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:131859",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ctb%3D1%26m%3D1%26sc%3DTAYWEJKCVPAWSBHHMQCH%26pc%3D141859%26at%3D141859%26t%3D1788048288835%26ec%3D18%26ecf%3D17%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:141858",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ctb%3D1%26m%3D1%26sc%3DTAYWEJKCVPAWSBHHMQCH%26pc%3D171859%26at%3D171859%26t%3D1788048318835%26ec%3D51%26ecf%3D50%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:171860",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ctb%3D1%26m%3D1%26sc%3DTAYWEJKCVPAWSBHHMQCH%26pc%3D5598%26at%3D5598%26t%3D1788048152574%26ec%3D1%26ecf%3D0%26csmtags%3Dcsm-feature-touch-enabled%3Atrue%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:5597",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ctb%3D1%26m%3D1%26sc%3DTAYWEJKCVPAWSBHHMQCH%26pc%3D5668%26at%3D5668%26t%3D1788048152644%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26ui%3D3%26lob%3D0:5668",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26m%3D1%26sc%3Dadblk_no%26pc%3D3095%26at%3D3095%26t%3D1788048150071%26csmtags%3Dadblk_no%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:3095",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26m%3D1%26sc%3Dcsa%3Alcp%26lcp%3D516%26pc%3D2911%26at%3D2912%26t%3D1788048149888%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:2911",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26m%3D1%26sc%3Dcsa%3Avl100%26vl100%3D1176%26pc%3D5769%26at%3D5769%26t%3D1788048152745%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:5769",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26m%3D1%26sc%3Dcsa%3Avl50%26vl50%3D415%26pc%3D5767%26at%3D5767%26t%3D1788048152743%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:5767",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fat%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26m%3D1%26sc%3Dcsa%3Avl90%26vl90%3D415%26pc%3D5768%26at%3D5768%26t%3D1788048152744%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:5768",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fld%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ifr%3D1%26sc0%3DcsmCELLSframework%26bb0%3D1592%26pc0%3D1593%26ld0%3D1593%26t0%3D1788048148569%26sc1%3DcsmCELLSpdm%26bb1%3D1593%26pc1%3D1596%26ld1%3D1596%26t1%3D1788048148572%26sc2%3DcsmCELLSvpm%26bb2%3D1596%26pc2%3D1597%26ld2%3D1597%26t2%3D1788048148573%26sc3%3DcsmCELLSfem%26bb3%3D1597%26pc3%3D1597%26ld3%3D1597%26t3%3D1788048148573%26ctb%3D1:1857",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fld%26v%3D0.356862.0%26id%3DTAYWEJKCVPAWSBHHMQCH%26ifr%3D1%26sw%3D412%26sh%3D924%26vw%3D411%26vh%3D749%26m%3D1%26sc%3DTAYWEJKCVPAWSBHHMQCH%26ue%3D7%26bb%3D362%26be%3D1589%26fp%3D516%26fcp%3D516%26pc%3D1852%26tc%3D-1568%26na_%3D-1568%26ul_%3D-1788048146976%26_ul%3D-1788048146976%26rd_%3D-1788048146976%26_rd%3D-1788048146976%26fe_%3D-1564%26lk_%3D-1564%26_lk%3D-1564%26co_%3D-1564%26_co%3D-1564%26sc_%3D-1788048146976%26rq_%3D-1560%26rs_%3D-49%26_rs%3D1176%26dl_%3D-17%26di_%3D1612%26de_%3D1613%26_de%3D1691%26_dc%3D1848%26ld_%3D1852%26_ld%3D-1788048146976%26ntd%3D0%26ty%3D0%26rc%3D0%26hob%3D4%26hoe%3D8%26ld%3D1855%26t%3D1788048148831%26ctb%3D1%26rt%3D__ld%3A6-2-3-1-2-0-0%26csmtags%3Daui%7Caui%3Aaui_build_date%3A3.26.6-2026-08-04%7Caui%3Acss%3Anetwork%7Caui%3Ajs%3Anetwork%7Cfls-na-amazon-com%7CnetInfo%3Awifi%26viz%3Dvisible%3A7%26pty%3DDefault%26spty%3Dundefined%26pti%3Dundefined%26tid%3DTAYWEJKCVPAWSBHHMQCH%26aftb%3D1%26lob%3D0:1857",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "fls-na.amazon.com",
+      "Path": "/1/batch/1/OP/ATVPDKIKX0DER:123-456-7890:TAYWEJKCVPAWSBHHMQCH$uedata=s:%2Ftax-interview%2Fuedata%2Fuedata%3Fstaticb%26id%3DTAYWEJKCVPAWSBHHMQCH:0",
+      "Count": 1,
+      "Statuses": [
+        500
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "images-na.ssl-images-amazon.com",
+      "Path": "/images/I/215h87l68bL.js",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/account-management/data/csrf-token",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/data/get-ptms-task-statuses",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/tax-interview/instrumentation-save",
+      "Count": 13,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "anti-csrftoken-a2z",
+        "metricData"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/tax-interview/landing",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "AccountId",
+        "AddressId",
+        "ClientId",
+        "DeviceType",
+        "IncomeType",
+        "LegalName",
+        "Locale",
+        "LoggedInCustomerEmail",
+        "LoggedInCustomerId",
+        "LogoImageUrl",
+        "PrefillFields",
+        "ReturnURL",
+        "Signature",
+        "SiteId"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/tax-interview/submit",
+      "Count": 4,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "action",
+        "AddressUSPerson1",
+        "AddressUSPerson2",
+        "ARBusinessTINType",
+        "argonSessionToken",
+        "ARIndividualTINType",
+        "AUBusinessTINType",
+        "AUIndividualTINType",
+        "AutoCompleteQuestion1",
+        "AutoCompleteQuestion2",
+        "AutoCompleteQuestion3",
+        "AutoCompleteQuestion4",
+        "BDBusinessTINType",
+        "BDIndividualTINType",
+        "BeneficialOwnerIndividualQuestion",
+        "BeneficialOwnerTypeBusiness",
+        "BRBusinessTINType",
+        "BRIndividualTINType",
+        "BusinessOrTradeName",
+        "CABusinessTINType",
+        "CAIndividualTINType",
+        "CalculateButton",
+        "CAStateDropdown",
+        "CAZipTextbox",
+        "CertainUS1Certi1",
+        "CertainUS2Certi1",
+        "Chapter3StatusSelectionList",
+        "Chapter3StatusSelectionList2",
+        "CNBusinessTINType",
+        "CNIndividualTINType",
+        "COBusinessTINType",
+        "COIndividualTINType",
+        "Comma",
+        "Comma1",
+        "Comma2",
+        "ConsentElectronicSignatureForW9",
+        "CountryOfCitizenshipCode",
+        "CountryOfIncorporation",
+        "CurrYearDays",
+        "DEBusinessTINType",
+        "DEIndividualTINType",
+        "DeviceType",
+        "DoingBusinessAsName",
+        "ECIBusinessIncomeAppSale",
+        "ECIBusinessIncomeDigitalProducts",
+        "ECIBusinessIncomePersonalServices",
+        "ECIBusinessIncomeRealProperty",
+        "ECIRentBusinessIncomeOther",
+        "ECIRoyaltyBusinessIncomeOtherCheckbox",
+        "ECIServiceBusinessIncomeOther",
+        "EIN1AppliedFor",
+        "EINAppliedFor",
+        "ElectronicSignatureW9Name",
+        "ESBusinessTINType",
+        "ESIndividualTINType",
+        "FederalTaxClassificationBusiness",
+        "FederalTaxClassificationIndividualQuestion",
+        "FRBusinessTINType",
+        "FRIndividualTINType",
+        "GBBusinessTINType",
+        "GBIndividualTINType",
+        "IMYCertificationSectionComplete",
+        "IMYCertificationSectionComplete2",
+        "INBusinessTINType",
+        "IndividualOrBusiness",
+        "INIndividualTINType",
+        "interviewName",
+        "IsECIBusinessInUS",
+        "IsHybridEntity",
+        "IsIntermediaryAgent",
+        "IsProvidingDocument1",
+        "IsProvidingDocument2",
+        "IsUnifiedUSInterview",
+        "IsUSPersonBusiness",
+        "IsUSPersonIndividual",
+        "IsW8ContinueButtonRequired",
+        "ITBusinessTINType",
+        "ITIndividualTINType",
+        "JPBusinessTINType",
+        "k1099_ccorp",
+        "k1099_cty",
+        "k1099_estate",
+        "k1099_individual",
+        "k1099_llc",
+        "k1099_llcClass",
+        "k1099_other",
+        "k1099_otherClassificationType",
+        "k1099_partner",
+        "k1099_scorp",
+        "LegalName",
+        "LLCType",
+        "LOBReviewCertification",
+        "LOBTypeAT",
+        "LOBTypeAU",
+        "LOBTypeAX",
+        "LOBTypeBB",
+        "LOBTypeBD",
+        "LOBTypeBE",
+        "LOBTypeBG",
+        "LOBTypeCA",
+        "LOBTypeCH",
+        "LOBTypeCL",
+        "LOBTypeCN",
+        "LOBTypeCY",
+        "LOBTypeCZ",
+        "LOBTypeDE",
+        "LOBTypeDK",
+        "LOBTypeEE",
+        "LOBTypeES",
+        "LOBTypeFI",
+        "LOBTypeFR",
+        "LOBTypeGB",
+        "LOBTypeID",
+        "LOBTypeIE",
+        "LOBTypeIL",
+        "LOBTypeIN",
+        "LOBTypeIS",
+        "LOBTypeIT",
+        "LOBTypeJM",
+        "LOBTypeJP",
+        "LOBTypeKZ",
+        "LOBTypeLK",
+        "LOBTypeLT",
+        "LOBTypeLU",
+        "LOBTypeLV",
+        "LOBTypeMT",
+        "LOBTypeMX",
+        "LOBTypeNL",
+        "LOBTypeNZ",
+        "LOBTypePT",
+        "LOBTypeSE",
+        "LOBTypeSI",
+        "LOBTypeSK",
+        "LOBTypeTH",
+        "LOBTypeTN",
+        "LOBTypeTR",
+        "LOBTypeUA",
+        "LOBTypeVE",
+        "LOBTypeZA",
+        "locale",
+        "LocationOfService",
+        "MABusinessTINType",
+        "MAIndividualTINType",
+        "MXBusinessTINType",
+        "MXIndividualTINType",
+        "NGBusinessTINType",
+        "NGIndividualTINType",
+        "NLBusinessTINType",
+        "NLIndividualTINType",
+        "NonFPORSTORGT1Certi1",
+        "NonFPORSTORGT1Certi2",
+        "NonFPORSTORGT1Certi3",
+        "NonFPORSTORGT2Certi1",
+        "NonFPORSTORGT2Certi2",
+        "NonFPORSTORGT2Certi3",
+        "NonQIIntermediary1Certi2",
+        "NonQIIntermediary1Certi3",
+        "NonQIIntermediary2Certi17a",
+        "NonQIIntermediary2Certi2",
+        "NonQIIntermediary2Certi3",
+        "NonQIIntermediaryCerti17a",
+        "NonUSECIBusinessCity",
+        "NonUSECIBusinessCountryCode",
+        "NonUSECIBusinessStateUS",
+        "NonUSEINUnifiedUSInterviewAppliedFor",
+        "NonUSHasBothUSandForeignTIN",
+        "NonUSHasForeignTINVisible",
+        "NonUSHasIRSTINVisible",
+        "NonUSHasNoTIN",
+        "NonUSHasOnlyForeignTIN",
+        "NonUSHasOnlyUSTIN",
+        "NonUSIMYHasEINVisible1",
+        "NonUSIMYHasEINVisible2",
+        "NonUSMailCAStateDropdown",
+        "NonUSMailCity",
+        "NonUSMailCountryCode",
+        "NonUSMailStateTextbox",
+        "NonUSMailUSStateDropdown",
+        "NonUSPermCAStateDropdown",
+        "NonUSPermCity",
+        "NonUSPermCountryCode",
+        "NonUSPermStateTextbox",
+        "NonUSPermUSStateDropdown",
+        "NonUSSSNUnifiedUSInterviewAppliedFor",
+        "NonUSTaxIdentityInformationSectionSaveButton",
+        "NonUSTINTypeBusiness",
+        "NonUSTINTypeIndividual",
+        "NonUSValidationType",
+        "OtherZipTextbox",
+        "PHBusinessTINType",
+        "PHIndividualTINType",
+        "PKBusinessTINType",
+        "PKIndividualTINType",
+        "PLBusinessTINType",
+        "PLIndividualTINType",
+        "PreviousButton",
+        "PrevToPrevYearDays",
+        "PrevYearDays",
+        "PTBusinessTINType",
+        "PTIndividualTINType",
+        "QIEINAppliedFor1",
+        "QIEINAppliedFor2",
+        "QIIntermediary1Certi1",
+        "QIIntermediary1Certi2",
+        "QIIntermediary1Certi3",
+        "QIIntermediary1Certi4",
+        "QIIntermediary2Certi1",
+        "QIIntermediary2Certi2",
+        "QIIntermediary2Certi3",
+        "QIIntermediary2Certi4",
+        "ReusedIdentityInfo",
+        "RUBusinessTINType",
+        "RUIndividualTINType",
+        "SameAsPermanentAddress",
+        "SaveAndPreviewButtonW8Ben",
+        "SaveAndPreviewButtonW8BenE",
+        "SaveAndPreviewButtonW8ECI",
+        "SaveAndPreviewButtonW8IMY",
+        "SaveAndPreviewButtonW8IMY2",
+        "SaveAndPreviewButtonW8IMYNew",
+        "SaveAndPreviewButtonW8IMYNew2",
+        "SaveAndPreviewButtonW9",
+        "SEBusinessTINType",
+        "SEIndividualTINType",
+        "ServiceStatement",
+        "sessionToken",
+        "SetUSPersonToNoButton",
+        "SetUSPersonToYesButton",
+        "ShouldBeUSPerson",
+        "SignatureDateW9",
+        "SkipElement",
+        "Space",
+        "Space1",
+        "Space2",
+        "SSN",
+        "SSNAppliedFor",
+        "Submit8233Button",
+        "SubmitButton",
+        "SubmitInterviewButton",
+        "TaxIdentitySectionComplete",
+        "TaxIncomeType",
+        "TF1Certi1",
+        "TF2Certi1",
+        "THBusinessTINType",
+        "THIndividualTINType",
+        "TINTypeEIN",
+        "TINTypeSSN_EIN",
+        "TRBusinessTINType",
+        "TreatyArticleForService",
+        "TreatyClaim9aCountryCode",
+        "TreatyClaim9cYesNoInvisibleForHybridEntity",
+        "TreatyClaim9cYesNoVisible",
+        "TreatySectionComplete",
+        "TreatySectionSaveButton",
+        "TRIndividualTINType",
+        "ue_back",
+        "USAddressCountryCode",
+        "USAddressValidationOverride",
+        "USCity",
+        "USStateDropdown",
+        "USStateTextbox",
+        "USZipTextbox",
+        "ValidationTypeEIN",
+        "ValidationTypeSSN_EIN",
+        "VNBusinessTINType",
+        "VNIndividualTINType",
+        "W8IMY1_Chapter3Status",
+        "W8IMY1_NonQIIntermediaryCerti1",
+        "W8IMY2_Chapter3Status",
+        "W8IMY2_NonQIIntermediaryCerti1",
+        "W8IMYDocumentSubmissionQuestion",
+        "W8IMYDocumentSubmissionQuestion2",
+        "W8IMYEINAppliedForOptional",
+        "W8IMYEINAppliedForOptional2",
+        "W8IMYEINAppliedForRequired",
+        "W8IMYEINAppliedForRequired2",
+        "W8IMYLocationOfService1",
+        "W8IMYLocationOfService2",
+        "W8IMYServiceStatement1",
+        "W8IMYServiceStatement2",
+        "WPEINAppliedFor1",
+        "WPEINAppliedFor2",
+        "WPORWT1Certi1",
+        "WPORWT2Certi1",
+        "WTEINAppliedFor1",
+        "WTEINAppliedFor2",
+        "ZABusinessTINType",
+        "ZAIndividualTINType"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 3
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/tax-interview/validate",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "action",
+        "BeneficialOwnerIndividualQuestion",
+        "BeneficialOwnerTypeBusiness",
+        "DeviceType",
+        "FederalTaxClassificationBusiness",
+        "FederalTaxClassificationIndividualQuestion",
+        "IndividualOrBusiness",
+        "interviewName",
+        "IsECIBusinessInUS",
+        "IsHybridEntity",
+        "IsIntermediaryAgent",
+        "IsUSPersonBusiness",
+        "IsUSPersonIndividual",
+        "LegalName",
+        "Locale",
+        "NonUSHasIRSTINVisible",
+        "NonUSTINTypeBusiness",
+        "NonUSTINTypeIndividual",
+        "NonUSValidationType",
+        "sessionToken",
+        "SSN",
+        "TINTypeEIN",
+        "TINTypeSSN_EIN",
+        "TreatyClaim9cYesNoVisible",
+        "ue_back",
+        "ValidationTypeEIN",
+        "ValidationTypeSSN_EIN",
+        "W8IMYDocumentSubmissionQuestion",
+        "W8IMYDocumentSubmissionQuestion2"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data-collection/noOp",
+      "Count": 15,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "eventName",
+        "eventType",
+        "flowName"
+      ],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/agreement/BackgroundCheckCAAgreement",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/agreement/BackgroundCheckFairCreditAgreement",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/agreement/BackgroundCheckNonFairCreditReportAgreement",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/agreement/cda_insurance_agreement_ebikes",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/agreement/InsuranceAgreement",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/agreement/InsuranceAgreement/signed",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "InsuranceAgreement"
+      ],
+      "QueryFieldNames": [
+        "eventName",
+        "eventType",
+        "flowName"
+      ],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/debitcardEnabled",
+      "Count": 11,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 11
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/get-assignments",
+      "Count": 11,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 11
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/get-hades-document",
+      "Count": 4,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "hadesDocumentIdentifier",
+        "hadesDocumentLocale",
+        "hadesDocumentVersion",
+        "hadesDomain"
+      ],
+      "ResponsesWithBody": 4
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/get-predicted-activation-date",
+      "Count": 10,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 10
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/instantPayEnabled",
+      "Count": 11,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 11
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/isRegionOnboardingEnabled",
+      "Count": 5,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 5
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/learning-content",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/learning-content-status",
+      "Count": 7,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "contentId",
+        "status"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/onboarding-preferences",
+      "Count": 11,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 11
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/onboarding-status",
+      "Count": 11,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 11
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/personal-info",
+      "Count": 10,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 10
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/personal-info",
+      "Count": 2,
+      "Statuses": [
+        200,
+        400
+      ],
+      "RequestFieldNames": [
+        "address",
+        "city",
+        "firstName",
+        "lastName",
+        "middleName",
+        "phoneNumber",
+        "postalCode",
+        "state"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/sign-agreement",
+      "Count": 4,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "id",
+        "status"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/submit-background-check-info",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "NonFairCreditReportAgreement",
+        "socialSecurityNumber"
+      ],
+      "QueryFieldNames": [
+        "eventName",
+        "eventType",
+        "flowName",
+        "sif_profile"
+      ],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/data/tax-interview/params",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/moduleStatus/UnifiedIdentityVerification",
+      "Count": 10,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 10
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/Onboarding/page",
+      "Count": 18,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 18
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v2/tax",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/get-csrf-token",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/identity-verification/session",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "postOnboarding"
+      ],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/identity-verification/session/sdk-callback",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "error_message",
+        "event"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/identity-verification/task-state",
+      "Count": 10,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "postOnboarding"
+      ],
+      "ResponsesWithBody": 10
+    },
+    {
+      "Method": "POST",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/submit-attributes",
+      "Count": 6,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "address_history_v2",
+        "addressInformation",
+        "agreement-bgc_ca_consumer",
+        "agreement-bgc_fair_credit",
+        "agreement-bgc_fair_credit_wa",
+        "aliases_v2",
+        "convictions_v2",
+        "government_id_v2",
+        "IndependentContractorTermsOfService_regionSpecific",
+        "IndependentContractorTermsOfServiceArbitrationAgreement",
+        "PrivacyNoticeAgreement"
+      ],
+      "QueryFieldNames": [
+        "sif_profile"
+      ],
+      "ResponsesWithBody": 6
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/weblab/treatment/FLEX_AM_DP_SENTRY_1450478",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/weblab/treatment/FLEX_AM_DP_SENTRY_SAMPLING_1457908",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/weblab/treatment/FLEXAM_DP_PTMS_WW_MIGRATION_LAUNCH_576902",
+      "Count": 18,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 18
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/weblab/treatment/OTTER_BACKEND_MIGRATION_AGREEMENT_CONTROLLER_1390583",
+      "Count": 7,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 7
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/weblab/treatment/OTTER_BACKEND_MIGRATION_MEERKAT_1432276",
+      "Count": 10,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 10
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/weblab/treatment/OTTER_BACKEND_MIGRATION_NOOP_CONTROLLER_1402378",
+      "Count": 15,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 15
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/onboarding/v3/weblab/treatment/OTTER_BACKEND_MIGRATION_PAGE_1397802",
+      "Count": 18,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 18
+    },
+    {
+      "Method": "GET",
+      "Host": "logistics.amazon.com",
+      "Path": "/tax-interview/get-address-suggestions",
+      "Count": 40,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "partialAddress"
+      ],
+      "ResponsesWithBody": 40
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/AUIClients/FontAwesomeAUIBuild-fontawesome-6d7e6a5fc802b13694d8820fc0138037c0977d2e._V2_.woff",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/csm/showads.v2.js",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "adspot_"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/FlexPortalWebApp/fonts/Amazon_Ember_Bd.woff2",
+      "Count": 1,
+      "Statuses": [
+        304
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/FlexPortalWebApp/fonts/OpenSans-Regular._CB1558550704_.woff",
+      "Count": 2,
+      "Statuses": [
+        304
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/FlexPortalWebApp/fonts/OpenSans-RegularItalic._CB1558550704_.woff",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/FlexPortalWebApp/fonts/OpenSans-SemiBold._CB1558550704_.woff",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/FlexPortalWebApp/fonts/OpenSans-SemiBoldItalic._CB1558550704_.woff",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/TIMSTaxInterview/downloadIcon._V531555330_.png",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/G/01/TIMSTaxInterview/printerIcon._V531536134_.png",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/I/11I0WXrZVoL._RC%7C61xJcNKKLXL.js,11Y+5x+kkTL.js,51DFoGfFeXL.js,115zbyk371L.js,11GgN1+C7hL.js,313nCSj5srL.js,01VRMV3FBdL.js,21NadQlXUWL.js,01E8f3KV-NL.js,31on-La90vL.js,11a7qqY8xXL.js,11PZSUl3FLL.js,51C4kaFbiAL.js,11J9B4cvO1L.js,11wb9K3sw0L.js,11BrgrMAHUL.js,11GPhx42StL.js,21F6z4HaEVL.js,01Svfxfy8OL.js,61l8joIYJhL.js,01ikBbTAneL.js,31v298o2m6L.js,319aVrJ-hdL.js,31CsANL5ynL.js,11F929pmpYL.js,31mosk8yNCL.js,01qkmZhGmAL.js,31rqCOnXDNL.js,011FfPwYqHL.js,21Xgf5G-ZWL.js,21Jjl9gljVL.js,21kN0q4IA-L.js,21HZlWnI+gL.js,11vb6P5C5AL.js,01+2Aw8C0FL.js_.js",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "AUIClients/AmazonUI"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/I/11i1DYEiaoL._RC%7C01GaLSH4siL.css,51XH2Yxtq4L.css,3185Jzq+XFL.css,21P+RTdWkDL.css,01e1eMxIAQL.css,01oplyhwgTL.css,31VtExXv3+L.css,11F5ACe4x7L.css,01xgFoPPxUL.css,11wud0XLTHL.css,11ot-D-ufkL.css,01IdKcBuAdL.css,01hTMdPgumL.css,01wLsDqViEL.css,21WrwlMHONL.css,01+0OdV54yL.css,51uIOsnrVuL.css,01Jt83weGSL.css,31tBlS6QOFL.css,01rsZA1PN5L.css,01XXL3mUnDL.css,212pFGU72UL.css,11xab8ZcmsL.css,211O7MiWPIL.css,01xVZWT0v7L.css,21XjxiYFuHL.css,31SNyI3cAPL.css,01i092IYHUL.css,01oaPOLX+-L.css,31j3lRa4HWL.css,01qCtwM+r7L.css,11jGT-5YSiL.css,216fk13NCyL.css,11gHKcg0crL.css,11ddP9TgqIL.css,01exB-Pqf9L.css,21Cfx8VGY+L.css,21BV5fnO7DL.css,11rQcpDZUeL.css,21BKoFGnn4L.css,11UIxTdck1L.css,21x35f-9xIL.css,11df7YrgiKL.css,01890+Vwk8L.css,21r53qhjjzL.css,11VZ+oNA8tL.css,01qiwJ7qDfL.css,21HoRJ2tacL.css,01pps5qPjtL.css,01fb1PjfaqL.css,31qEvho-gRL.css,11LnTaWGoWL.css,218z7mqmhDL.css,01w1SNSv5KL.css,01nOZ8FJ+WL.css_.css",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "AUIClients/AmazonUI"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/I/11o1wFEyXAL._RC%7C31WPBC9RZDL.css_.css",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "AUIClients/AmazonUICalendar"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/I/21Nog99886L._RC%7C51AEguVaGZL.css_.css",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "AUIClients/AmazonUI"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/I/31lqqqMDjxL.js",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "AUIClients/AmazonUICalendar"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/mobile-weblab-allocations-prod/allocations/v2/prod/a",
+      "Count": 3,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "app_id"
+      ],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/mobile-weblab-treatment-assignment-overrides-prod/ephemeral/v2/AIO-i1Gnz3jE2LTtvJFJyaIagbjGFkxQTJiYKhvpFL4/6ca212e90951a244",
+      "Count": 6,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 6
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/mobile-weblab-treatment-assignment-overrides-prod/ephemeral/v2/AIO-i1Gnz3jE2LTtvJFJyaIagbjGFkxQTJiYKhvpFL4/8a46d11e5eab8119",
+      "Count": 7,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 7
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/mobile-weblab-treatment-assignment-overrides-prod/ephemeral/v2/AIO-i1Gnz3jE2LTtvJFJyaIagbjGFkxQTJiYKhvpFL4/90fc6f2a2047cbdf",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/mobile-weblab-treatment-assignment-overrides-prod/ephemeral/v2/AIO-i1Gnz3jE2LTtvJFJyaIagbjGFkxQTJiYKhvpFL4/a85918dbb47701fc",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/-w6hwcDxlefrOYI.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/1Ep1kWVX5g73xrY.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/1yLvxs7jafx7AW$.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/2SazJx$EeTHfhMN.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/6Uh4bsAwUkB3vJb.gif",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/8AuIu4whVB5EMoJ.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/Bkzey1iExRbDPIx.png",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/Dv1WQ5DdeMS5qP7.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/f9Cwl2OUDVHGXk8.png",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/gyrV-mLs7VcgiFC.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/KFPk-9IF4FqAqY-.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/KwhNPG8Jz-Vz2X7.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/lZemoC3awOEEzLR.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/MexTn601PAhMvAn.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/NvWNxKhmDbgI1lq.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/ozb5-CLHQWI6Soc.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/pDxWAF1pBB0dzGB.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/pnZF3$c0rgepEUt.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/rlTCFdyUZFR9mQI.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/ukoYNzKrqDRxhTq.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/VjTR4RqBzY0mUYx.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/Wdqa3S7nfGc3Naj.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "m.media-amazon.com",
+      "Path": "/images/S/sash/WOnTLzkiaEccV7F.woff2",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "odcs-na-extern.amazon.com",
+      "Path": "/external/GetActiveDeviceForUserExternal",
+      "Count": 4,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 4
+    },
+    {
+      "Method": "POST",
+      "Host": "odcs-na-extern.amazon.com",
+      "Path": "/external/RegisterDeviceEndpoint",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "appSource",
+        "deviceId",
+        "endpointId"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "GET",
+      "Host": "otsms-na-extern.amazon.com",
+      "Path": "/authenticated/session",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "POST",
+      "Host": "play-fe.googleapis.com",
+      "Path": "/fdfe/intermediateIntegrity",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "play.googleapis.com",
+      "Path": "/play/log",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "format",
+        "proto_v2"
+      ],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "POST",
+      "Host": "prod-na.transporter-chat.last-mile.amazon.dev",
+      "Path": "/getActiveChatsForParticipant",
+      "Count": 9,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "chatTypes",
+        "locale",
+        "marketplaceId",
+        "transporterSessionId"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 9
+    },
+    {
+      "Method": "POST",
+      "Host": "prod.us-east-1.api.app-attestation.last-mile.amazon.dev",
+      "Path": "/v1/android/register-attestation",
+      "Count": 22,
+      "Statuses": [
+        403
+      ],
+      "RequestFieldNames": [
+        "appSource",
+        "deviceId",
+        "keyAttestation",
+        "playIntegrityToken"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 22
+    },
+    {
+      "Method": "GET",
+      "Host": "prod.us-east-1.api.app-attestation.last-mile.amazon.dev",
+      "Path": "/v1/nonce/id/{nonceId}",
+      "Count": 22,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 22
+    },
+    {
+      "Method": "GET",
+      "Host": "rabbitapp.triggers-v1.prod.mobile.weblab.a2z.com",
+      "Path": "/",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "aid",
+        "did",
+        "mid",
+        "seqn",
+        "sid",
+        "t",
+        "tr"
+      ],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "POST",
+      "Host": "rabbitinstruction-na.amazon.com",
+      "Path": "/rabbit/documents/all",
+      "Count": 6,
+      "Statuses": [
+        200,
+        304
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/16/{uuid}/2026-08-29T16%3A48%3A16.568Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/16/{uuid}/2026-08-29T16%3A48%3A49.687Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/16/{uuid}/2026-08-29T16%3A48%3A54.827Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/16/{uuid}/2026-08-29T16%3A49%3A34.691Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/16/{uuid}/2026-08-29T16%3A50%3A16.262Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/16/{uuid}/2026-08-29T16%3A56%3A18.862Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/17/{uuid}/2026-08-29T17%3A00%3A12.746Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/17/{uuid}/2026-08-29T17%3A00%3A44.832Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "PUT",
+      "Host": "rabbitlogs-prod-us-east-1.s3.amazonaws.com",
+      "Path": "/{accountId}/2026/08/29/17/{uuid}/2026-08-29T17%3A06%3A24.351Z-{uuid}.gz",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    },
+    {
+      "Method": "POST",
+      "Host": "session.prod.bugsnag.bunny.last-mile.amazon.dev",
+      "Path": "/",
+      "Count": 1,
+      "Statuses": [
+        202
+      ],
+      "RequestFieldNames": [
+        "app",
+        "device",
+        "notifier",
+        "sessions"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "stream-sentry.last-mile.amazon.dev",
+      "Path": "/api/2/envelope/",
+      "Count": 100,
+      "Statuses": [
+        0,
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "sentry_client",
+        "sentry_key",
+        "sentry_version"
+      ],
+      "ResponsesWithBody": 99
+    },
+    {
+      "Method": "GET",
+      "Host": "tas-na-extern.amazon.com",
+      "Path": "/cdadiscriminators",
+      "Count": 3,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 3
+    },
+    {
+      "Method": "GET",
+      "Host": "tas-na-extern.amazon.com",
+      "Path": "/person",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "texmex-na-prod.amazon.com",
+      "Path": "/configure",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "configVersion",
+        "getAllTreatmentNames",
+        "metadata",
+        "requestor",
+        "transporterId",
+        "xdata"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "unagi.amazon.com",
+      "Path": "/1/events/com.amazon.csm.csa.prod",
+      "Count": 25,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "events"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 25
+    },
+    {
+      "Method": "POST",
+      "Host": "unagi.amazon.com",
+      "Path": "/1/events/com.amazon.csm.customsg.prod",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "events"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "POST",
+      "Host": "us-east-1.prod.message-broker.last-mile.amazon.dev",
+      "Path": "/register-user-device",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "appInstanceId"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "POST",
+      "Host": "webrtc-consumer.withpersona.com",
+      "Path": "/connect",
+      "Count": 4,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "height",
+        "jwt",
+        "sdp",
+        "type",
+        "width"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 4
+    },
+    {
+      "Method": "GET",
+      "Host": "webrtc-consumer.withpersona.com",
+      "Path": "/server-config",
+      "Count": 4,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "jwt"
+      ],
+      "ResponsesWithBody": 4
+    },
+    {
+      "Method": "POST",
+      "Host": "withpersona.com",
+      "Path": "/api/internal/verify/v1/current-inquiry-session/error",
+      "Count": 1,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [
+        "debugDescription",
+        "errorType"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "withpersona.com",
+      "Path": "/api/internal/verify/v1/feature-flags",
+      "Count": 2,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "gates[]"
+      ],
+      "ResponsesWithBody": 2
+    },
+    {
+      "Method": "GET",
+      "Host": "withpersona.com",
+      "Path": "/api/internal/verify/v1/inquiries/{inquiryId}",
+      "Count": 20,
+      "Statuses": [
+        200
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "include"
+      ],
+      "ResponsesWithBody": 20
+    },
+    {
+      "Method": "POST",
+      "Host": "withpersona.com",
+      "Path": "/api/internal/verify/v1/inquiries/{inquiryId}/transition",
+      "Count": 6,
+      "Statuses": [
+        0,
+        200
+      ],
+      "RequestFieldNames": [
+        "data",
+        "meta"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 5
+    },
+    {
+      "Method": "POST",
+      "Host": "withpersona.com",
+      "Path": "/api/internal/verify/v1/inquiry-sessions",
+      "Count": 1,
+      "Statuses": [
+        201
+      ],
+      "RequestFieldNames": [
+        "data",
+        "meta"
+      ],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "www.amazon.com",
+      "Path": "/ap/signin",
+      "Count": 1,
+      "Statuses": [
+        404
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [
+        "openid.return_to"
+      ],
+      "ResponsesWithBody": 1
+    },
+    {
+      "Method": "GET",
+      "Host": "www.amazon.com",
+      "Path": "/favicon.ico",
+      "Count": 1,
+      "Statuses": [
+        304
+      ],
+      "RequestFieldNames": [],
+      "QueryFieldNames": [],
+      "ResponsesWithBody": 0
+    }
+  ],
+  "OnboardingStateHistory": [
+    {
+      "Time": "08/29/2026 19:52:08",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "Not Started",
+        "AGREEMENTS": "Not Started",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Not Started",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Not Started",
+        "BACKGROUND_CHECK_INFO": "Not Started"
+      }
+    },
+    {
+      "Time": "08/29/2026 19:53:31",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "Not Started",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Not Started",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Not Started",
+        "BACKGROUND_CHECK_INFO": "Not Started"
+      }
+    },
+    {
+      "Time": "08/29/2026 19:57:15",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "Not Started",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Not Started",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Not Started",
+        "BACKGROUND_CHECK_INFO": "Not Started"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:00:05",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Not Started",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Not Started",
+        "BACKGROUND_CHECK_INFO": "Not Started"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:01:13",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Not Started",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Not Started",
+        "BACKGROUND_CHECK_INFO": "In Progress"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:01:26",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Complete",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Not Started",
+        "BACKGROUND_CHECK_INFO": "In Progress"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:01:34",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Complete",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Not Started",
+        "BACKGROUND_CHECK_INFO": "In Progress"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:05:27",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Complete",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "In Progress",
+        "BACKGROUND_CHECK_INFO": "In Progress"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:05:28",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Not Started",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Complete",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "In Progress",
+        "BACKGROUND_CHECK_INFO": "In Progress"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:06:38",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Complete",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Complete",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Failed",
+        "BACKGROUND_CHECK_INFO": "In Progress"
+      }
+    },
+    {
+      "Time": "08/29/2026 20:06:59",
+      "Workflow": "IN_PROGRESS",
+      "Tasks": {
+        "DEBIT_CARD_APPLICATION": "Not Started",
+        "UNIFIED_IDENTITY_VERIFICATION": "In Progress",
+        "AGREEMENTS": "Complete",
+        "TRANSPORTATION_METHOD_SELECTION": "Complete",
+        "PROGRAM_TERMS_AND_CONDITIONS": "Complete",
+        "REGION_SELECTION": "Complete",
+        "TRAINING": "Complete",
+        "PREFERENCE_COLLECTION": "Complete",
+        "DEBIT_CARD_KYC_CONSENT": "Not Started",
+        "BASIC_INFO": "Complete",
+        "MODES_OF_TRANSPORTATION": "Complete",
+        "PROGRAM_REQUIREMENTS": "Complete",
+        "COMMERCIAL_INSURANCE": "Complete",
+        "PAYMENT_INFO": "Not Started",
+        "DEBIT_CARD_ENROLLMENT": "Not Started",
+        "TAX_INFO": "Failed",
+        "BACKGROUND_CHECK_INFO": "In Progress"
+      }
+    }
+  ],
+  "Notes": [
+    "Only field names, status and normalized paths are exported; credentials and body values excluded.",
+    "Request and response body fingerprints were used separately to establish 745 shared entries and 16 additions in file 2.",
+    "An uploaded HAR is evidence of its recorded contents, not independent proof of capture authenticity or Apex backend behavior."
+  ]
+}

@@ -1,0 +1,28 @@
+# Credenciais e configuração local
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.ssh/
+
+# Capturas brutas podem conter senhas, tokens e dados pessoais
+*.har
+*.pcap
+*.pcapng
+captures/
+raw/
+*.burp
+*.burp.*
+*.log
+
+# Dependências e arquivos do ambiente
+node_modules/
+__pycache__/
+.venv/
+.DS_Store
+Thumbs.db
