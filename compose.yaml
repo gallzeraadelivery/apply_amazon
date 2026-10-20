@@ -1,0 +1,31 @@
+name: gd-apply
+services:
+  app:
+    build: .
+    container_name: gd-apply-app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - apply-data:/data
+    networks:
+      - edge
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    mem_limit: 384m
+    cpus: 0.75
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+volumes:
+  apply-data:
+networks:
+  edge:
+    external: true
+    name: amazon_automation_web

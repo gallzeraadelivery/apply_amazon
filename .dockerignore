@@ -1,0 +1,9 @@
+.git
+.env*
+data
+analysis
+deploy
+node_modules
+private
+*.har
+*.log
