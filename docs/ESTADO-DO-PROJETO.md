@@ -213,3 +213,12 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Correções manuais, revisão, cofre e envio cadastral separado continuam preservados. Leitura não altera a Amazon nem verifica autenticidade. Aviso no formulário identifica o processamento Google.
 - 39 testes locais passaram: contrato estruturado, segredo somente em cabeçalho, falhas sanitizadas, limites, isolamento/CSRF da rota e ausência de persistência automática no rascunho.
 - Backup privado anterior: /opt/backups/gd-apply/20261021T051019Z. Implantação e teste real da API com imagem sintética ainda pendentes neste registro.
+
+### 21/10/2026 — Gemini publicado e validado pela API real
+
+- Commit 113c0dd implantado. Os 39 testes passaram também no build Linux; nginx -t aprovado, serviço saudável e conexão existente preservada.
+- Teste HTTPS autenticado do endpoint OCR com PNG sintético, sem documento real: HTTP 200, engine google-gemini, aproximadamente cinco segundos, 11 campos reconhecidos. Nome, nome do meio e sobrenome comparados com os valores sintéticos esperados e corretos.
+- Rascunho salvo comparado antes/depois e preservado. Nenhum cadastro, documento ou alteração de nome foi enviado à Amazon. Não houve persistência da imagem pelo OCR.
+- Conferência privada dos ambientes dos containers confirmou a mesma credencial do dlgenerator e OCR_PROVIDER=gemini/GEMINI_OCR_MODEL=gemini-3.8-flash, sem imprimir valores secretos. Serviço de origem não foi alterado.
+- Imagem de retorno: gd-apply-app:before-gemini-20261021; backup anterior em /opt/backups/gd-apply/20261021T051019Z. Retorno ao provedor local exige ajustar OCR_PROVIDER explicitamente.
+- Próximo passo: atualizar a página e usar Reler dados nas imagens já salvas, revisando a precisão em uma DL real. Não declarar precisão garantida a partir do teste sintético.
