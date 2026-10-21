@@ -250,3 +250,5 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Removidos da tela de detalhe o cartão avulso de foto de perfil e seu botão de envio. Primeira seção contém apenas DL frente/verso em duas colunas; as três selfies permanecem na seção seguinte. Layout de uma coluna preservado em telas estreitas.
 - Cópias e rotas existentes de foto de perfil preservadas; nenhuma imagem foi apagada. Não houve mudança nos envios nem habilitação de selfie Persona.
 - npm run check e 41 testes passaram. Backup anterior /opt/backups/gd-apply/20261021T052556Z. Implantação em andamento.
+
+- Publicação concluída: e2163c8 implantado, 41 testes aprovados no build Linux e nginx -t válido. Smoke HTTPS confirmou dupla DL, ausência do cartão/botão de foto de perfil, presença das três selfies e health 200.
