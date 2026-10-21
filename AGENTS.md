@@ -11,7 +11,7 @@ Estas orientações valem para todo o repositório e para trabalho em qualquer c
 - Nunca transportar segredos por logs, argumentos de processo, commits ou URLs. Usar conexão SSH existente ou orientar transferência privada; manter o servidor e os arquivos locais como fontes dos segredos, não o GitHub.
 - Não reutilizar chaves, cookies, tokens, sessões ou identidades de HARs para autenticar ou reproduzir verificações de terceiros.
 - O conector Apex está implementado; testes usam respostas controladas. Sem login real do operador, não afirmar integração autenticada validada.
-- A integração direta Amazon está indisponível. Não transformar correspondências de HAR em contrato de API pública nem implementar falsos sucessos ou bypasses.
+- A conexão manual Amazon com PKCE foi implementada com base no serviço próprio amazonteste; operações diretas de onboarding continuam indisponíveis. Não confundir testes controlados com login real validado, transformar correspondências de HAR em contrato de API pública ou implementar falsos sucessos/bypasses.
 - Não testar alterações em contas externas sem escopo e autorização correspondentes. Operações reais devem exigir confirmação no painel e nunca ter repetição automática após resultado incerto.
 - Para código da aplicação, usar npm run check e npm test. Documentação pura dispensa repetir a suíte inteira; conferir comandos e links pertinentes.
 - deploy/prepare-domain.sh é somente o bootstrap histórico do domínio; não reexecutá-lo num host já configurado.

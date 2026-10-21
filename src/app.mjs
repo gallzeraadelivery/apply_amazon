@@ -5,6 +5,7 @@ import { readFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ApexClient, HttpError, applicationForm, redact } from './apex.mjs';
+import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } from './amazon.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -48,9 +49,13 @@ export function createApp(config) {
     CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),csrf TEXT NOT NULL,expires INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS integrations (user_id TEXT PRIMARY KEY REFERENCES users(id),token TEXT NOT NULL,email TEXT NOT NULL,connected_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id TEXT,action TEXT NOT NULL,target TEXT,status TEXT NOT NULL,created_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS amazon_pending (id TEXT PRIMARY KEY,user_id TEXT UNIQUE NOT NULL REFERENCES users(id),serial TEXT NOT NULL,verifier TEXT NOT NULL,challenge TEXT NOT NULL,expires INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS amazon_accounts (id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),label TEXT NOT NULL,serial TEXT NOT NULL,token TEXT NOT NULL,connected_at TEXT NOT NULL);
   `);
   if (!db.prepare('SELECT id FROM users LIMIT 1').get()) db.prepare('INSERT INTO users VALUES(?,?,?,1)').run(randomUUID(), adminEmail.toLowerCase(), passwordHash(adminPassword));
   const apex = new ApexClient({ fetchImpl }); const attempts = new Map();
+  const amazon = new AmazonClient({ fetchImpl: config.amazonFetchImpl });
+  const amazonBusy = new Set();
   const failedHash = passwordHash(randomBytes(32).toString('hex'));
   let busy = false;
   const audit = (user, action, target, status) => db.prepare('INSERT INTO audit(user_id,action,target,status,created_at) VALUES(?,?,?,?,?)').run(user?.id ?? null, action, target ?? null, status, new Date().toISOString());
@@ -61,7 +66,8 @@ export function createApp(config) {
   };
   const statusFor = user => {
     const row = db.prepare('SELECT email,connected_at FROM integrations WHERE user_id=?').get(user.id);
-    return { apex: { connected: Boolean(row), ...(row ?? {}), mode: 'live' }, amazon: { connected: false, mode: 'unavailable', reason: 'Credenciais e contrato de integração autorizada ainda não fornecidos. HARs não são credenciais de API.' } };
+    const count = db.prepare('SELECT count(*) AS n FROM amazon_accounts WHERE user_id=?').get(user.id).n;
+    return { apex: { connected: Boolean(row), ...(row ?? {}), mode: 'live' }, amazon: { connected: count > 0, mode: 'manual_pkce', accounts: count, reason: 'Conexão manual disponível. Onboarding direto ainda não implementado.' } };
   };
   const server = http.createServer(async (req, res) => {
     const requestId = randomUUID(); let user; let pathname = '';
@@ -115,6 +121,61 @@ export function createApp(config) {
         audit(user, 'auth.password_changed', null, 'success'); return send(200, { success: true });
       }
       if (user.mustChangePassword) throw new HttpError(403, 'password_change_required', 'Troque a senha inicial antes de usar as integrações.');
+      if (req.method === 'GET' && pathname === '/api/amazon/accounts') {
+        return send(200, { accounts: db.prepare('SELECT id,label,connected_at FROM amazon_accounts WHERE user_id=? ORDER BY connected_at DESC').all(user.id) });
+      }
+      if (req.method === 'POST' && pathname === '/api/amazon/connect/start') {
+        await jsonBody(req);
+        if (amazonBusy.has(user.id)) throw new HttpError(409, 'amazon_busy', 'Aguarde a conexão em andamento.');
+        const id = randomUUID(); const pending = makeAmazonAttempt(); const expires = Date.now() + 10 * 60000;
+        db.exec('BEGIN IMMEDIATE');
+        try {
+          db.prepare('DELETE FROM amazon_pending WHERE user_id=? OR expires<?').run(user.id, Date.now());
+          db.prepare('INSERT INTO amazon_pending VALUES(?,?,?,?,?,?)').run(id, user.id, pending.serial, seal(pending.verifier, key), pending.challenge, expires);
+          db.exec('COMMIT');
+        } catch (error) { db.exec('ROLLBACK'); throw error; }
+        audit(user, 'amazon.connect_started', id, 'success');
+        return send(200, { connectId: id, link: amazonSigninLink(pending), expiresAt: new Date(expires).toISOString() });
+      }
+      if (req.method === 'POST' && pathname === '/api/amazon/connect/finish') {
+        const data = await jsonBody(req);
+        if (data.confirm !== true) throw new HttpError(400, 'confirmation_required', 'Confirme a conexão desta conta Amazon.');
+        if (!uuid(data.connectId) || typeof data.label !== 'string' || data.label.trim().length < 1 || data.label.length > 120) {
+          throw new HttpError(400, 'invalid_amazon_connection', 'Informe a tentativa atual e um nome de até 120 caracteres.');
+        }
+        if (amazonBusy.has(user.id)) throw new HttpError(409, 'amazon_busy', 'Aguarde a conexão em andamento.');
+        const pending = db.prepare('SELECT * FROM amazon_pending WHERE id=? AND user_id=?').get(data.connectId, user.id);
+        if (!pending || pending.expires <= Date.now()) {
+          if (pending) db.prepare('DELETE FROM amazon_pending WHERE id=?').run(pending.id);
+          throw new HttpError(410, 'amazon_attempt_expired', 'A tentativa expirou ou já foi usada. Gere um novo link.');
+        }
+        const code = parseAmazonReturn(data.url, pending.serial);
+        let verifier;
+        try { verifier = unseal(pending.verifier, key); }
+        catch { throw new HttpError(503, 'integration_key_error', 'Não foi possível abrir esta tentativa. Gere um novo link.'); }
+        // Consume before any await: a one-use code must never be replayed after an uncertain result.
+        db.prepare('DELETE FROM amazon_pending WHERE id=?').run(pending.id);
+        amazonBusy.add(user.id);
+        audit(user, 'amazon.connect_finish', pending.id, 'requested');
+        try {
+          const result = await amazon.register({ code, verifier, serial: pending.serial });
+          const account = { id: randomUUID(), label: data.label.trim(), connected_at: new Date().toISOString() };
+          db.prepare('INSERT INTO amazon_accounts VALUES(?,?,?,?,?,?)').run(account.id, user.id, account.label, pending.serial, seal(result.refreshToken, key), account.connected_at);
+          audit(user, 'amazon.connected', account.id, 'success');
+          return send(200, { account, notice: 'A Amazon confirmou o token e a conexão foi salva. Isso não significa aprovação do onboarding.' });
+        } catch (error) { audit(user, 'amazon.connect_finish', pending.id, 'not_confirmed'); throw error; }
+        finally { amazonBusy.delete(user.id); }
+      }
+      const amazonAccountMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)$/);
+      if (req.method === 'DELETE' && amazonAccountMatch) {
+        if (!uuid(amazonAccountMatch[1])) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
+        const data = await jsonBody(req);
+        if (data.confirm !== true) throw new HttpError(400, 'confirmation_required', 'Confirme a remoção local.');
+        const result = db.prepare('DELETE FROM amazon_accounts WHERE id=? AND user_id=?').run(amazonAccountMatch[1], user.id);
+        if (!result.changes) throw new HttpError(404, 'not_found', 'Conta não encontrada.');
+        audit(user, 'amazon.disconnected', amazonAccountMatch[1], 'success');
+        return send(200, { success: true });
+      }
       if (req.method === 'GET' && pathname === '/api/integrations') return send(200, statusFor(user));
       if (req.method === 'POST' && pathname === '/api/integrations/apex/connect') {
         const data = await jsonBody(req);

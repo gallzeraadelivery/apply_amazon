@@ -2,7 +2,7 @@
 
 Painel e backend próprios para integrar diretamente com a Amazon e acompanhar operações de onboarding no nosso servidor. A Apex é referência funcional para análise; sua API não é a integração desejada.
 
-O código atual ainda contém o conector Apex da implementação anterior. Ele não atende ao objetivo corrigido. Consulte [reconstrução da integração direta](docs/INTEGRACAO-DIRETA-AMAZON.md) para o mapa de evidências, lacunas e sequência de implementação.
+O painel inicia na conexão manual Amazon. O conector Apex anterior permanece em telas identificadas como Apex e não é necessário para conectar a Amazon. Consulte [reconstrução da integração direta](docs/INTEGRACAO-DIRETA-AMAZON.md) para o mapa de evidências e etapas seguintes.
 
 ## Continuar em outro computador
 
@@ -16,7 +16,8 @@ As orientações permanentes estão em [AGENTS.md](AGENTS.md): manter a evoluç�
 - Conector Apex implementado com chamadas HTTP reais, ativado somente depois do login válido do operador na Apex. Testes de contrato usam respostas controladas; chamadas autenticadas reais dependem de credenciais ainda não fornecidas.
 - Consulta de contas, créditos, detalhes e execuções; salvamento de cadastro, upload de documentos e solicitação de início de execução com confirmação explícita.
 - Tokens Apex criptografados no SQLite com AES-256-GCM; a senha Apex não é persistida. Auditoria local não registra corpos nem credenciais.
-- Integração direta Amazon indisponível até configurar um método de acesso autorizado; endpoints retornam 503, sem simular conclusão.
+- Conexão manual Amazon com PKCE: gerar link, fazer login na Amazon, colar o retorno e confirmar. Verifier e refresh token criptografados, tentativas de dez minutos e troca do código sem repetição automática. Validação autenticada real depende de uma tentativa nova realizada pelo titular.
+- Operações diretas de onboarding continuam indisponíveis; conectar a conta não significa aprovar o cadastro.
 - Análise offline dos HARs preservada em `analysis/`. Os fluxos de referência não comprovam o encadeamento interno Apex–Amazon.
 
 ## Executar
@@ -30,6 +31,13 @@ Desenvolvimento: execute `npm run dev:setup` e `npm run dev`. Isso usa `.env.dev
 Verificação: `npm run check` e `npm test`. Os testes incluem autenticação/CSRF, troca inicial, criptografia, isolamento de credenciais, contratos multipart, falhas sem repetição automática e serialização de operações.
 
 ## API do painel
+
+- POST `/api/amazon/connect/start`: gera tentativa e link de login; exige sessão, Origin e CSRF.
+- POST `/api/amazon/connect/finish`: `{connectId,url,label,confirm:true}`; recebe somente o retorno do link gerado nesta tentativa. A tentativa é consumida antes da troca do código, inclusive quando o resultado é incerto. Gere um link novo para tentar novamente.
+- GET `/api/amazon/accounts`: lista conexões do usuário, sem tokens.
+- DELETE `/api/amazon/accounts/{id}`: `{confirm:true}`; remove a credencial deste painel, sem revogação remota automática.
+
+Na aba **Amazon direta**, gere um link e abra o login. Copie a URL final `/ap/maplanding` mesmo se a página final exibir erro; somente a resposta da troca no backend confirma a conexão. Não use links ou códigos das capturas anteriores. A implementação usa configurações do serviço próprio amazonteste, sem proxy Burp e sem enviar a senha Amazon ao painel. A compatibilidade atual desse fluxo de dispositivo ainda precisa de validação com conta autorizada.
 
 - `/api/auth/login`, `/api/auth/session`, `/api/auth/logout`, `/api/auth/password`: autenticação local.
 - `/api/integrations`: estado das conexões; `/api/integrations/apex/connect`: login remoto; DELETE `/api/integrations/apex`: remoção do token local.

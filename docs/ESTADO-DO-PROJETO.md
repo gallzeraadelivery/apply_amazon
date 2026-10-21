@@ -50,6 +50,15 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 20/10/2026 — Conexão manual direta no GD Apply
+
+- Implementado src/amazon.mjs e rotas locais para tentativa PKCE, conclusão e remoção de conexões. Adaptado o fluxo do serviço próprio, sem dependência da API Apex ou proxy Burp; sem rotação de perfis de dispositivo.
+- Painel inicia em Amazon direta: gerar link, abrir Amazon, colar retorno, confirmar e listar conexões. A senha Amazon fica na página Amazon. Tokens e verifiers são criptografados; códigos não são repetidos após resultado incerto.
+- Verificação inicial no container GD Apply: DNS e TLS de api.amazon.com funcionaram; nenhuma variável de proxy configurada. Isso não comprova a troca autenticada.
+- Check e 13 testes passaram localmente, incluindo contrato PKCE, Origin/CSRF, isolamento, expiração, falhas sem repetição e ausência de tokens nas respostas. Não houve uso de códigos históricos ou login externo automático.
+- Backup privado anterior à publicação: /opt/backups/gd-apply/20261021T034509Z. Mesmo servidor físico, container e dados separados do amazonteste.
+- Publicação e verificação HTTPS serão registradas após execução. Próximo passo funcional: titular concluir uma tentativa nova e validar a confirmação real da Amazon; onboarding direto ainda não implementado.
+
 ### 20/10/2026 — Serviço próprio de conexão manual localizado
 
 - O usuário identificou amazonteste.gdapps.online como serviço próprio já existente. Seu backend está em /opt/amazup, container amazup-web; código consultado somente em leitura.
