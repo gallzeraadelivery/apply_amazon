@@ -6,7 +6,7 @@ import { makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } from '../src/a
 import { createApp } from '../src/app.mjs';
 
 const token = 'synthetic-refresh-token-for-contract-test';
-async function fixture(t, upstream) {
+async function fixture(t, upstream, extraConfig = {}) {
   const calls = [];
   const app = createApp({ dbPath: ':memory:', masterKey: randomBytes(32).toString('hex'),
     adminEmail: 'admin@example.test', adminPassword: 'initial-password-123456', production: false, origin: 'http://localhost',
@@ -14,7 +14,7 @@ async function fixture(t, upstream) {
       calls.push({ url, opts });
       if (upstream) return upstream(url, opts);
       return Response.json({ response: { success: { tokens: { bearer: { refresh_token: token } } } } });
-    },
+    }, ...extraConfig,
   });
   app.server.listen(0, '127.0.0.1'); await once(app.server, 'listening'); t.after(() => app.close());
   const base = `http://127.0.0.1:${app.server.address().port}`; let cookie, csrf;
@@ -152,4 +152,24 @@ test('document storage is private, CSRF protected, encrypted and does not send s
   f.app.db.prepare('UPDATE amazon_accounts SET user_id=?').run('other-doc-user');
   assert.equal((await f.request(base + '/front')).status, 404);
   assert.equal((await f.request(base + '/front', 'DELETE', {})).status, 404);
+});
+
+test('local OCR fills only document fields and form drafts stay private without changing Amazon', async t => {
+  let reads = 0;
+  const f = await fixture(t, undefined, { ocrRecognize: async () => { reads++; return 'LN TESTER\nFN SYNTHETIC\nMN SAMPLE\nDOB 01/02/1990\nEXP 12/31/2030\nDL NUMBER SYNTH-123\n123 EXAMPLE ST\nSAMPLE CITY, MN 12345'; } });
+  const pending = await f.start(); const connected = await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(pending));
+  const base = `/api/amazon/accounts/${connected.data.account.id}`;
+  const fd = () => { const form = new FormData(); form.set('file', new Blob([Buffer.from([255,216,255,224,1,2,255,217])], { type: 'image/jpeg' }), 'document.jpg'); return form; };
+  assert.equal((await f.request(base + '/ocr', 'POST', fd(), { 'X-CSRF-Token': '' })).status, 403);
+  const read = await f.request(base + '/ocr', 'POST', fd()); assert.equal(read.status, 200);
+  assert.equal(read.data.fields.firstName, 'SYNTHETIC'); assert.equal(read.data.fields.middleName, 'SAMPLE'); assert.equal(reads, 1);
+  const saved = await f.request(base + '/form', 'POST', { fields: { firstName: 'CORRECTED', lastName: 'TESTER' } });
+  assert.equal(saved.status, 200); assert.equal((await f.request(base + '/form')).data.draft.fields.firstName, 'CORRECTED');
+  assert.equal(f.calls.length, 1);
+  assert.equal((await f.request(base + '/form', 'POST', { fields: { sessionToken: 'forbidden' } })).status, 400);
+  const admin = f.app.db.prepare('SELECT password FROM users LIMIT 1').get();
+  f.app.db.prepare('INSERT INTO users VALUES(?,?,?,0)').run('other-ocr-owner','other-ocr-owner@example.test',admin.password);
+  f.app.db.prepare('UPDATE amazon_accounts SET user_id=?').run('other-ocr-owner');
+  assert.equal((await f.request(base + '/ocr', 'POST', fd())).status, 404);
+  assert.equal((await f.request(base + '/form')).status, 404); assert.equal(reads, 1);
 });

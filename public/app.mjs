@@ -8,6 +8,8 @@ const labels = { basic_info: 'Dados pessoais', legal_documents: 'Acordos e termo
 const statusLabels = { queued: 'Na fila', pending: 'Pendente', running: 'Em execução', complete: 'Concluído', completed: 'Concluído', failed: 'Falhou', pending_review: 'Em análise', review: 'Em análise', error: 'Erro', action_required: 'Ação necessária', IN_PROGRESS: 'Em andamento', WAITLISTED_ON_REGION: 'Lista de espera da região', 'Not Started': 'Não iniciado', 'In Progress': 'Em andamento', Complete: 'Concluído', Failed: 'Falhou' };
 const tag = (value, tone = '') => `<span class="tag ${tone}">${esc(statusLabels[value] || value || 'Não informado')}</span>`;
 let toastTimer;
+let ocrQueue = Promise.resolve();
+let touchedFields = new Set();
 function toast(message) { clearTimeout(toastTimer); toastNode.textContent = message; toastNode.hidden = false; toastTimer = setTimeout(() => { toastNode.hidden = true; }, 10000); }
 async function api(path, options = {}) {
   const headers = { ...(options.headers ?? {}) };
@@ -16,7 +18,7 @@ async function api(path, options = {}) {
   const response = await fetch(path, { ...options, headers, credentials: 'same-origin', body: options.body instanceof FormData ? options.body : options.body ? JSON.stringify(options.body) : undefined });
   const data = await response.json();
   if (!response.ok) {
-    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.amazonRead = null; state.amazonDocuments = null; state.amazonDocList = []; state.documentDrafts = {}; state.amazonDetail = null; state.account = null; render(); }
+    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.amazonRead = null; state.amazonDocuments = null; state.amazonDocList = []; state.documentDrafts = {}; state.caseFields = {}; state.ocr = {}; state.ocrFiles = {}; state.amazonDetail = null; state.account = null; render(); }
     throw new Error(data.message || 'Não foi possível concluir a solicitação.');
   }
   return data;
@@ -104,7 +106,7 @@ function render() {
     const account = state.amazonAccounts.find(a => a.id === state.amazonDetail);
     if (account) { root.innerHTML = renderAmazonDetail({ account,
       result: state.amazonRead?.account?.id === account.id ? state.amazonRead : null,
-      documents: state.amazonDocList, events: state.audit, loading: state.amazonDetailLoading, tab: state.caseTab, drafts: state.documentDrafts }); return; }
+      documents: state.amazonDocList, events: state.audit, loading: state.amazonDetailLoading, tab: state.caseTab, drafts: state.documentDrafts, formFields: state.caseFields || {}, ocr: state.ocr || {}, formSavedAt: state.formSavedAt }); return; }
     state.page = 'amazon';
   }
   const content = ({ amazon: amazonPage, overview, accounts: accountsPage, detail: detailPage, integrations: integrationsPage, audit: auditPage }[state.page] ?? amazonPage)();
@@ -115,13 +117,42 @@ async function loadAmazonDocuments() {
 }
 async function openAmazonApplication(id) {
   state.amazonDetail = id; state.amazonRead = null; state.amazonDocList = []; state.documentDrafts = {};
+  state.caseFields = {}; state.ocr = {}; state.ocrFiles = {}; state.formSavedAt = null; touchedFields = new Set();
   state.caseTab = 'documents'; state.page = 'amazon-detail'; state.amazonDetailLoading = true; render();
   try {
-    const results = await Promise.allSettled([loadAmazonDocuments(), api(`/api/amazon/accounts/${id}/onboarding`), api('/api/audit')]);
+    const results = await Promise.allSettled([loadAmazonDocuments(), api(`/api/amazon/accounts/${id}/onboarding`), api('/api/audit'), api(`/api/amazon/accounts/${id}/form`)]);
     if (results[1].status === 'fulfilled') state.amazonRead = results[1].value;
     if (results[2].status === 'fulfilled') state.audit = results[2].value.events;
+    if (results[3].status === 'fulfilled' && results[3].value.draft) {
+      for (const [key, value] of Object.entries(results[3].value.draft.fields)) if (state.caseFields[key] === undefined && !touchedFields.has(key)) state.caseFields[key] = value;
+      state.formSavedAt = results[3].value.draft.savedAt;
+    }
     for (const result of results) if (result.status === 'rejected') toast(result.reason.message);
   } finally { state.amazonDetailLoading = false; render(); }
+}
+function showOcrStatus(message) {
+  state.ocr = { message }; const node = document.querySelector('#case-ocr-status');
+  if (node) { node.textContent = message; node.hidden = !message; }
+}
+function readAttachedLicense(kind, file) {
+  const accountId = state.amazonDetail;
+  state.ocrFiles ??= {}; state.ocrFiles[kind] = file;
+  ocrQueue = ocrQueue.catch(() => {}).then(async () => {
+    if (state.page !== 'amazon-detail' || state.amazonDetail !== accountId || state.ocrFiles[kind] !== file) return;
+    showOcrStatus('Lendo a carteira para preencher os campos…');
+    try {
+      const body = new FormData(); body.set('file', file);
+      const result = await api(`/api/amazon/accounts/${accountId}/ocr`, { method: 'POST', body });
+      if (state.page !== 'amazon-detail' || state.amazonDetail !== accountId || state.ocrFiles[kind] !== file) return;
+      for (const [key, value] of Object.entries(result.fields)) {
+        if (!value || touchedFields.has(key)) continue;
+        state.caseFields[key] = value;
+        const input = root.querySelector(`[data-case-field="${key}"]`); if (input) input.value = value;
+      }
+      const status = document.querySelector('#case-form-state'); if (status) status.textContent = 'Leitura nova · revise e salve os dados.';
+      showOcrStatus('Leitura concluída. Confira os campos preenchidos; suas correções manuais foram preservadas.');
+    } catch (error) { if (state.page === 'amazon-detail' && state.amazonDetail === accountId && state.ocrFiles[kind] === file) showOcrStatus(error.message + ' Os dados já preenchidos foram mantidos.'); }
+  });
 }
 async function loadData() {
   state.error = '';
@@ -150,15 +181,19 @@ async function openAccount(id) {
 }
 root.addEventListener('input', event => {
   if (event.target.id === 'account-search') { state.search = event.target.value; document.querySelector('#account-table').innerHTML = accountsTable(); }
+  if (event.target.dataset.caseField) {
+    const key = event.target.dataset.caseField; state.caseFields ??= {}; state.caseFields[key] = event.target.value; touchedFields.add(key);
+    const status = document.querySelector('#case-form-state'); if (status) status.textContent = 'Alterações ainda não salvas.';
+  }
 });
 root.addEventListener('change', event => {
   const input = event.target;
   if (!input.dataset.amazonPreview) return;
   const preview = input.closest('label').querySelector('img'); const file = input.files?.[0];
   preview.hidden = true; preview.removeAttribute('src');
-  if (!file) { if (input.closest('[data-document-save]')) { delete state.documentDrafts[input.dataset.amazonPreview]; render(); } return; }
+  if (!file) { if (input.closest('[data-document-save]')) { delete state.documentDrafts[input.dataset.amazonPreview]; if (state.ocrFiles) delete state.ocrFiles[input.dataset.amazonPreview]; render(); } return; }
   if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 8 * 1024 * 1024) {
-    input.value = ''; if (input.closest('[data-document-save]')) { delete state.documentDrafts[input.dataset.amazonPreview]; render(); }
+    input.value = ''; if (input.closest('[data-document-save]')) { delete state.documentDrafts[input.dataset.amazonPreview]; if (state.ocrFiles) delete state.ocrFiles[input.dataset.amazonPreview]; render(); }
     return toast('Escolha JPG ou PNG de até 8 MB.');
   }
   const reader = new FileReader(); reader.onload = () => {
@@ -168,6 +203,7 @@ root.addEventListener('change', event => {
         const kind = input.dataset.amazonPreview; state.documentDrafts[kind] = { file, preview: reader.result };
         input.closest('.case-document').querySelector('.case-badge').textContent = 'Não salvo';
         const button = root.querySelector(`[data-send-saved="${kind === 'profile' ? 'profile-photo' : 'license'}"]`); if (button) button.disabled = true;
+        if (kind === 'front' || kind === 'back') readAttachedLicense(kind, file);
       }
     }
   }; reader.onerror = () => toast('Não foi possível abrir a prévia desta imagem.'); reader.readAsDataURL(file);
@@ -175,6 +211,16 @@ root.addEventListener('change', event => {
 root.addEventListener('click', async event => {
   const button = event.target.closest('button'); if (!button || state.busy) return;
   if (button.dataset.openAmazon) return work(() => openAmazonApplication(button.dataset.openAmazon));
+  if (button.dataset.readDocument) return work(async () => {
+    const kind = button.dataset.readDocument;
+    let file = state.documentDrafts[kind]?.file;
+    if (!file) {
+      const response = await fetch(`/api/amazon/accounts/${state.amazonDetail}/documents/${kind}`, { credentials: 'same-origin' });
+      if (!response.ok) throw new Error('Não foi possível abrir a imagem para leitura.');
+      const image = await response.blob(); file = new File([image], 'document.jpg', { type: image.type });
+    }
+    readAttachedLicense(kind, file);
+  });
   if (button.hasAttribute('data-case-back')) { state.page = 'amazon'; state.documentDrafts = {}; render(); return; }
   if (button.dataset.caseTab) { state.caseTab = button.dataset.caseTab; render(); return; }
   if (button.hasAttribute('data-case-refresh')) return work(async () => {
@@ -190,7 +236,7 @@ root.addEventListener('click', async event => {
   if (button.dataset.removeDocument) {
     const kind = button.dataset.removeDocument;
     if (!(await confirmation('Remover imagem do painel?', 'A cópia salva neste painel será removida. Isso não remove arquivos já enviados ao provedor.'))) return;
-    return work(async () => { await api(`/api/amazon/accounts/${state.amazonDetail}/documents/${kind}`, { method: 'DELETE', body: {} }); delete state.documentDrafts[kind]; await loadAmazonDocuments(); render(); });
+    return work(async () => { await api(`/api/amazon/accounts/${state.amazonDetail}/documents/${kind}`, { method: 'DELETE', body: {} }); delete state.documentDrafts[kind]; if (state.ocrFiles) delete state.ocrFiles[kind]; await loadAmazonDocuments(); render(); });
   }
   if (button.dataset.sendSaved) {
     const kind = button.dataset.sendSaved;
@@ -220,7 +266,7 @@ root.addEventListener('click', async event => {
     if (state.page === 'audit') await work(async () => { state.audit = (await api('/api/audit')).events; render(); });
     return;
   }
-  if (button.hasAttribute('data-logout')) return work(async () => { await api('/api/auth/logout', { method: 'POST', body: {} }); Object.assign(state, { user: null, csrf: '', amazonAccounts: [], amazonPending: null, amazonRead: null, amazonDocuments: null, amazonDetail: null, amazonDocList: [], documentDrafts: {}, accounts: [], account: null, run: null, integration: null, credits: null, loaded: false }); render(); });
+  if (button.hasAttribute('data-logout')) return work(async () => { await api('/api/auth/logout', { method: 'POST', body: {} }); Object.assign(state, { user: null, csrf: '', amazonAccounts: [], amazonPending: null, amazonRead: null, amazonDocuments: null, amazonDetail: null, amazonDocList: [], documentDrafts: {}, caseFields: {}, ocr: {}, ocrFiles: {}, accounts: [], account: null, run: null, integration: null, credits: null, loaded: false }); render(); });
   if (button.hasAttribute('data-refresh')) return work(loadData);
   if (button.dataset.account) return work(() => openAccount(button.dataset.account));
   if (button.hasAttribute('data-open-current')) return work(() => openAccount(state.account.id));
@@ -240,6 +286,11 @@ root.addEventListener('click', async event => {
 });
 root.addEventListener('submit', async event => {
   event.preventDefault(); const form = event.target; if (state.busy) return;
+  if (form.id === 'case-fields-form') return work(async () => {
+    const fields = Object.fromEntries(new FormData(form));
+    const result = await api(`/api/amazon/accounts/${state.amazonDetail}/form`, { method: 'POST', body: { fields } });
+    state.caseFields = result.draft.fields; state.formSavedAt = result.draft.savedAt; render(); toast(result.notice);
+  });
   if (form.dataset.documentSave) {
     const kind = form.dataset.documentSave;
     const file = state.documentDrafts[kind]?.file || new FormData(form).get('file');

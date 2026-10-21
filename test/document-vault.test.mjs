@@ -15,10 +15,14 @@ test('saved images survive reopening, are encrypted and bound to the owner/accou
     db.exec('PRAGMA foreign_keys=ON; CREATE TABLE amazon_accounts(id TEXT PRIMARY KEY); INSERT INTO amazon_accounts VALUES (\'account-a\'),(\'account-b\')');
     let vault = new DocumentVault(db, key); const bytes = Buffer.from('synthetic-private-image');
     vault.save('owner-a', 'account-a', 'front', 'image/jpeg', bytes);
+    vault.saveForm('owner-a', 'account-a', { firstName: 'SYNTHETIC', lastName: 'TESTER' });
     assert.ok(!Buffer.from(db.prepare('SELECT body FROM amazon_documents').get().body).includes(bytes));
     vault.mark('account-a', ['front'], 'transferred');
     db.close(); db = new DatabaseSync(path); db.exec('PRAGMA foreign_keys=ON'); vault = new DocumentVault(db, key);
     assert.deepEqual(vault.read('owner-a', 'account-a', 'front').bytes, bytes);
+    assert.equal(vault.readForm('owner-a', 'account-a').fields.firstName, 'SYNTHETIC');
+    assert.throws(() => vault.readForm('owner-b', 'account-a'));
+    assert.throws(() => vault.saveForm('owner-a', 'account-a', { ssn: 'not-allowed' }));
     assert.throws(() => vault.read('owner-b', 'account-a', 'front'));
     assert.equal(vault.list('account-a')[0].status, 'transferred');
     vault.save('owner-a', 'account-a', 'front', 'image/jpeg', bytes);
@@ -39,5 +43,5 @@ test('account layout escapes values and distinguishes local files from provider 
   assert.ok(!html.includes('<script>bad</script>')); assert.ok(html.includes('&lt;script&gt;'));
   assert.ok(html.includes('50%')); assert.ok(html.includes('Lista de espera da região'));
   assert.ok(html.includes('Salvo no painel')); assert.ok(!html.includes('Recebido pelo provedor'));
-  assert.ok(html.includes('readonly')); assert.ok(html.includes('/documents/front'));
+  assert.ok(html.includes('data-case-field="firstName"')); assert.ok(html.includes('case-fields-form')); assert.ok(html.includes('/documents/front'));
 });

@@ -44,7 +44,13 @@ Na aba **Amazon direta**, gere um link e abra o login. Copie a URL final `/ap/ma
 
 Nas conexões salvas, **Consultar perfil e etapas** lê o perfil por access token e abre uma sessão web temporária para ler o onboarding. Cookies respeitam domínio/caminho, expiração e uma lista restrita de destinos de SSO. A consulta tem orçamento de 30 segundos e não faz polling automático. A primeira conexão e a primeira leitura autenticada real foram validadas em 20/10/2026; isso não garante disponibilidade permanente do serviço externo.
 
-**Abrir aplicação** mostra uma tela escura por conta: etapas na lateral, documentos visíveis no topo, dados retornados pela Amazon abaixo e histórico separado. **Salvar imagem** guarda uma cópia criptografada no SQLite e não envia ao provedor. As imagens continuam visíveis ao reabrir a conta, com ações de ampliar, baixar, trocar ou remover. O armazenamento foi solicitado explicitamente pelo usuário; os arquivos permanecem fora do Git.
+**Abrir aplicação** mantém as cores originais do GD Apply (verde e fundo claro) e organiza etapas na lateral, documentos no topo, formulário abaixo e histórico separado. **Salvar imagem** guarda uma cópia criptografada no SQLite e não envia ao provedor. As imagens continuam visíveis ao reabrir a conta, com ações de ampliar, baixar, trocar ou remover. O armazenamento foi solicitado explicitamente pelo usuário; os arquivos permanecem fora do Git.
+
+Ao anexar frente/verso, a leitura automática local preenche os campos reconhecidos para revisão. Correções digitadas enquanto a leitura ocorre são preservadas. Também há **Reler dados** nos documentos salvos. O OCR não preenche dados ausentes com valores inventados e não lê código de barras da imagem; o parser aceita códigos AAMVA quando presentes como texto legível.
+
+O container inclui [Tesseract](https://tesseract-ocr.github.io/tessdoc/Command-Line-Usage.html) com idioma inglês. Imagens entram por stdin, texto sai por stdout, sem envio a provedor externo ou registro do texto em logs. A leitura aceita JPG/PNG de até 8 MB e 6 megapixels, uma por vez, com limite de 25 segundos. Fotos com baixa qualidade, reflexo ou rotação podem exigir preenchimento manual. Desenvolvimento fora do container requer o executável Tesseract e dados `eng` instalados; não há dependência npm de OCR.
+
+**Salvar dados no painel** mantém um rascunho criptografado por conta, separado dos valores retornados pela Amazon. Essa ação não atualiza o cadastro externo nem libera alterações de nome proibidas pelo provedor.
 
 Frente, verso e foto de perfil usam AES-256-GCM com associação autenticada ao usuário, conta, tipo e formato. O GET da imagem exige sessão e propriedade da conta, não permite cache e usa nomes de arquivo genéricos. A exclusão da conexão remove suas imagens do banco ativo por cascade; backups existentes seguem o procedimento privado de retenção. Preservar MASTER_KEY é necessário para recuperar as imagens, assim como os tokens.
 
@@ -54,6 +60,8 @@ Os botões de envio pedem confirmação separada e distinguem **salvo no painel*
 - GET `/api/amazon/accounts/{id}/documents/{front|back|profile}`: imagem privada para exibição/download.
 - POST na mesma rota: multipart com exatamente `file`; salva somente no painel, com Origin e CSRF.
 - DELETE na mesma rota: remove a cópia do banco ativo, sem remover arquivos já recebidos pelo provedor.
+- POST `/api/amazon/accounts/{id}/ocr`: multipart `file`; retorna campos reconhecidos, sem salvar a imagem ou o texto bruto. Exige propriedade da conta, Origin e CSRF.
+- GET/POST `/api/amazon/accounts/{id}/form`: consulta/salva `{fields:{...}}` no rascunho criptografado local. Campos aceitos são explícitos; SSN e credenciais não fazem parte deste formulário.
 
 - `/api/auth/login`, `/api/auth/session`, `/api/auth/logout`, `/api/auth/password`: autenticação local.
 - `/api/integrations`: estado das conexões; `/api/integrations/apex/connect`: login remoto; DELETE `/api/integrations/apex`: remoção do token local.

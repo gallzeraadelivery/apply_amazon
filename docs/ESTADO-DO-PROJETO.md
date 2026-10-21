@@ -50,6 +50,15 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 21/10/2026 — Cores originais e leitura automática da carteira
+
+- Corrigida a interpretação da referência: estrutura mantida, paleta original verde/clara restaurada, sem ampliar o trabalho visual solicitado.
+- Adicionado OCR local ao anexar a frente/verso, campos editáveis e botão Reler dados para imagens salvas. Resultados não apagam correções feitas durante a leitura e respostas antigas não preenchem outra conta/imagem.
+- Parser adaptado do serviço próprio; motor Tesseract nativo no container, entrada/saída em memória por pipes, sem OCR externo, logs de texto reconhecido ou gravação automática da imagem. Limite de 25 segundos, 6 megapixels e uma leitura por vez.
+- Rascunho do formulário salvo localmente com AES-GCM e contexto do usuário/conta. Não há envio automático dos dados reconhecidos para a Amazon. Imagem e formulário continuam com salvamentos próprios.
+- Check e 31 testes locais aprovados, incluindo parser, datas inválidas, execução sem shell, limites, OCR isolado, ausência de chamadas Amazon e persistência privada do formulário. Visual conferido em navegador com dados de demonstração e paleta original.
+- Validação do leitor nativo com imagem sintética e publicação serão registradas após execução. Nenhum documento pessoal foi usado como arquivo de teste.
+
 ### 21/10/2026 — Layout por conta e imagens persistentes
 
 - Usuário solicitou layout semelhante à referência e confirmou explicitamente manter as imagens salvas ao reabrir a conta.

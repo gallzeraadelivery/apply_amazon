@@ -10,6 +10,7 @@ RUN npm run check && node --disable-warning=ExperimentalWarning --test test/*.te
 FROM node:22-alpine
 ENV NODE_ENV=production PORT=8080 DB_PATH=/data/app.sqlite
 WORKDIR /app
+RUN apk add --no-cache tesseract-ocr tesseract-ocr-data-eng
 COPY --from=validation --chown=node:node /app/package.json ./
 COPY --from=validation --chown=node:node /app/src ./src
 COPY --from=validation --chown=node:node /app/public ./public

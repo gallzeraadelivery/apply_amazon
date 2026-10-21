@@ -9,6 +9,7 @@ import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } 
 import { AmazonReadClient } from './amazon-read.mjs';
 import { AmazonUploadClient, validateUploadImage } from './amazon-upload.mjs';
 import { DocumentVault } from './document-vault.mjs';
+import { extractLicenseFields } from './local-ocr.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -63,6 +64,7 @@ export function createApp(config) {
   const amazonUploader = new AmazonUploadClient({ fetchImpl: config.amazonFetchImpl });
   const amazonUploads = new Set();
   const documentVault = new DocumentVault(db, key);
+  let ocrBusy = false;
   db.prepare("UPDATE amazon_documents SET status='unconfirmed' WHERE status='sending'").run();
   const amazonBusy = new Set();
   const failedHash = passwordHash(randomBytes(32).toString('hex'));
@@ -132,6 +134,39 @@ export function createApp(config) {
       if (user.mustChangePassword) throw new HttpError(403, 'password_change_required', 'Troque a senha inicial antes de usar as integrações.');
       if (req.method === 'GET' && pathname === '/api/amazon/accounts') {
         return send(200, { accounts: db.prepare('SELECT id,label,connected_at FROM amazon_accounts WHERE user_id=? ORDER BY connected_at DESC').all(user.id) });
+      }
+      const localFormMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/(ocr|form)$/);
+      if (localFormMatch) {
+        const [, accountId, operation] = localFormMatch;
+        if (!uuid(accountId)) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
+        if (!db.prepare('SELECT id FROM amazon_accounts WHERE id=? AND user_id=?').get(accountId, user.id)) throw new HttpError(404, 'not_found', 'Conta não encontrada.');
+        if (operation === 'form' && req.method === 'GET') {
+          try { return send(200, { draft: documentVault.readForm(user.id, accountId) }); }
+          catch { throw new HttpError(503, 'form_key_error', 'Não foi possível abrir os dados salvos neste painel.'); }
+        }
+        if (operation === 'form' && req.method === 'POST') {
+          const data = await jsonBody(req);
+          try { documentVault.saveForm(user.id, accountId, data.fields); }
+          catch { throw new HttpError(400, 'invalid_form_fields', 'Os campos do formulário são inválidos.'); }
+          audit(user, 'amazon.form_saved', accountId, 'success');
+          return send(200, { draft: documentVault.readForm(user.id, accountId), notice: 'Dados salvos neste painel. Nenhuma alteração foi enviada à Amazon.' });
+        }
+        if (operation === 'ocr' && req.method === 'POST') {
+          if (ocrBusy) throw new HttpError(429, 'ocr_busy', 'O leitor local está ocupado. Aguarde e tente novamente.');
+          if (!/^multipart\/form-data\s*;/i.test(req.headers['content-type'] ?? '')) throw new HttpError(415, 'multipart_required', 'Envie uma imagem da carteira.');
+          ocrBusy = true;
+          try {
+            const payload = await bytes(req, 9 * 1024 * 1024); let form;
+            try { form = await new Request('https://localhost/ocr', { method: 'POST', headers: { 'content-type': req.headers['content-type'] }, body: payload }).formData(); }
+            catch { throw new HttpError(400, 'invalid_upload', 'Não foi possível ler a imagem.'); }
+            if ([...form.keys()].some(k => k !== 'file') || form.getAll('file').length !== 1) throw new HttpError(400, 'invalid_upload_fields', 'Envie exatamente uma imagem da carteira.');
+            const image = await validateUploadImage(form.get('file'));
+            const fields = await extractLicenseFields(Buffer.from(await image.arrayBuffer()), config.ocrRecognize);
+            audit(user, 'amazon.ocr', accountId, 'success');
+            return send(200, { fields, engine: 'local-tesseract', notice: 'Leitura concluída. Revise os campos antes de salvar.' });
+          } finally { ocrBusy = false; }
+        }
+        throw new HttpError(405, 'method_not_allowed', 'Operação indisponível.');
       }
       const documentMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/documents(?:\/(front|back|profile))?$/);
       if (documentMatch) {
