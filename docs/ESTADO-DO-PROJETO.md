@@ -57,7 +57,9 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 - Frente/verso só são enviados quando task-state permite ação e a sessão Persona pede documento. Não há selfie estática, callback de conclusão, alteração de status ou repetição automática. Foto de perfil exige confirmação própria da Amazon após o PUT.
 - Painel inclui prévias e confirmação vinculada à conta selecionada. Em falha ou etapa não liberada, informa o problema; não marca onboarding como aprovado.
 - Check e 25 testes locais aprovados, incluindo contrato multipart, confirmação, isolamento por proprietário, sessão não elegível, etapa de selfie, destinos S3 e ausência de repetição após falha. Upload externo real ainda não executado: depende de arquivos do titular e confirmação no painel.
-- Limite Nginx do domínio GD Apply ajustado no procedimento de publicação para 20 MB, acomodando duas imagens de 8 MB. Publicação e smoke serão registrados após execução.
+- Publicado o commit dfc5136 no GD Apply. Limite Nginx do domínio ajustado para 20 MB, acomodando duas imagens de 8 MB; nginx -t aprovado antes do reload. Banco, chave e conexão existente preservados.
+- Backup privado anterior: /opt/backups/gd-apply/20261021T040438Z. Os 25 testes passaram também no build Linux. Smoke HTTPS confirmou saúde, login, conexão preservada, conteúdo da nova tela servido e rejeição da rota sem confirmação (HTTP 400), sem envio externo.
+- Ainda não houve upload real ou inspeção visual autenticada com documentos do titular. Próximo passo: selecionar as imagens no painel e confirmar o envio; somente o retorno real validará a aceitação pelo provedor.
 
 ### 20/10/2026 — Leitura direta do perfil e das etapas
 
