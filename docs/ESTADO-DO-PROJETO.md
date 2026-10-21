@@ -244,3 +244,9 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Backup anterior: /opt/backups/gd-apply/20261021T052309Z; imagem de retorno gd-apply-app:before-selfie-slots-20261021.
 - Smoke autenticado HTTPS confirmou as três rotas de imagem reconhecidas (404 para arquivos ainda não anexados), módulo publicado com os três espaços, health 200 e uma conexão preservada. Nenhuma selfie real enviada, copiada ou alterada na validação.
 - Entrega é preparação local: envio oficial Persona continua pendente de captura e validação. Não marcar identidade como concluída a partir desses anexos.
+
+### 21/10/2026 — Layout somente DL acima e três selfies abaixo
+
+- Removidos da tela de detalhe o cartão avulso de foto de perfil e seu botão de envio. Primeira seção contém apenas DL frente/verso em duas colunas; as três selfies permanecem na seção seguinte. Layout de uma coluna preservado em telas estreitas.
+- Cópias e rotas existentes de foto de perfil preservadas; nenhuma imagem foi apagada. Não houve mudança nos envios nem habilitação de selfie Persona.
+- npm run check e 41 testes passaram. Backup anterior /opt/backups/gd-apply/20261021T052556Z. Implantação em andamento.
