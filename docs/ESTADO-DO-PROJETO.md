@@ -237,3 +237,10 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Prévia, guia oval, ajuste, download, substituição e remoção reaproveitam a proteção existente. Cofre AES-GCM vincula usuário, conta, tipo e MIME; imagens persistem ao reabrir. Não há geração de poses, modificação de identidade ou reaproveitamento automático de uma foto nos três espaços.
 - Nenhuma selfie é enviada ao Gemini/OCR ou ao endpoint de foto de perfil. Não há botão de envio Persona: a interface explicita preparação local e captura oficial pendente. Campos multipart e requisitos da sessão serão definidos por evidência nova; imagens estáticas não são apresentadas como cumprimento de liveness.
 - 41 testes passaram, incluindo três espaços criptografados distintos, ordem da interface, CSRF e salvamento sem chamadas Google/Amazon/Persona. Nenhuma imagem real anexada como teste. Implantação pendente neste registro.
+
+### 21/10/2026 — Três anexos de selfie publicados
+
+- Commit 0ae1984 implantado; 41 testes passaram também no build Linux. Nginx validado e GD Apply saudável.
+- Backup anterior: /opt/backups/gd-apply/20261021T052309Z; imagem de retorno gd-apply-app:before-selfie-slots-20261021.
+- Smoke autenticado HTTPS confirmou as três rotas de imagem reconhecidas (404 para arquivos ainda não anexados), módulo publicado com os três espaços, health 200 e uma conexão preservada. Nenhuma selfie real enviada, copiada ou alterada na validação.
+- Entrega é preparação local: envio oficial Persona continua pendente de captura e validação. Não marcar identidade como concluída a partir desses anexos.
