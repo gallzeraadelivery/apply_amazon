@@ -4,7 +4,7 @@
 
 O GD Apply deve operar diretamente com a Amazon a partir do nosso servidor. A Apex é referência para entender telas, etapas e comportamento, sem usar sua API como intermediária. Não é necessário obter uma conta Apex para implementar esse objetivo.
 
-O código atual em src/apex.mjs e as rotas /api/apex ainda implementam a direção anterior. A presença desse código não significa que já exista integração direta. O login administrativo do GD Apply continua independente do login Amazon.
+O código em src/apex.mjs e as rotas /api/apex preservam a direção anterior em telas separadas. A conexão manual direta está implementada em src/amazon.mjs e nas rotas /api/amazon/connect; operações diretas de onboarding continuam pendentes. O login administrativo do GD Apply continua independente do login Amazon.
 
 ## Evidências disponíveis
 
@@ -54,4 +54,4 @@ Persona aparece como fornecedor de identidade. O callback sdk-callback observado
 
 ## Estado desta revisão
 
-Revisão offline e correção das instruções concluídas. Os dois HARs foram posteriormente fornecidos pelo usuário e lidos nos caminhos locais indicados. Ambos têm SHA-256 idêntico ao material original já inventariado. A [revisão dos arquivos recebidos](../analysis/revisao-hars-recebidos.md) confirma os dois mecanismos CSRF e as respostas, mas o fluxo completo de login continua ausente. Não há ferramenta Burp conectada nesta sessão. Nenhuma integração direta foi publicada ou declarada funcional nesta revisão.
+Os dois HARs fornecidos têm SHA-256 idêntico ao material original já inventariado. A [revisão dos arquivos recebidos](../analysis/revisao-hars-recebidos.md) confirma os mecanismos CSRF e respostas históricas. Posteriormente o MCP Burp foi acessado pelo bridge local e o [serviço próprio amazonteste foi analisado](../analysis/amazonteste-conexao-manual.md). A conexão manual PKCE foi adaptada e publicada no GD Apply, com DNS/TLS, geração de link e listagem local verificados. A troca autenticada de um código novo e as operações de onboarding ainda não foram validadas. Não declarar integração ponta a ponta concluída antes desse teste pelo titular.

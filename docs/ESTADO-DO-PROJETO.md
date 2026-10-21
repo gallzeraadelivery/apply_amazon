@@ -4,7 +4,7 @@ Atualizado em 20/10/2026, fuso America/Cuiaba.
 
 ## Objetivo
 
-Backend e painel próprios que executam a integração diretamente com a Amazon no nosso servidor. A Apex serve como referência funcional de análise, sem dependência da sua API. Esse objetivo foi esclarecido pelo usuário em 20/10/2026; o conector Apex existente pertence à implementação anterior e ainda não foi substituído. O mapa de reconstrução está em docs/INTEGRACAO-DIRETA-AMAZON.md.
+Backend e painel próprios que executam a integração diretamente com a Amazon no nosso servidor. A Apex serve como referência funcional de análise, sem dependência da sua API para a conexão manual Amazon implementada. Esse objetivo foi esclarecido pelo usuário em 20/10/2026; o conector Apex anterior permanece em telas separadas. Operações diretas de onboarding continuam pendentes. O mapa de reconstrução está em docs/INTEGRACAO-DIRETA-AMAZON.md.
 
 ## O que existe
 
@@ -43,7 +43,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 ## Pendente / não implementado
 
 - Substituir a dependência Apex pelo fluxo direto Amazon. Validar o conector Apex deixou de ser o próximo passo do projeto.
-- Integração direta Amazon: indisponível, retornando erro explícito. Não há API pública/credenciais concedidas neste projeto.
+- Integração direta Amazon: conexão manual publicada; troca autenticada de um código novo ainda precisa de validação pelo titular. Operações diretas de onboarding continuam indisponíveis, retornando erro explícito.
 - Checkout/pagamentos, preços, exclusão/arquivamento, login Amazon intermediado, OCR automático e tela remota não são recursos do nosso painel atual.
 - Módulo administrativo adicional da Apex e toda a lógica do backend externo não foram analisados.
 - Não foi capturado o tráfego de saída do backend Apex. Confirmar integração real exige código/logs desse backend ou rede do navegador remoto.
@@ -57,7 +57,8 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 - Verificação inicial no container GD Apply: DNS e TLS de api.amazon.com funcionaram; nenhuma variável de proxy configurada. Isso não comprova a troca autenticada.
 - Check e 13 testes passaram localmente, incluindo contrato PKCE, Origin/CSRF, isolamento, expiração, falhas sem repetição e ausência de tokens nas respostas. Não houve uso de códigos históricos ou login externo automático.
 - Backup privado anterior à publicação: /opt/backups/gd-apply/20261021T034509Z. Mesmo servidor físico, container e dados separados do amazonteste.
-- Publicação e verificação HTTPS serão registradas após execução. Próximo passo funcional: titular concluir uma tentativa nova e validar a confirmação real da Amazon; onboarding direto ainda não implementado.
+- Publicado o commit 14237c3 no container gd-apply-app. Os 13 testes também passaram no build Linux; nginx -t aprovado. HTTPS: health ok, login administrativo válido, nova rota gerou link www.amazon.com/ap/signin e listagem retornou zero conexões. O smoke não abriu o login Amazon nem trocou códigos.
+- Próximo passo funcional: titular concluir uma tentativa nova e validar a confirmação real da Amazon; onboarding direto ainda não implementado. A interface foi conferida pelo conteúdo servido, sem verificação visual autenticada nesta etapa.
 
 ### 20/10/2026 — Serviço próprio de conexão manual localizado
 
