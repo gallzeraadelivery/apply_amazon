@@ -96,3 +96,23 @@ test('expired or foreign attempts cannot be used and HTTP success without a toke
   assert.equal((await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(current))).data.error, 'amazon_registration_rejected');
   assert.equal((await f.request('/api/integrations')).data.amazon.connected, false);
 });
+
+test('onboarding reads stay scoped to the owner and expose no credentials in partial failures', async t => {
+  const f = await fixture(t, url => {
+    if (url === 'https://api.amazon.com/auth/register') return Response.json({ response: { success: { tokens: { bearer: { refresh_token: token } } } } });
+    return Response.json({ privateToken: token }, { status: 403 });
+  });
+  const pending = await f.start();
+  const connected = await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(pending));
+  const path = `/api/amazon/accounts/${connected.data.account.id}/onboarding`;
+  const result = await f.request(path);
+  assert.equal(result.status, 200); assert.equal(result.data.ok, false);
+  assert.equal(result.data.sources.length, 2); assert.equal(result.data.profile, null); assert.equal(result.data.onboarding, null);
+  assert.ok(!JSON.stringify(result).includes(token));
+  const admin = f.app.db.prepare('SELECT password FROM users LIMIT 1').get();
+  f.app.db.prepare('INSERT INTO users VALUES(?,?,?,0)').run('other-owner', 'other-owner@example.test', admin.password);
+  f.app.db.prepare('UPDATE amazon_accounts SET user_id=?').run('other-owner');
+  const callsBefore = f.calls.length;
+  assert.equal((await f.request(path)).status, 404);
+  assert.equal(f.calls.length, callsBefore);
+});

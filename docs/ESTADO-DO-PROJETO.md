@@ -50,6 +50,15 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 20/10/2026 — Leitura direta do perfil e das etapas
+
+- Implementado src/amazon-read.mjs: troca temporária para access token, GET de perfil, sessão web com cookies em memória e GET do mapa de etapas. Nenhum dado de onboarding alterado.
+- Nova rota GET /api/amazon/accounts/{id}/onboarding valida propriedade da conta e serializa consultas por usuário. Resultados de perfil/etapas independentes, falhas explícitas, campos pessoais selecionados e nenhuma credencial no retorno.
+- Adicionado botão Consultar perfil e etapas às conexões salvas, com horário de consulta e estados recebidos da Amazon. Sem consulta automática ou armazenamento de perfil no banco.
+- Check e 19 testes locais passaram, incluindo isolamento de proprietário, cookies por domínio/caminho, bloqueio de redirects externos, resultados parciais e ausência de falsos sucessos por HTTP 200.
+- Validação real de leitura executada no container usando a conexão autorizada: perfil recebido e 17 etapas válidas. Nenhum nome, contato, token ou cookie foi incluído neste registro. O módulo foi executado temporariamente antes da publicação.
+- Publicação e verificação da rota HTTPS serão registradas ao concluir. Próximo passo: usuário consultar o painel e orientar a próxima etapa de implementação; alterações externas exigem escopo e confirmação.
+
 ### 20/10/2026 — Primeira conexão Amazon direta confirmada
 
 - O titular concluiu uma tentativa nova no GD Apply. O banco de produção contém uma conexão salva às 23:48:58 (America/Cuiaba), com evento amazon.connected em success.

@@ -1,10 +1,10 @@
 const root = document.querySelector('#app');
 const toastNode = document.querySelector('#toast');
-const state = { user: null, csrf: '', page: 'amazon', amazonAccounts: [], amazonPending: null, integration: null, accounts: [], account: null, credits: null, run: null, audit: [], search: '', loaded: false, accountLoaded: false, error: '', busy: false };
+const state = { user: null, csrf: '', page: 'amazon', amazonAccounts: [], amazonPending: null, amazonRead: null, integration: null, accounts: [], account: null, credits: null, run: null, audit: [], search: '', loaded: false, accountLoaded: false, error: '', busy: false };
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const date = v => v ? new Date(v).toLocaleString('pt-BR') : '—';
 const labels = { basic_info: 'Dados pessoais', legal_documents: 'Acordos e termos', id_verification: 'Documento de identidade', id_selfie: 'Selfie e identidade', background_check: 'Antecedentes', auto_insurance: 'Seguro', tax_interview: 'Entrevista fiscal', payment_information: 'Dados de pagamento', videos: 'Treinamento' };
-const statusLabels = { queued: 'Na fila', pending: 'Pendente', running: 'Em execução', complete: 'Concluído', completed: 'Concluído', failed: 'Falhou', pending_review: 'Em análise', review: 'Em análise', error: 'Erro', action_required: 'Ação necessária', IN_PROGRESS: 'Em andamento' };
+const statusLabels = { queued: 'Na fila', pending: 'Pendente', running: 'Em execução', complete: 'Concluído', completed: 'Concluído', failed: 'Falhou', pending_review: 'Em análise', review: 'Em análise', error: 'Erro', action_required: 'Ação necessária', IN_PROGRESS: 'Em andamento', WAITLISTED_ON_REGION: 'Lista de espera da região', 'Not Started': 'Não iniciado', 'In Progress': 'Em andamento', Complete: 'Concluído', Failed: 'Falhou' };
 const tag = (value, tone = '') => `<span class="tag ${tone}">${esc(statusLabels[value] || value || 'Não informado')}</span>`;
 let toastTimer;
 function toast(message) { clearTimeout(toastTimer); toastNode.textContent = message; toastNode.hidden = false; toastTimer = setTimeout(() => { toastNode.hidden = true; }, 10000); }
@@ -15,7 +15,7 @@ async function api(path, options = {}) {
   const response = await fetch(path, { ...options, headers, credentials: 'same-origin', body: options.body instanceof FormData ? options.body : options.body ? JSON.stringify(options.body) : undefined });
   const data = await response.json();
   if (!response.ok) {
-    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.account = null; render(); }
+    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.amazonRead = null; state.account = null; render(); }
     throw new Error(data.message || 'Não foi possível concluir a solicitação.');
   }
   return data;
@@ -88,7 +88,18 @@ function detailPage() {
 function amazonPage() {
   const pending = state.amazonPending;
   return head('Conectar conta Amazon', 'Faça o login na Amazon e salve a conexão diretamente neste servidor.')
-    + `<div class="grid2"><section class="panel"><div class="panelbody"><h2>1. Abrir a Amazon</h2><p>Gere um link novo e entre na sua conta na página da Amazon. Conclua os códigos e verificações que ela solicitar.</p><button class="btn primary" data-amazon-start>${pending ? 'Gerar outro link' : 'Gerar link Amazon'}</button>${pending ? `<p><a class="btn primary" href="${esc(pending.link)}" target="_blank" rel="noopener noreferrer">Abrir login Amazon ↗</a></p><p class="small muted">Link válido até ${esc(date(pending.expiresAt))}. Gerar outro link invalida o anterior.</p>` : ''}</div></section><section class="panel"><div class="panelbody"><h2>2. Salvar a conexão</h2><p>Depois do login, copie a URL final da barra de endereços, mesmo que a página final exiba “não encontrada”.</p>${pending ? `<form id="amazon-finish-form" class="stack"><label class="field">Nome para identificar a conta<input name="label" required maxlength="120" autocomplete="off"></label><label class="field">URL final da Amazon<textarea name="url" required maxlength="16000" rows="5" autocomplete="off" spellcheck="false"></textarea></label><button class="btn primary" type="submit">Confirmar e salvar conexão</button><p class="small muted">Use o retorno do link atual. A URL é enviada somente para validar esta conexão e não fica no histórico de atividade.</p></form>` : '<p class="muted">Gere o link para iniciar uma tentativa.</p>'}</div></section></div><section class="panel"><div class="panelhead"><h2>Conexões salvas</h2></div><div class="panelbody">${state.amazonAccounts.length ? state.amazonAccounts.map(a => `<div class="step"><div><strong>${esc(a.label)}</strong><p class="small muted">Conexão salva em ${esc(date(a.connected_at))}</p></div><button class="btn danger" data-amazon-remove="${esc(a.id)}">Remover deste painel</button></div>`).join('') : '<p>Nenhuma conexão Amazon salva neste painel.</p>'}<p class="muted">Salvar uma conexão não significa aprovação do cadastro. As operações de onboarding direto ainda estão em implementação.</p></div></section>`;
+    + `<div class="grid2"><section class="panel"><div class="panelbody"><h2>1. Abrir a Amazon</h2><p>Gere um link novo e entre na sua conta na página da Amazon. Conclua os códigos e verificações que ela solicitar.</p><button class="btn primary" data-amazon-start>${pending ? 'Gerar outro link' : 'Gerar link Amazon'}</button>${pending ? `<p><a class="btn primary" href="${esc(pending.link)}" target="_blank" rel="noopener noreferrer">Abrir login Amazon ↗</a></p><p class="small muted">Link válido até ${esc(date(pending.expiresAt))}. Gerar outro link invalida o anterior.</p>` : ''}</div></section><section class="panel"><div class="panelbody"><h2>2. Salvar a conexão</h2><p>Depois do login, copie a URL final da barra de endereços, mesmo que a página final exiba “não encontrada”.</p>${pending ? `<form id="amazon-finish-form" class="stack"><label class="field">Nome para identificar a conta<input name="label" required maxlength="120" autocomplete="off"></label><label class="field">URL final da Amazon<textarea name="url" required maxlength="16000" rows="5" autocomplete="off" spellcheck="false"></textarea></label><button class="btn primary" type="submit">Confirmar e salvar conexão</button><p class="small muted">Use o retorno do link atual. A URL é enviada somente para validar esta conexão e não fica no histórico de atividade.</p></form>` : '<p class="muted">Gere o link para iniciar uma tentativa.</p>'}</div></section></div><section class="panel"><div class="panelhead"><h2>Conexões salvas</h2></div><div class="panelbody">${state.amazonAccounts.length ? state.amazonAccounts.map(a => `<div class="step"><div><strong>${esc(a.label)}</strong><p class="small muted">Conexão salva em ${esc(date(a.connected_at))}</p></div><button class="btn" data-amazon-read="${esc(a.id)}">Consultar perfil e etapas</button><button class="btn danger" data-amazon-remove="${esc(a.id)}">Remover deste painel</button></div>`).join('') : '<p>Nenhuma conexão Amazon salva neste painel.</p>'}<p class="muted">Consulte o perfil e as etapas atuais. Salvar uma conexão não significa aprovação do cadastro.</p></div></section>` + amazonReadView();
+}
+function amazonReadView() {
+  const result = state.amazonRead;
+  if (!result) return '';
+  const names = { BASIC_INFO: 'Dados pessoais', AGREEMENTS: 'Acordos e termos', UNIFIED_IDENTITY_VERIFICATION: 'Verificação de identidade',
+    BACKGROUND_CHECK_INFO: 'Antecedentes', COMMERCIAL_INSURANCE: 'Seguro', TAX_INFO: 'Informações fiscais', PAYMENT_INFO: 'Pagamento', TRAINING: 'Treinamento',
+    DEBIT_CARD_APPLICATION: 'Solicitação do cartão', TRANSPORTATION_METHOD_SELECTION: 'Seleção do transporte', PROGRAM_TERMS_AND_CONDITIONS: 'Termos do programa',
+    REGION_SELECTION: 'Seleção da região', PREFERENCE_COLLECTION: 'Preferências', DEBIT_CARD_KYC_CONSENT: 'Consentimento de identificação do cartão',
+    MODES_OF_TRANSPORTATION: 'Meios de transporte', PROGRAM_REQUIREMENTS: 'Requisitos do programa', DEBIT_CARD_ENROLLMENT: 'Adesão ao cartão' };
+  const p = result.profile;
+  return `<section class="panel"><div class="panelhead"><h2>${esc(result.account.label)} · Perfil e etapas</h2></div><div class="panelbody"><p class="small muted">Consulta realizada em ${esc(date(result.checkedAt))}. Valores informados pela Amazon; nenhuma alteração foi enviada.</p>${result.sources.filter(s => !s.ok).map(s => `<div class="errorbox" role="alert"><strong>${s.name === 'profile' ? 'Perfil indisponível' : 'Etapas indisponíveis'}</strong><p>${esc(s.message)}</p></div>`).join('')}<div class="grid2"><div><h3>Perfil</h3>${p ? `<p><strong>${esc(p.displayName || [p.firstName, p.middleName, p.lastName].filter(Boolean).join(' ') || 'Nome não informado')}</strong></p><p>${esc(p.email || 'E-mail não informado')}</p><p>${esc(p.phone || 'Telefone não informado')}</p>` : '<p class="muted">O perfil não foi confirmado nesta consulta.</p>'}</div><div><h3>Etapas do onboarding</h3>${result.onboarding ? `<p>Estado geral: ${esc(statusLabels[result.onboarding.workflowStatus] || result.onboarding.workflowStatus || 'Não informado')}</p>${result.onboarding.tasks.map(t => `<div class="step"><span>${esc(names[t.key] || t.key)}</span>${tag(t.status, 'neutral')}</div>`).join('')}` : '<p class="muted">Sem leitura válida das etapas nesta consulta.</p>'}</div></div></div></section>`;
 }
 function auditPage() {
   const names = { 'auth.login': 'Entrada no painel', 'auth.password_changed': 'Senha do painel alterada', 'apex.connected': 'Apex conectada', 'apex.disconnected': 'Apex desconectada', 'apex.application-data': 'Envio de dados cadastrais', 'apex.documents': 'Envio de documento', 'apex.start': 'Início de execução' };
@@ -131,19 +142,24 @@ root.addEventListener('input', event => {
 });
 root.addEventListener('click', async event => {
   const button = event.target.closest('button'); if (!button || state.busy) return;
+  if (button.dataset.amazonRead) return work(async () => {
+    const id = button.dataset.amazonRead;
+    state.amazonRead = null; render();
+    state.amazonRead = await api(`/api/amazon/accounts/${id}/onboarding`); render();
+  });
   if (button.hasAttribute('data-amazon-start')) return work(async () => {
     state.amazonPending = await api('/api/amazon/connect/start', { method: 'POST', body: {} }); render();
   });
   if (button.dataset.amazonRemove) {
     if (!(await confirmation('Remover conexão Amazon?', 'O token será removido deste painel. Isso não revoga a autorização diretamente na Amazon.'))) return;
-    return work(async () => { await api(`/api/amazon/accounts/${button.dataset.amazonRemove}`, { method: 'DELETE', body: { confirm: true } }); await loadData(); });
+    return work(async () => { await api(`/api/amazon/accounts/${button.dataset.amazonRemove}`, { method: 'DELETE', body: { confirm: true } }); state.amazonRead = null; await loadData(); });
   }
   if (button.dataset.page) {
     state.page = button.dataset.page; state.error = ''; render();
     if (state.page === 'audit') await work(async () => { state.audit = (await api('/api/audit')).events; render(); });
     return;
   }
-  if (button.hasAttribute('data-logout')) return work(async () => { await api('/api/auth/logout', { method: 'POST', body: {} }); Object.assign(state, { user: null, csrf: '', amazonAccounts: [], amazonPending: null, accounts: [], account: null, run: null, integration: null, credits: null, loaded: false }); render(); });
+  if (button.hasAttribute('data-logout')) return work(async () => { await api('/api/auth/logout', { method: 'POST', body: {} }); Object.assign(state, { user: null, csrf: '', amazonAccounts: [], amazonPending: null, amazonRead: null, accounts: [], account: null, run: null, integration: null, credits: null, loaded: false }); render(); });
   if (button.hasAttribute('data-refresh')) return work(loadData);
   if (button.dataset.account) return work(() => openAccount(button.dataset.account));
   if (button.hasAttribute('data-open-current')) return work(() => openAccount(state.account.id));

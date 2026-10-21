@@ -6,6 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ApexClient, HttpError, applicationForm, redact } from './apex.mjs';
 import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } from './amazon.mjs';
+import { AmazonReadClient } from './amazon-read.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -55,6 +56,8 @@ export function createApp(config) {
   if (!db.prepare('SELECT id FROM users LIMIT 1').get()) db.prepare('INSERT INTO users VALUES(?,?,?,1)').run(randomUUID(), adminEmail.toLowerCase(), passwordHash(adminPassword));
   const apex = new ApexClient({ fetchImpl }); const attempts = new Map();
   const amazon = new AmazonClient({ fetchImpl: config.amazonFetchImpl });
+  const amazonReader = new AmazonReadClient({ fetchImpl: config.amazonFetchImpl });
+  const amazonReads = new Set();
   const amazonBusy = new Set();
   const failedHash = passwordHash(randomBytes(32).toString('hex'));
   let busy = false;
@@ -123,6 +126,22 @@ export function createApp(config) {
       if (user.mustChangePassword) throw new HttpError(403, 'password_change_required', 'Troque a senha inicial antes de usar as integrações.');
       if (req.method === 'GET' && pathname === '/api/amazon/accounts') {
         return send(200, { accounts: db.prepare('SELECT id,label,connected_at FROM amazon_accounts WHERE user_id=? ORDER BY connected_at DESC').all(user.id) });
+      }
+      const amazonReadMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/onboarding$/);
+      if (req.method === 'GET' && amazonReadMatch) {
+        if (!uuid(amazonReadMatch[1])) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
+        const account = db.prepare('SELECT * FROM amazon_accounts WHERE id=? AND user_id=?').get(amazonReadMatch[1], user.id);
+        if (!account) throw new HttpError(404, 'not_found', 'Conta não encontrada.');
+        if (amazonReads.has(user.id)) throw new HttpError(409, 'amazon_read_busy', 'Uma consulta Amazon já está em andamento. Aguarde.');
+        let refresh;
+        try { refresh = unseal(account.token, key); }
+        catch { throw new HttpError(503, 'integration_key_error', 'Não foi possível abrir a credencial desta conta.'); }
+        amazonReads.add(user.id);
+        try {
+          const result = await amazonReader.read(refresh);
+          audit(user, 'amazon.read', account.id, result.ok ? 'success' : 'not_confirmed');
+          return send(200, { account: { id: account.id, label: account.label }, ...result });
+        } finally { amazonReads.delete(user.id); }
       }
       if (req.method === 'POST' && pathname === '/api/amazon/connect/start') {
         await jsonBody(req);
