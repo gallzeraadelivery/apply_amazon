@@ -197,3 +197,10 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Backup privado anterior: /opt/backups/gd-apply/20261021T050008Z. Imagem de retorno: gd-apply-app:before-crop-personal-20261021. Preservados .env, MASTER_KEY e volume existente.
 - Smoke HTTPS: health 200; módulo do recorte 200 com MIME JavaScript; rota de envio sem sessão 401; login administrativo válido; uma conexão preservada; requisição com confirm=false rejeitada com 400 confirmation_required antes de chamar a Amazon.
 - Editor validado no navegador local com arquivo sintético: modal, zoom, rotação, JPEG gerado e cancelamento. Guia de perfil disponível. Nenhuma alteração cadastral ou documento real foi enviado nesta tarefa. A confirmação de aceitação real continua dependendo do envio revisado no painel e da resposta do provedor.
+
+### 21/10/2026 — Consulta da leitura existente no dlgenerator
+
+- Inspeção somente de leitura do projeto /srv/dlgenerator e do container dlgenerator-app, sem chamadas de extração nem transmissão de documentos.
+- A rota autenticada POST /api/extract-dl recebe image/mimeType e chama Google Gemini generateContent com imagem e instrução para retornar campos em JSON. Não utiliza Google Cloud Vision OCR nem Document AI.
+- Conferido o código implantado: rota de extração e generateContent presentes; endpoint vision.googleapis.com ausente. Credencial Gemini configurada no ambiente, sem proxy base URL configurado; nenhum valor de chave foi exibido, copiado para o GD Apply ou versionado.
+- O serviço existente realiza extração por modelo multimodal, portanto difere do requisito de OCR puro. Nenhuma mudança de código, credencial ou produção do GD Apply nesta consulta. Não afirmar disponibilidade de cota, validade da chave ou precisão sem teste autorizado.
