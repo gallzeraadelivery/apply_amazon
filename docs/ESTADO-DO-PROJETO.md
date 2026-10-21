@@ -162,3 +162,12 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Alterações de continuidade não exigem reconfigurar nem recriar produção.
 - Validação de continuidade: nove testes passaram no Windows e em um build Linux separado, incluindo geração isolada e preservação das credenciais de desenvolvimento. Analisador HAR executado com uma captura descartável por parâmetro. O helper local entra somente na etapa de testes do build, sem ir à imagem de produção. A aplicação online não foi substituída nesta tarefa.
 - Backup privado consistente de banco e configuração criado sem parar o app em `/opt/backups/gd-apply/20261020T213200Z`; PRAGMA integrity_check retornou ok. Os dados e a chave não foram enviados ao Git. Restauração não foi executada.
+
+### 21/10/2026 — Consulta de aplicação em análise pelo Burp
+
+- Leitura do histórico via bridge local; sem replay, escrita externa ou alteração de produção. Dados brutos permanecem somente em private/.
+- Resposta Apex GET /api/accounts/{id}, Date 21/10/2026 04:24:46 GMT, contém status e automatic_status pending_review, manual_status_override nulo e uma execução também pending_review.
+- Etapas id_verification, id_selfie e background_check estão pending_review; basic_info, legal_documents, tax_interview, auto_insurance, payment_information e videos estão complete no contrato Apex.
+- O frontend de referência inclui pending_review/review no conjunto de etapas consideradas finalizadas para apresentação do progresso. Portanto progresso visual completo não equivale a aprovação.
+- Limite: esta consulta retornou estados armazenados pela Apex; não capturou uma resposta direta Amazon correspondente. A resposta de detalhes mais recente no histórico (04:39:41 GMT) refere-se a outra conta em ready. Não atribuir automaticamente a resposta anterior à tela atual nem afirmar sincronização em tempo real.
+- Próximo passo: atualizar a consulta no navegador sob o proxy para obter nova resposta e, quando disponível, comparar com leitura direta autorizada da mesma conta Amazon.
