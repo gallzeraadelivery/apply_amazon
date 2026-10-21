@@ -50,6 +50,14 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 20/10/2026 — Vínculo observado pelo Burp MCP
+
+- MCP burp-suite 1.1.2 respondeu pelo bridge local configurado. Histórico consultado somente em leitura após o usuário realizar o vínculo.
+- POST amazon-server-login/start retornou HTTP 202 em modo server; oito consultas acompanharam a passagem de connecting para success, com accountStatus=connected e accountId presente na resposta final. Nenhum OTP foi solicitado nessa tentativa.
+- Intervalo entre respostas inicial/final de aproximadamente 12 segundos. A captura é navegador → Apex e não mostra a autenticação interna do servidor Apex na Amazon.
+- Evidências sanitizadas em analysis/vinculo-burp-20261020.md; material bruto em private/, sem versionamento. Nenhuma requisição reproduzida, mudança na aplicação ou publicação.
+- Próximo passo: observar a navegação Amazon pelo modo manual que abre nova aba, ou um login Amazon direto autorizado, para reconstruir o trabalhador no nosso servidor sem API Apex.
+
 ### 20/10/2026 — HARs recebidos e reanalisados
 
 - Os dois arquivos fornecidos foram lidos offline. SHA-256 idêntico aos inventários anteriores: 745 e 761 entradas, ambas capturas de 29/08/2026.
