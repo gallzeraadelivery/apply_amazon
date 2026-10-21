@@ -21,7 +21,7 @@ async function fixture(t, upstream) {
   const request = async (path, method = 'GET', body, headers = {}) => {
     const r = await fetch(base + path, { method, headers: { Origin: 'http://localhost',
       ...(cookie ? { Cookie: cookie } : {}), ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
-      'Content-Type': 'application/json', ...headers }, body: body ? JSON.stringify(body) : undefined });
+      ...(body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...headers }, body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined });
     if (r.headers.get('set-cookie')) cookie = r.headers.get('set-cookie').split(';')[0];
     const data = await r.json(); if (data.csrf) csrf = data.csrf;
     return { status: r.status, data };
@@ -115,4 +115,21 @@ test('onboarding reads stay scoped to the owner and expose no credentials in par
   const callsBefore = f.calls.length;
   assert.equal((await f.request(path)).status, 404);
   assert.equal(f.calls.length, callsBefore);
+});
+
+test('document routes enforce owner, confirmation, CSRF, exact multipart fields and distinct license sides before contacting Amazon', async t => {
+  const f = await fixture(t); const pending = await f.start();
+  const connected = await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(pending));
+  const path = `/api/amazon/accounts/${connected.data.account.id}/uploads/license`;
+  const form = () => { const body = new FormData(); const file = new Blob([Buffer.from([255,216,255,224,1,2,255,217])], { type: 'image/jpeg' }); body.set('front', file, 'front.jpg'); body.set('back', file, 'back.jpg'); return body; };
+  assert.equal((await f.request(path, 'POST', form())).data.error, 'confirmation_required');
+  assert.equal((await f.request(path, 'POST', form(), { 'X-Confirm-Operation': 'upload-amazon', 'X-CSRF-Token': '' })).status, 403);
+  assert.equal((await f.request(path, 'POST', form(), { 'X-Confirm-Operation': 'upload-amazon' })).data.error, 'duplicate_license_sides');
+  const extra = form(); extra.set('accountId', 'foreign');
+  assert.equal((await f.request(path, 'POST', extra, { 'X-Confirm-Operation': 'upload-amazon' })).data.error, 'invalid_upload_fields');
+  const admin = f.app.db.prepare('SELECT password FROM users LIMIT 1').get();
+  f.app.db.prepare('INSERT INTO users VALUES(?,?,?,0)').run('other-document-owner', 'other-document-owner@example.test', admin.password);
+  f.app.db.prepare('UPDATE amazon_accounts SET user_id=?').run('other-document-owner');
+  assert.equal((await f.request(path, 'POST', form(), { 'X-Confirm-Operation': 'upload-amazon' })).status, 404);
+  assert.equal(f.calls.length, 1); // Only the original connection registration.
 });

@@ -34,7 +34,7 @@ server {
     server_name apply.gdapps.online;
     ssl_certificate /etc/letsencrypt/live/apply.gdapps.online/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/apply.gdapps.online/privkey.pem;
-    client_max_body_size 10m;
+    client_max_body_size 20m;
     location / {
         proxy_pass http://gd-apply-app:8080;
         proxy_set_header Host $host;

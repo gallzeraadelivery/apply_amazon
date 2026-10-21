@@ -50,6 +50,15 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### Documentos e fotos — implementação posterior à leitura direta
+
+- Analisadas as rotas do serviço próprio e distinguido o envio de carteira via Amazon/Persona v3 da foto de perfil via S3. A rota antiga Alexandria/driverLicense-info não foi reutilizada.
+- Implementadas rotas multipart por conta, confirmação explícita, Origin/CSRF, limites e assinatura de JPG/PNG, rejeição de frente/verso iguais e campos repetidos. Arquivos transitórios em memória, sem OCR, armazenamento local ou registro de imagens/dados nos logs.
+- Frente/verso só são enviados quando task-state permite ação e a sessão Persona pede documento. Não há selfie estática, callback de conclusão, alteração de status ou repetição automática. Foto de perfil exige confirmação própria da Amazon após o PUT.
+- Painel inclui prévias e confirmação vinculada à conta selecionada. Em falha ou etapa não liberada, informa o problema; não marca onboarding como aprovado.
+- Check e 25 testes locais aprovados, incluindo contrato multipart, confirmação, isolamento por proprietário, sessão não elegível, etapa de selfie, destinos S3 e ausência de repetição após falha. Upload externo real ainda não executado: depende de arquivos do titular e confirmação no painel.
+- Limite Nginx do domínio GD Apply ajustado no procedimento de publicação para 20 MB, acomodando duas imagens de 8 MB. Publicação e smoke serão registrados após execução.
+
 ### 20/10/2026 — Leitura direta do perfil e das etapas
 
 - Implementado src/amazon-read.mjs: troca temporária para access token, GET de perfil, sessão web com cookies em memória e GET do mapa de etapas. Nenhum dado de onboarding alterado.

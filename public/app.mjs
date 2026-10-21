@@ -1,6 +1,6 @@
 const root = document.querySelector('#app');
 const toastNode = document.querySelector('#toast');
-const state = { user: null, csrf: '', page: 'amazon', amazonAccounts: [], amazonPending: null, amazonRead: null, integration: null, accounts: [], account: null, credits: null, run: null, audit: [], search: '', loaded: false, accountLoaded: false, error: '', busy: false };
+const state = { user: null, csrf: '', page: 'amazon', amazonAccounts: [], amazonPending: null, amazonRead: null, amazonDocuments: null, integration: null, accounts: [], account: null, credits: null, run: null, audit: [], search: '', loaded: false, accountLoaded: false, error: '', busy: false };
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const date = v => v ? new Date(v).toLocaleString('pt-BR') : '—';
 const labels = { basic_info: 'Dados pessoais', legal_documents: 'Acordos e termos', id_verification: 'Documento de identidade', id_selfie: 'Selfie e identidade', background_check: 'Antecedentes', auto_insurance: 'Seguro', tax_interview: 'Entrevista fiscal', payment_information: 'Dados de pagamento', videos: 'Treinamento' };
@@ -15,7 +15,7 @@ async function api(path, options = {}) {
   const response = await fetch(path, { ...options, headers, credentials: 'same-origin', body: options.body instanceof FormData ? options.body : options.body ? JSON.stringify(options.body) : undefined });
   const data = await response.json();
   if (!response.ok) {
-    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.amazonRead = null; state.account = null; render(); }
+    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.amazonRead = null; state.amazonDocuments = null; state.account = null; render(); }
     throw new Error(data.message || 'Não foi possível concluir a solicitação.');
   }
   return data;
@@ -88,7 +88,7 @@ function detailPage() {
 function amazonPage() {
   const pending = state.amazonPending;
   return head('Conectar conta Amazon', 'Faça o login na Amazon e salve a conexão diretamente neste servidor.')
-    + `<div class="grid2"><section class="panel"><div class="panelbody"><h2>1. Abrir a Amazon</h2><p>Gere um link novo e entre na sua conta na página da Amazon. Conclua os códigos e verificações que ela solicitar.</p><button class="btn primary" data-amazon-start>${pending ? 'Gerar outro link' : 'Gerar link Amazon'}</button>${pending ? `<p><a class="btn primary" href="${esc(pending.link)}" target="_blank" rel="noopener noreferrer">Abrir login Amazon ↗</a></p><p class="small muted">Link válido até ${esc(date(pending.expiresAt))}. Gerar outro link invalida o anterior.</p>` : ''}</div></section><section class="panel"><div class="panelbody"><h2>2. Salvar a conexão</h2><p>Depois do login, copie a URL final da barra de endereços, mesmo que a página final exiba “não encontrada”.</p>${pending ? `<form id="amazon-finish-form" class="stack"><label class="field">Nome para identificar a conta<input name="label" required maxlength="120" autocomplete="off"></label><label class="field">URL final da Amazon<textarea name="url" required maxlength="16000" rows="5" autocomplete="off" spellcheck="false"></textarea></label><button class="btn primary" type="submit">Confirmar e salvar conexão</button><p class="small muted">Use o retorno do link atual. A URL é enviada somente para validar esta conexão e não fica no histórico de atividade.</p></form>` : '<p class="muted">Gere o link para iniciar uma tentativa.</p>'}</div></section></div><section class="panel"><div class="panelhead"><h2>Conexões salvas</h2></div><div class="panelbody">${state.amazonAccounts.length ? state.amazonAccounts.map(a => `<div class="step"><div><strong>${esc(a.label)}</strong><p class="small muted">Conexão salva em ${esc(date(a.connected_at))}</p></div><button class="btn" data-amazon-read="${esc(a.id)}">Consultar perfil e etapas</button><button class="btn danger" data-amazon-remove="${esc(a.id)}">Remover deste painel</button></div>`).join('') : '<p>Nenhuma conexão Amazon salva neste painel.</p>'}<p class="muted">Consulte o perfil e as etapas atuais. Salvar uma conexão não significa aprovação do cadastro.</p></div></section>` + amazonReadView();
+    + `<div class="grid2"><section class="panel"><div class="panelbody"><h2>1. Abrir a Amazon</h2><p>Gere um link novo e entre na sua conta na página da Amazon. Conclua os códigos e verificações que ela solicitar.</p><button class="btn primary" data-amazon-start>${pending ? 'Gerar outro link' : 'Gerar link Amazon'}</button>${pending ? `<p><a class="btn primary" href="${esc(pending.link)}" target="_blank" rel="noopener noreferrer">Abrir login Amazon ↗</a></p><p class="small muted">Link válido até ${esc(date(pending.expiresAt))}. Gerar outro link invalida o anterior.</p>` : ''}</div></section><section class="panel"><div class="panelbody"><h2>2. Salvar a conexão</h2><p>Depois do login, copie a URL final da barra de endereços, mesmo que a página final exiba “não encontrada”.</p>${pending ? `<form id="amazon-finish-form" class="stack"><label class="field">Nome para identificar a conta<input name="label" required maxlength="120" autocomplete="off"></label><label class="field">URL final da Amazon<textarea name="url" required maxlength="16000" rows="5" autocomplete="off" spellcheck="false"></textarea></label><button class="btn primary" type="submit">Confirmar e salvar conexão</button><p class="small muted">Use o retorno do link atual. A URL é enviada somente para validar esta conexão e não fica no histórico de atividade.</p></form>` : '<p class="muted">Gere o link para iniciar uma tentativa.</p>'}</div></section></div><section class="panel"><div class="panelhead"><h2>Conexões salvas</h2></div><div class="panelbody">${state.amazonAccounts.length ? state.amazonAccounts.map(a => `<div class="step amazon-account-row"><div><strong>${esc(a.label)}</strong><p class="small muted">Conexão salva em ${esc(date(a.connected_at))}</p></div><button class="btn" data-amazon-documents="${esc(a.id)}">Documentos e fotos</button><button class="btn" data-amazon-read="${esc(a.id)}">Consultar perfil e etapas</button><button class="btn danger" data-amazon-remove="${esc(a.id)}">Remover deste painel</button></div>`).join('') : '<p>Nenhuma conexão Amazon salva neste painel.</p>'}<p class="muted">Consulte o perfil e as etapas atuais. Salvar uma conexão não significa aprovação do cadastro.</p></div></section>` + amazonReadView() + amazonDocumentsView();
 }
 function amazonReadView() {
   const result = state.amazonRead;
@@ -100,6 +100,12 @@ function amazonReadView() {
     MODES_OF_TRANSPORTATION: 'Meios de transporte', PROGRAM_REQUIREMENTS: 'Requisitos do programa', DEBIT_CARD_ENROLLMENT: 'Adesão ao cartão' };
   const p = result.profile;
   return `<section class="panel"><div class="panelhead"><h2>${esc(result.account.label)} · Perfil e etapas</h2></div><div class="panelbody"><p class="small muted">Consulta realizada em ${esc(date(result.checkedAt))}. Valores informados pela Amazon; nenhuma alteração foi enviada.</p>${result.sources.filter(s => !s.ok).map(s => `<div class="errorbox" role="alert"><strong>${s.name === 'profile' ? 'Perfil indisponível' : 'Etapas indisponíveis'}</strong><p>${esc(s.message)}</p></div>`).join('')}<div class="grid2"><div><h3>Perfil</h3>${p ? `<p><strong>${esc(p.displayName || [p.firstName, p.middleName, p.lastName].filter(Boolean).join(' ') || 'Nome não informado')}</strong></p><p>${esc(p.email || 'E-mail não informado')}</p><p>${esc(p.phone || 'Telefone não informado')}</p>` : '<p class="muted">O perfil não foi confirmado nesta consulta.</p>'}</div><div><h3>Etapas do onboarding</h3>${result.onboarding ? `<p>Estado geral: ${esc(statusLabels[result.onboarding.workflowStatus] || result.onboarding.workflowStatus || 'Não informado')}</p>${result.onboarding.tasks.map(t => `<div class="step"><span>${esc(names[t.key] || t.key)}</span>${tag(t.status, 'neutral')}</div>`).join('')}` : '<p class="muted">Sem leitura válida das etapas nesta consulta.</p>'}</div></div></div></section>`;
+}
+function amazonDocumentsView() {
+  const account = state.amazonAccounts.find(a => a.id === state.amazonDocuments);
+  if (!account) return '';
+  const input = (name, title) => `<label class="field">${title}<input type="file" name="${name}" accept="image/jpeg,image/png" required data-amazon-preview="${name}"><small>JPG ou PNG · até 8 MB</small><img hidden data-image-preview="${name}" alt="Prévia: ${title}" class="document-preview"></label>`;
+  return `<section class="panel" id="amazon-documents"><div class="panelhead"><h2>Documentos e fotos · ${esc(account.label)}</h2></div><div class="panelbody"><p>Confira a conta e o titular antes de enviar. Escolher arquivos mostra apenas uma prévia neste navegador. O envio ocorre após sua confirmação.</p><div class="grid2"><form class="stack" data-amazon-upload="license" data-account-id="${esc(account.id)}"><h3>Carteira de motorista</h3>${input('front', 'Frente da carteira')}${input('back', 'Verso da carteira')}<button class="btn primary" type="submit">Enviar frente e verso</button><p class="small muted">A Amazon precisa liberar a etapa de identidade. A análise, a selfie e a aprovação continuam no fluxo oficial.</p></form><form class="stack" data-amazon-upload="profile-photo" data-account-id="${esc(account.id)}"><h3>Foto de perfil</h3>${input('file', 'Foto do titular')}<button class="btn primary" type="submit">Enviar foto de perfil</button><p class="small muted">Foto de perfil é diferente da selfie de verificação. Nenhuma pose ou imagem é gerada pelo painel.</p></form></div><p class="muted">Após o envio, consulte as etapas para conferir o processamento. Se o resultado ficar incerto, confira o estado antes de repetir.</p></div></section>`;
 }
 function auditPage() {
   const names = { 'auth.login': 'Entrada no painel', 'auth.password_changed': 'Senha do painel alterada', 'apex.connected': 'Apex conectada', 'apex.disconnected': 'Apex desconectada', 'apex.application-data': 'Envio de dados cadastrais', 'apex.documents': 'Envio de documento', 'apex.start': 'Início de execução' };
@@ -140,8 +146,22 @@ async function openAccount(id) {
 root.addEventListener('input', event => {
   if (event.target.id === 'account-search') { state.search = event.target.value; document.querySelector('#account-table').innerHTML = accountsTable(); }
 });
+root.addEventListener('change', event => {
+  const input = event.target;
+  if (!input.dataset.amazonPreview) return;
+  const preview = input.closest('label').querySelector('img'); const file = input.files?.[0];
+  preview.hidden = true; preview.removeAttribute('src');
+  if (!file) return;
+  if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 8 * 1024 * 1024) { input.value = ''; return toast('Escolha JPG ou PNG de até 8 MB.'); }
+  const reader = new FileReader(); reader.onload = () => {
+    if (preview.isConnected && input.files?.[0] === file) { preview.src = reader.result; preview.hidden = false; }
+  }; reader.onerror = () => toast('Não foi possível abrir a prévia desta imagem.'); reader.readAsDataURL(file);
+});
 root.addEventListener('click', async event => {
   const button = event.target.closest('button'); if (!button || state.busy) return;
+  if (button.dataset.amazonDocuments) {
+    state.amazonDocuments = button.dataset.amazonDocuments; render(); document.querySelector('#amazon-documents')?.scrollIntoView({ behavior: 'smooth' }); return;
+  }
   if (button.dataset.amazonRead) return work(async () => {
     const id = button.dataset.amazonRead;
     state.amazonRead = null; render();
@@ -152,14 +172,14 @@ root.addEventListener('click', async event => {
   });
   if (button.dataset.amazonRemove) {
     if (!(await confirmation('Remover conexão Amazon?', 'O token será removido deste painel. Isso não revoga a autorização diretamente na Amazon.'))) return;
-    return work(async () => { await api(`/api/amazon/accounts/${button.dataset.amazonRemove}`, { method: 'DELETE', body: { confirm: true } }); state.amazonRead = null; await loadData(); });
+    return work(async () => { await api(`/api/amazon/accounts/${button.dataset.amazonRemove}`, { method: 'DELETE', body: { confirm: true } }); state.amazonRead = null; state.amazonDocuments = null; await loadData(); });
   }
   if (button.dataset.page) {
     state.page = button.dataset.page; state.error = ''; render();
     if (state.page === 'audit') await work(async () => { state.audit = (await api('/api/audit')).events; render(); });
     return;
   }
-  if (button.hasAttribute('data-logout')) return work(async () => { await api('/api/auth/logout', { method: 'POST', body: {} }); Object.assign(state, { user: null, csrf: '', amazonAccounts: [], amazonPending: null, amazonRead: null, accounts: [], account: null, run: null, integration: null, credits: null, loaded: false }); render(); });
+  if (button.hasAttribute('data-logout')) return work(async () => { await api('/api/auth/logout', { method: 'POST', body: {} }); Object.assign(state, { user: null, csrf: '', amazonAccounts: [], amazonPending: null, amazonRead: null, amazonDocuments: null, accounts: [], account: null, run: null, integration: null, credits: null, loaded: false }); render(); });
   if (button.hasAttribute('data-refresh')) return work(loadData);
   if (button.dataset.account) return work(() => openAccount(button.dataset.account));
   if (button.hasAttribute('data-open-current')) return work(() => openAccount(state.account.id));
@@ -179,6 +199,18 @@ root.addEventListener('click', async event => {
 });
 root.addEventListener('submit', async event => {
   event.preventDefault(); const form = event.target; if (state.busy) return;
+  if (form.dataset.amazonUpload) {
+    const account = state.amazonAccounts.find(a => a.id === form.dataset.accountId); if (!account) return;
+    const body = new FormData(form);
+    if ([...body.values()].some(f => !(f instanceof File) || !f.size || f.size > 8 * 1024 * 1024 || !['image/jpeg', 'image/png'].includes(f.type))) return toast('Selecione imagens JPG ou PNG de até 8 MB.');
+    if (!(await confirmation('Confirmar envio para a Amazon?', `Conta: ${account.label}. ${form.dataset.amazonUpload === 'license' ? 'Serão enviadas a frente e o verso da carteira do titular para análise de identidade.' : 'Será enviada a foto de perfil do titular.'} Confira as prévias antes de confirmar.`, 'Enviar imagens'))) return;
+    return work(async () => {
+      try {
+        const result = await api(`/api/amazon/accounts/${account.id}/uploads/${form.dataset.amazonUpload}`, { method: 'POST', headers: { 'X-Confirm-Operation': 'upload-amazon' }, body });
+        toast(result.notice);
+      } finally { form.reset(); form.querySelectorAll('img').forEach(img => { img.hidden = true; img.removeAttribute('src'); }); }
+    });
+  }
   const fields = Object.fromEntries(new FormData(form));
   if (form.id === 'amazon-finish-form') {
     if (!state.amazonPending) return;

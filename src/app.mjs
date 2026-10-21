@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { ApexClient, HttpError, applicationForm, redact } from './apex.mjs';
 import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } from './amazon.mjs';
 import { AmazonReadClient } from './amazon-read.mjs';
+import { AmazonUploadClient, validateUploadImage } from './amazon-upload.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -58,6 +59,8 @@ export function createApp(config) {
   const amazon = new AmazonClient({ fetchImpl: config.amazonFetchImpl });
   const amazonReader = new AmazonReadClient({ fetchImpl: config.amazonFetchImpl });
   const amazonReads = new Set();
+  const amazonUploader = new AmazonUploadClient({ fetchImpl: config.amazonFetchImpl });
+  const amazonUploads = new Set();
   const amazonBusy = new Set();
   const failedHash = passwordHash(randomBytes(32).toString('hex'));
   let busy = false;
@@ -128,6 +131,39 @@ export function createApp(config) {
         return send(200, { accounts: db.prepare('SELECT id,label,connected_at FROM amazon_accounts WHERE user_id=? ORDER BY connected_at DESC').all(user.id) });
       }
       const amazonReadMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/onboarding$/);
+      const amazonUploadMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/uploads\/(license|profile-photo)$/);
+      if (req.method === 'POST' && amazonUploadMatch) {
+        const [, id, kind] = amazonUploadMatch;
+        if (!uuid(id)) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
+        const account = db.prepare('SELECT * FROM amazon_accounts WHERE id=? AND user_id=?').get(id, user.id);
+        if (!account) throw new HttpError(404, 'not_found', 'Conta não encontrada.');
+        if (req.headers['x-confirm-operation'] !== 'upload-amazon') throw new HttpError(400, 'confirmation_required', 'Confirme a conta e o envio destas imagens para a Amazon.');
+        if (!/^multipart\/form-data\s*;/i.test(req.headers['content-type'] ?? '')) throw new HttpError(415, 'multipart_required', 'Envie as imagens por multipart/form-data.');
+        if (amazonUploads.has(user.id) || amazonUploads.size >= 2) throw new HttpError(409, 'amazon_upload_busy', 'Há um envio em andamento. Aguarde antes de tentar novamente.');
+        amazonUploads.add(user.id);
+        try {
+          const payload = await bytes(req, kind === 'license' ? 17 * 1024 * 1024 : 9 * 1024 * 1024);
+          let form;
+          try { form = await new Request('https://localhost/upload', { method: 'POST', headers: { 'content-type': req.headers['content-type'] }, body: payload }).formData(); }
+          catch { throw new HttpError(400, 'invalid_upload', 'Não foi possível ler o envio das imagens.'); }
+          const names = kind === 'license' ? ['front', 'back'] : ['file'];
+          if ([...form.keys()].some(k => !names.includes(k)) || names.some(k => form.getAll(k).length !== 1)) throw new HttpError(400, 'invalid_upload_fields', 'O envio contém campos ausentes, repetidos ou inválidos.');
+          const images = await Promise.all(names.map(k => validateUploadImage(form.get(k))));
+          if (kind === 'license') {
+            const digests = await Promise.all(images.map(async img => hash(Buffer.from(await img.arrayBuffer()))));
+            if (digests[0] === digests[1]) throw new HttpError(400, 'duplicate_license_sides', 'Frente e verso não podem ser a mesma imagem.');
+          }
+          let refresh;
+          try { refresh = unseal(account.token, key); }
+          catch { throw new HttpError(503, 'integration_key_error', 'Não foi possível abrir a credencial desta conta.'); }
+          audit(user, `amazon.upload.${kind}`, account.id, 'requested');
+          try {
+            const result = kind === 'license' ? await amazonUploader.uploadLicense(refresh, ...images) : await amazonUploader.uploadProfile(refresh, images[0]);
+            audit(user, `amazon.upload.${kind}`, account.id, 'http_success');
+            return send(200, result);
+          } catch (error) { audit(user, `amazon.upload.${kind}`, account.id, 'not_confirmed'); throw error; }
+        } finally { amazonUploads.delete(user.id); }
+      }
       if (req.method === 'GET' && amazonReadMatch) {
         if (!uuid(amazonReadMatch[1])) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
         const account = db.prepare('SELECT * FROM amazon_accounts WHERE id=? AND user_id=?').get(amazonReadMatch[1], user.id);

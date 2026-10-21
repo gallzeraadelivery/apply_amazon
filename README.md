@@ -36,11 +36,15 @@ Verificação: `npm run check` e `npm test`. Os testes incluem autenticação/CS
 - POST `/api/amazon/connect/finish`: `{connectId,url,label,confirm:true}`; recebe somente o retorno do link gerado nesta tentativa. A tentativa é consumida antes da troca do código, inclusive quando o resultado é incerto. Gere um link novo para tentar novamente.
 - GET `/api/amazon/accounts`: lista conexões do usuário, sem tokens.
 - GET `/api/amazon/accounts/{id}/onboarding`: consulta perfil e etapas atuais, com `checkedAt`, `sources`, `profile` e `onboarding`. HTTP 200 pode representar resultado parcial: conferir `ok` e cada fonte. Nenhum estado anterior é apresentado como leitura nova em caso de falha.
+- POST `/api/amazon/accounts/{id}/uploads/license`: multipart com exatamente `front` e `back`, JPG/PNG até 8 MB por imagem. Requer `X-Confirm-Operation: upload-amazon`, Origin e CSRF. Envia para a etapa de documento da Persona somente quando Amazon informa elegibilidade e a sessão atual pede documento.
+- POST `/api/amazon/accounts/{id}/uploads/profile-photo`: multipart com exatamente `file` e as mesmas proteções. Transfere a foto para URL S3 emitida pela Amazon e exige confirmação de associação ao perfil.
 - DELETE `/api/amazon/accounts/{id}`: `{confirm:true}`; remove a credencial deste painel, sem revogação remota automática.
 
 Na aba **Amazon direta**, gere um link e abra o login. Copie a URL final `/ap/maplanding` mesmo se a página final exibir erro; somente a resposta da troca no backend confirma a conexão. Não use links ou códigos das capturas anteriores. A implementação usa configurações do serviço próprio amazonteste, sem proxy Burp e sem enviar a senha Amazon ao painel. A compatibilidade atual desse fluxo de dispositivo ainda precisa de validação com conta autorizada.
 
 Nas conexões salvas, **Consultar perfil e etapas** lê o perfil por access token e abre uma sessão web temporária para ler o onboarding. Cookies respeitam domínio/caminho, expiração e uma lista restrita de destinos de SSO. A consulta tem orçamento de 30 segundos e não faz polling automático. A primeira conexão e a primeira leitura autenticada real foram validadas em 20/10/2026; isso não garante disponibilidade permanente do serviço externo.
+
+**Documentos e fotos** permite conferir prévias da frente/verso da carteira e foto de perfil antes de confirmar o envio para a conta selecionada. As imagens são transitórias em memória, sem gravação local, OCR ou transformação. Envio aceito não significa aprovação. Selfie/liveness continua no fluxo oficial; nenhum callback de conclusão ou pose é gerado. Os contratos de upload foram testados com respostas controladas; a aceitação real depende da etapa liberada e dos arquivos escolhidos pelo titular. Não repetir envio após resultado incerto sem consultar o estado.
 
 - `/api/auth/login`, `/api/auth/session`, `/api/auth/logout`, `/api/auth/password`: autenticação local.
 - `/api/integrations`: estado das conexões; `/api/integrations/apex/connect`: login remoto; DELETE `/api/integrations/apex`: remoção do token local.
