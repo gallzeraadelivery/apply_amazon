@@ -17,6 +17,19 @@ Nos dois arquivos, a busca por rotas Amazon com prefixos /ap/, /auth/, /signin e
 
 As consultas Amazon relevantes já contêm Cookie. Portanto, não há evidência suficiente para implementar aquisição/renovação de sessão nova apenas com estes arquivos. Os cookies históricos não devem ser importados como método de conexão do sistema.
 
+### Abertura da tela Amazon e fluxo manual da referência
+
+Após indicação do usuário, foi verificado o destino do parâmetro openid.return_to de /ap/signin: host logistics.amazon.com, caminho /onboarding. Isso identifica a intenção de abrir a Amazon e retornar ao onboarding, embora a resposta capturada seja 404 e o corpo não contenha um campo de senha ou formulário de login detectável pelas expressões usadas. A ausência desses elementos não permite concluir como a página foi exibida fora da captura.
+
+Há um fluxo mais explícito no frontend público Apex, em analysis/app.js:
+
+1. createAmazonSession abre uma aba vazia e solicita POST /api/amazon/signin-url.
+2. O backend retorna data.url; o frontend navega a aba para essa URL. O frontend não constrói o endereço completo de autenticação.
+3. A interface orienta o operador a copiar a URL final de retorno após entrar na Amazon.
+4. connectAmazonReturn envia essa URL no campo sessionRef por multipart para POST /api/accounts ou /api/accounts/{id}/reconnect.
+
+Esse fluxo é distinto de amazon-server-login/start, que recebe credenciais para login intermediado no servidor. A reconstrução própria pode investigar a mesma experiência de abrir a Amazon e receber um retorno, mas ainda precisa estabelecer geração da URL, correlação com a tentativa e validação/troca do retorno no nosso backend. A existência de sessionRef no frontend não demonstra que uma URL arbitrária dê acesso à sessão ou revele seu mecanismo. Não é necessário usar a API Apex para implementar um fluxo próprio quando esses contratos forem estabelecidos.
+
 ## CSRF: relação confirmada por comparação em memória
 
 Foram comparados os valores em memória, emitindo somente resultados booleanos:
