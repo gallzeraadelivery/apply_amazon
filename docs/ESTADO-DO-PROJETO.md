@@ -50,6 +50,13 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 20/10/2026 — Primeira conexão Amazon direta confirmada
+
+- O titular concluiu uma tentativa nova no GD Apply. O banco de produção contém uma conexão salva às 23:48:58 (America/Cuiaba), com evento amazon.connected em success.
+- Verificação somente de leitura confirmou que a credencial armazenada pode ser decriptada com a chave de produção. Nenhum token, identidade ou dado pessoal foi exportado.
+- A rota publicada somente salva a conta após resposta de sucesso da Amazon contendo refresh token; portanto a troca autenticada do código foi validada nesta tentativa real, sem API Apex ou serviço amazonteste.
+- Não foram consultados perfil ou estado de onboarding com a nova credencial. Próximo passo: implementar consultas diretas de leitura e validar a sessão, mantendo alterações externas fora desta etapa.
+
 ### 20/10/2026 — Conexão manual direta no GD Apply
 
 - Implementado src/amazon.mjs e rotas locais para tentativa PKCE, conclusão e remoção de conexões. Adaptado o fluxo do serviço próprio, sem dependência da API Apex ou proxy Burp; sem rotação de perfis de dispositivo.
