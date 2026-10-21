@@ -1,5 +1,6 @@
 import { createApp } from './app.mjs';
 const app = createApp({
+  ocrProvider: process.env.OCR_PROVIDER || 'local', geminiApiKey: process.env.GEMINI_API_KEY, geminiModel: process.env.GEMINI_OCR_MODEL || 'gemini-3.8-flash',
   dbPath: process.env.DB_PATH || './data/app.sqlite', masterKey: process.env.MASTER_KEY,
   adminEmail: process.env.ADMIN_EMAIL, adminPassword: process.env.ADMIN_PASSWORD,
   origin: process.env.APP_ORIGIN || 'https://apply.gdapps.online', production: process.env.NODE_ENV !== 'development',

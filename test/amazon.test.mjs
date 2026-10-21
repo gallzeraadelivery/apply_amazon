@@ -186,3 +186,13 @@ test('personal route binds confirmation to saved version, ownership and CSRF bef
   const other='00000000-0000-4000-8000-000000000000';assert.equal((await f.request(`/api/amazon/accounts/${other}/personal-info`,'POST',{confirm:true,savedAt:save.data.draft.savedAt})).status,404);
   assert.equal(f.calls.length,before);
 });
+
+test('Google OCR route keeps auth/CSRF boundaries and returns structured fields without changing saved form',async t=>{
+ let calls=0;const f=await fixture(t,null,{ocrProvider:'gemini',geminiApiKey:'synthetic-google-key',ocrFetchImpl:async()=>{calls++;return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({firstName:'SAMPLE',middleName:'DEMO',lastName:'TESTER'})}]}}]})}});
+ const p=await f.start();const id=(await f.request('/api/amazon/connect/finish','POST',f.finishBody(p))).data.account.id;
+ const bytes=Buffer.alloc(32);Buffer.from('89504e470d0a1a0a','hex').copy(bytes);Buffer.from('IHDR').copy(bytes,12);bytes.writeUInt32BE(100,16);bytes.writeUInt32BE(100,20);
+ const form=new FormData();form.set('file',new Blob([bytes],{type:'image/png'}),'synthetic.png');
+ assert.equal((await f.request(`/api/amazon/accounts/${id}/ocr`,'POST',form,{'X-CSRF-Token':''})).status,403);assert.equal(calls,0);
+ const r=await f.request(`/api/amazon/accounts/${id}/ocr`,'POST',form);assert.equal(r.status,200);assert.equal(r.data.engine,'google-gemini');assert.equal(r.data.fields.middleName,'DEMO');assert.equal(calls,1);
+ assert.equal((await f.request(`/api/amazon/accounts/${id}/form`)).data.draft,null);assert.ok(!JSON.stringify(r.data).includes('synthetic-google-key'));
+});

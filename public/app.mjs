@@ -152,7 +152,7 @@ function readAttachedLicense(kind, file) {
       }
       state.formSavedAt = null; state.formDirty = true;
       const status = document.querySelector('#case-form-state'); if (status) status.textContent = 'Leitura nova · revise e salve os dados.';
-      showOcrStatus('Leitura concluída. Confira os campos preenchidos; suas correções manuais foram preservadas.');
+      showOcrStatus((result.engine === 'google-gemini' ? 'Leitura Google concluída. ' : 'Leitura concluída. ') + 'Confira os campos preenchidos; suas correções manuais foram preservadas.');
     } catch (error) { if (state.page === 'amazon-detail' && state.amazonDetail === accountId && state.ocrFiles[kind] === file) showOcrStatus(error.message + ' Os dados já preenchidos foram mantidos.'); }
   });
 }

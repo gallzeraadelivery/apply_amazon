@@ -10,6 +10,7 @@ import { AmazonReadClient } from './amazon-read.mjs';
 import { AmazonUploadClient, validateUploadImage } from './amazon-upload.mjs';
 import { AmazonPersonalClient } from './amazon-personal.mjs';
 import { DocumentVault } from './document-vault.mjs';
+import { extractGeminiFields } from './gemini-ocr.mjs';
 import { extractLicenseFields } from './local-ocr.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -164,9 +165,11 @@ export function createApp(config) {
             catch { throw new HttpError(400, 'invalid_upload', 'Não foi possível ler a imagem.'); }
             if ([...form.keys()].some(k => k !== 'file') || form.getAll('file').length !== 1) throw new HttpError(400, 'invalid_upload_fields', 'Envie exatamente uma imagem da carteira.');
             const image = await validateUploadImage(form.get('file'));
-            const fields = await extractLicenseFields(Buffer.from(await image.arrayBuffer()), config.ocrRecognize);
+            const imageBytes = Buffer.from(await image.arrayBuffer());
+            const google = config.ocrProvider === 'gemini';
+            const fields = google ? await extractGeminiFields(imageBytes,image.type,{apiKey:config.geminiApiKey,model:config.geminiModel,fetchImpl:config.ocrFetchImpl}) : await extractLicenseFields(imageBytes, config.ocrRecognize);
             audit(user, 'amazon.ocr', accountId, 'success');
-            return send(200, { fields, engine: 'local-tesseract', notice: 'Leitura concluída. Revise os campos antes de salvar.' });
+            return send(200, { fields, engine: google ? 'google-gemini' : 'local-tesseract', notice: 'Leitura concluída. Revise os campos antes de salvar.' });
           } finally { ocrBusy = false; }
         }
         throw new HttpError(405, 'method_not_allowed', 'Operação indisponível.');

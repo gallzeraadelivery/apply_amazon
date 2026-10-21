@@ -204,3 +204,12 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - A rota autenticada POST /api/extract-dl recebe image/mimeType e chama Google Gemini generateContent com imagem e instrução para retornar campos em JSON. Não utiliza Google Cloud Vision OCR nem Document AI.
 - Conferido o código implantado: rota de extração e generateContent presentes; endpoint vision.googleapis.com ausente. Credencial Gemini configurada no ambiente, sem proxy base URL configurado; nenhum valor de chave foi exibido, copiado para o GD Apply ou versionado.
 - O serviço existente realiza extração por modelo multimodal, portanto difere do requisito de OCR puro. Nenhuma mudança de código, credencial ou produção do GD Apply nesta consulta. Não afirmar disponibilidade de cota, validade da chave ou precisão sem teste autorizado.
+
+### 21/10/2026 — Leitura Gemini autorizada com a credencial do dlgenerator
+
+- Usuário autorizou usar o mesmo Gemini e a mesma credencial existente do dlgenerator. Credencial transferida internamente no servidor para o ambiente privado do GD Apply, sem valor em logs, argumentos, Git ou navegador; serviço de origem preservado.
+- Modelo gemini-3.8-flash, primeiro da implementação anterior, conferido na listagem autenticada de modelos disponíveis. Adaptador próprio usa host oficial fixo, chave no cabeçalho e saída JSON com esquema dos campos do formulário, sem o parser heurístico local.
+- Sem ferramentas externas ou instruções vindas da imagem; campos ausentes devem retornar vazios. Validação de tipos, comprimentos, datas e ZIP; fotos limitadas a 8 MB/6 MP, resposta limitada e timeout de 30 segundos. Falha/quota não gera repetição automática ou fallback silencioso para Tesseract.
+- Correções manuais, revisão, cofre e envio cadastral separado continuam preservados. Leitura não altera a Amazon nem verifica autenticidade. Aviso no formulário identifica o processamento Google.
+- 39 testes locais passaram: contrato estruturado, segredo somente em cabeçalho, falhas sanitizadas, limites, isolamento/CSRF da rota e ausência de persistência automática no rascunho.
+- Backup privado anterior: /opt/backups/gd-apply/20261021T051019Z. Implantação e teste real da API com imagem sintética ainda pendentes neste registro.
