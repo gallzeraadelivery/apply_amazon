@@ -58,7 +58,9 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 - Salvar imagem é uma ação local; enviar à Amazon exige confirmação separada. Metadados distinguem cópia local, transferência confirmada e resultado incerto. Imagens novas não herdam a confirmação de uma versão anterior.
 - Adicionada leitura opcional dos campos pessoais de personal-info, sem SSN, tokens ou outros campos fora da lista explícita. Falha nessa consulta não apaga um mapa válido de etapas.
 - Check e 28 testes locais passaram. Layout conferido visualmente no navegador com dados de demonstração; persistência após reabertura, criptografia, vinculação de contexto, isolamento e cache testados.
-- Publicação e smoke HTTPS serão registrados após execução. Nenhuma imagem de referência do usuário foi utilizada como documento de uma conta.
+- Publicado commit 0355de4 no container gd-apply-app, preservando banco, chave e conexão Amazon. Backup privado anterior em /opt/backups/gd-apply/20261021T041848Z. Os 28 testes passaram também no build Linux; nginx -t aprovado.
+- Smoke HTTPS confirmou módulo JavaScript servido com MIME correto, uma conexão preservada, leitura real de 17 etapas e dados pessoais opcionais, e HTTP 401 para documentos sem sessão. O cofre estava vazio: nenhum documento de teste ou imagem da referência foi anexado à conta real.
+- Próximo passo: abrir a aplicação, anexar os arquivos do titular e usar Salvar imagem para manter as prévias visíveis ao reabrir. Enviar ao provedor continua sendo uma confirmação separada.
 
 ### Documentos e fotos — implementação posterior à leitura direta
 
