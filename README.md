@@ -103,3 +103,7 @@ Depois de revisar, use **Salvar dados no painel**; o nome salvo aparece no cabe�
 ## Leitura Google da carteira
 
 Produção usa Gemini, com a mesma API e credencial autorizadas do serviço dlgenerator. Configure `OCR_PROVIDER=gemini`, `GEMINI_API_KEY` e `GEMINI_OCR_MODEL` somente no ambiente do servidor. A imagem recortada é enviada diretamente pelo backend ao Google; chave não vai ao navegador nem à URL. O modelo retorna campos estruturados com datas validadas e nomes separados. Não há fallback silencioso para leitura local, repetição automática ou envio à Amazon nesta leitura. Correções manuais continuam preservadas. `OCR_PROVIDER=local` mantém Tesseract para desenvolvimento. A qualidade precisa ser conferida nas imagens reais; leitura não equivale a verificação de identidade.
+
+## Preparação de selfies
+
+A aplicação possui três anexos locais: frente, rosto para sua esquerda e rosto para sua direita. São cópias criptografadas por conta e posição, com revisão e ajuste. Não acionam OCR nem o envio de foto de perfil. A interface não envia essas imagens à Persona: falta capturar e validar o contrato da sessão oficial. Não substituem a verificação de presença exigida pelo provedor.

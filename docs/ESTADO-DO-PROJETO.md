@@ -230,3 +230,10 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Corpos de envio das entradas 216, 283 e 297 não estão presentes em postData; possuem metadados _requestBodyStatus/comment e tamanhos de aproximadamente 2,5 MB, 2,6 MB e 559 KB. Portanto não é possível deduzir seus campos multipart ou afirmar que representam um envio completo de selfie somente pela URL e pelo tamanho.
 - Há chamadas a webrtc-consumer.withpersona.com/connect e callbacks Amazon; isso evidencia participação do fluxo Persona, não aprovação nem autorização para fabricar poses/callbacks.
 - Nenhuma chamada externa, reprodução de sessão ou alteração de produção. Próximo passo: nova captura autorizada do fluxo oficial incluindo os corpos de requisição relevantes, sem publicar tokens, imagens ou biometria; preservar selfie/liveness no fluxo oficial.
+
+### 21/10/2026 — Preparação de três anexos de selfie
+
+- A pedido do usuário, adicionados três anexos distintos: selfie-front (frente), selfie-left (rosto para a própria esquerda) e selfie-right (rosto para a própria direita). Ordem declarada pelo usuário, ainda não validada como contrato da sessão Persona.
+- Prévia, guia oval, ajuste, download, substituição e remoção reaproveitam a proteção existente. Cofre AES-GCM vincula usuário, conta, tipo e MIME; imagens persistem ao reabrir. Não há geração de poses, modificação de identidade ou reaproveitamento automático de uma foto nos três espaços.
+- Nenhuma selfie é enviada ao Gemini/OCR ou ao endpoint de foto de perfil. Não há botão de envio Persona: a interface explicita preparação local e captura oficial pendente. Campos multipart e requisitos da sessão serão definidos por evidência nova; imagens estáticas não são apresentadas como cumprimento de liveness.
+- 41 testes passaram, incluindo três espaços criptografados distintos, ordem da interface, CSRF e salvamento sem chamadas Google/Amazon/Persona. Nenhuma imagem real anexada como teste. Implantação pendente neste registro.

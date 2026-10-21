@@ -174,7 +174,7 @@ export function createApp(config) {
         }
         throw new HttpError(405, 'method_not_allowed', 'Operação indisponível.');
       }
-      const documentMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/documents(?:\/(front|back|profile))?$/);
+      const documentMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/documents(?:\/(front|back|profile|selfie-front|selfie-left|selfie-right))?$/);
       if (documentMatch) {
         const [, accountId, kind] = documentMatch;
         if (!uuid(accountId)) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');

@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 
-export const documentKinds = ['front', 'back', 'profile'];
+export const documentKinds = ['front', 'back', 'profile', 'selfie-front', 'selfie-left', 'selfie-right'];
 export const applicationFields = ['firstName','middleName','lastName','phoneNumber','email','addressLine1','city','state','zipCode','dateOfBirth','driversLicenseNumber','driversLicenseExpirationDate','stateOrRegion'];
 export class DocumentVault {
   constructor(db, key) {

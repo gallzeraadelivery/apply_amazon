@@ -218,7 +218,7 @@ root.addEventListener('click', async event => {
       let file=state.documentDrafts[kind]?.file;
       if(!file){const response=await fetch(`/api/amazon/accounts/${accountId}/documents/${kind}`,{credentials:'same-origin'});if(!response.ok)throw Error('Não foi possível abrir a imagem salva.');file=await response.blob();}
       const selected=await adjustImage(file,kind);if(!selected||state.amazonDetail!==accountId)return;
-      const reader=new FileReader();reader.onload=()=>{if(state.amazonDetail!==accountId)return;state.documentDrafts[kind]={file:selected,preview:reader.result};render();if(kind!=='profile')readAttachedLicense(kind,selected)};reader.readAsDataURL(selected);
+      const reader=new FileReader();reader.onload=()=>{if(state.amazonDetail!==accountId)return;state.documentDrafts[kind]={file:selected,preview:reader.result};render();if(['front','back'].includes(kind))readAttachedLicense(kind,selected)};reader.readAsDataURL(selected);
     }catch(error){toast(error.message)}return;
   }
   if (button.hasAttribute('data-send-personal')) {

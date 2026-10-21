@@ -45,3 +45,17 @@ test('account layout escapes values and distinguishes local files from provider 
   assert.ok(html.includes('Salvo no painel')); assert.ok(!html.includes('Recebido pelo provedor'));
   assert.ok(html.includes('data-case-field="firstName"')); assert.ok(html.includes('case-fields-form')); assert.ok(html.includes('/documents/front'));
 });
+
+test('three selfie slots stay distinct, encrypted and unsubmitted in the preparation layout',()=>{
+ const db=new DatabaseSync(':memory:');db.exec("PRAGMA foreign_keys=ON; CREATE TABLE amazon_accounts(id TEXT PRIMARY KEY); INSERT INTO amazon_accounts VALUES('account')");
+ try{
+  const vault=new DocumentVault(db,randomBytes(32));
+  for(const kind of ['selfie-front','selfie-left','selfie-right'])vault.save('owner','account',kind,'image/jpeg',Buffer.from('synthetic-'+kind));
+  assert.equal(vault.list('account').length,3);
+  for(const kind of ['selfie-front','selfie-left','selfie-right'])assert.equal(vault.read('owner','account',kind).bytes.toString(),'synthetic-'+kind);
+  assert.throws(()=>vault.read('other','account','selfie-front'));
+  const html=renderAmazonDetail({account:{id:'account',label:'Synthetic'},documents:vault.list('account')});
+  assert.ok(html.indexOf('1 · Olhando para frente')<html.indexOf('2 · Rosto para sua esquerda'));assert.ok(html.indexOf('2 · Rosto para sua esquerda')<html.indexOf('3 · Rosto para sua direita'));
+  assert.ok(html.includes('envio ainda não está conectado à Persona'));assert.ok(!/data-read-document="selfie-/.test(html));assert.ok(!/data-send-saved="selfie/.test(html));
+ }finally{db.close()}
+});

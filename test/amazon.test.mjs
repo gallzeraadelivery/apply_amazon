@@ -196,3 +196,16 @@ test('Google OCR route keeps auth/CSRF boundaries and returns structured fields 
  const r=await f.request(`/api/amazon/accounts/${id}/ocr`,'POST',form);assert.equal(r.status,200);assert.equal(r.data.engine,'google-gemini');assert.equal(r.data.fields.middleName,'DEMO');assert.equal(calls,1);
  assert.equal((await f.request(`/api/amazon/accounts/${id}/form`)).data.draft,null);assert.ok(!JSON.stringify(r.data).includes('synthetic-google-key'));
 });
+
+test('selfie preparation saves three separate private slots without Google or Persona calls',async t=>{
+ const f=await fixture(t);const p=await f.start();const id=(await f.request('/api/amazon/connect/finish','POST',f.finishBody(p))).data.account.id;const before=f.calls.length;
+ for(const [i,kind] of ['selfie-front','selfie-left','selfie-right'].entries()){
+  const form=new FormData();form.set('file',new Blob([Buffer.from([255,216,255,224,i,255,217])],{type:'image/jpeg'}),'synthetic.jpg');
+  const path=`/api/amazon/accounts/${id}/documents/${kind}`;
+  assert.equal((await f.request(path,'POST',form,{'X-CSRF-Token':''})).status,403);
+  const saved=await f.request(path,'POST',form);assert.equal(saved.status,200);assert.equal(saved.data.documents.find(d=>d.kind===kind).status,'local');
+  assert.equal((await f.request(path)).status,200);
+ }
+ assert.equal((await f.request(`/api/amazon/accounts/${id}/documents`)).data.documents.length,3);assert.equal(f.calls.length,before);
+ assert.equal((await f.request(`/api/amazon/accounts/${id}/uploads/selfie-front`,'POST',{confirm:true})).status,503);assert.equal(f.calls.length,before);
+});
