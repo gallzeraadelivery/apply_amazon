@@ -171,3 +171,12 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - O frontend de referência inclui pending_review/review no conjunto de etapas consideradas finalizadas para apresentação do progresso. Portanto progresso visual completo não equivale a aprovação.
 - Limite: esta consulta retornou estados armazenados pela Apex; não capturou uma resposta direta Amazon correspondente. A resposta de detalhes mais recente no histórico (04:39:41 GMT) refere-se a outra conta em ready. Não atribuir automaticamente a resposta anterior à tela atual nem afirmar sincronização em tempo real.
 - Próximo passo: atualizar a consulta no navegador sob o proxy para obter nova resposta e, quando disponível, comparar com leitura direta autorizada da mesma conta Amazon.
+
+### 21/10/2026 — Comparação da conta apresentada como aprovada
+
+- Nova resposta Apex de detalhe, Date 04:42:10 GMT, contém status=complete, automatic_status=complete e manual_status_override=null. Estado distinto da conta pending_review anterior.
+- No prefixo legível da resposta: id_verification, id_selfie, background_check, basic_info, legal_documents, tax_interview, auto_insurance, payment_information e videos estão complete. A chave adicional driver_license permanece pending_review.
+- A consulta de execução às 04:42:11 GMT ainda informa pending_review. Portanto o estado agregado da conta e o histórico da execução podem divergir; não usar apenas apply_runs para determinar aprovação.
+- Limite técnico: o MCP truncou esses itens em aproximadamente 5.000 caracteres, tornando o envelope individual JSON incompleto. Foram lidos somente campos completos no prefixo disponível; nenhum trecho ausente foi inferido. Evidência é da resposta Apex, sem confirmação direta Amazon.
+- Correção da observação anterior sobre progresso: em analysis/detail-progress.js, finished inclui pending_review para interpretar tentativas submetidas, mas percent usa exclusivamente completeCount. Não afirmar que esse módulo calcula 100% contando revisões como aprovações.
+- Nenhuma alteração de conta, código ou implantação. Próximo passo: usar status de conta, etapa e execução separadamente e comparar com dados diretos da Amazon quando houver consulta autorizada da mesma conta.
