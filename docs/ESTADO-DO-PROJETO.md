@@ -190,3 +190,10 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Resposta estruturada success=true distingue aceitação; uma nova leitura compara os campos e distingue confirmação. HTML, erros e respostas incertas não são apresentados como cadastro atualizado. E-mail, nascimento, dados da habilitação, SSN e dados bancários não são enviados pelo botão de dados pessoais; os documentos mantêm envio separado. Não implementados contratos fiscais, bancários ou callbacks artificiais.
 - Validação local: 36 testes passaram, incluindo mapeamento do endpoint atual, proteção de versão salva, isolamento, CSRF, campos permitidos, bloqueio atual de nome, leitura divergente, falha de rede sem repetição e geometria do recorte. Editor testado no navegador com imagem sintética; nenhuma imagem ou nome real foi enviado como teste.
 - Implantação: pendente de build e verificações de produção nesta tarefa. Aceitação real de alteração cadastral e documentos ainda não validada com dados reais.
+
+### 21/10/2026 — Publicação do enquadramento e cadastro direto
+
+- Commit d0a9f50 implantado em /opt/gd-apply; 36 testes também passaram no build Linux. Container running/healthy; nginx -t aprovado.
+- Backup privado anterior: /opt/backups/gd-apply/20261021T050008Z. Imagem de retorno: gd-apply-app:before-crop-personal-20261021. Preservados .env, MASTER_KEY e volume existente.
+- Smoke HTTPS: health 200; módulo do recorte 200 com MIME JavaScript; rota de envio sem sessão 401; login administrativo válido; uma conexão preservada; requisição com confirm=false rejeitada com 400 confirmation_required antes de chamar a Amazon.
+- Editor validado no navegador local com arquivo sintético: modal, zoom, rotação, JPEG gerado e cancelamento. Guia de perfil disponível. Nenhuma alteração cadastral ou documento real foi enviado nesta tarefa. A confirmação de aceitação real continua dependendo do envio revisado no painel e da resposta do provedor.
