@@ -43,7 +43,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 ## Pendente / não implementado
 
 - Substituir a dependência Apex pelo fluxo direto Amazon. Validar o conector Apex deixou de ser o próximo passo do projeto.
-- Integração direta Amazon: conexão manual publicada; troca autenticada de um código novo ainda precisa de validação pelo titular. Operações diretas de onboarding continuam indisponíveis, retornando erro explícito.
+- Integração direta Amazon: conexão manual e leitura de perfil/etapas publicadas e validadas com a conta autorizada. Alterações de onboarding continuam indisponíveis, retornando erro explícito.
 - Checkout/pagamentos, preços, exclusão/arquivamento, login Amazon intermediado, OCR automático e tela remota não são recursos do nosso painel atual.
 - Módulo administrativo adicional da Apex e toda a lógica do backend externo não foram analisados.
 - Não foi capturado o tráfego de saída do backend Apex. Confirmar integração real exige código/logs desse backend ou rede do navegador remoto.
@@ -57,7 +57,9 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 - Adicionado botão Consultar perfil e etapas às conexões salvas, com horário de consulta e estados recebidos da Amazon. Sem consulta automática ou armazenamento de perfil no banco.
 - Check e 19 testes locais passaram, incluindo isolamento de proprietário, cookies por domínio/caminho, bloqueio de redirects externos, resultados parciais e ausência de falsos sucessos por HTTP 200.
 - Validação real de leitura executada no container usando a conexão autorizada: perfil recebido e 17 etapas válidas. Nenhum nome, contato, token ou cookie foi incluído neste registro. O módulo foi executado temporariamente antes da publicação.
-- Publicação e verificação da rota HTTPS serão registradas ao concluir. Próximo passo: usuário consultar o painel e orientar a próxima etapa de implementação; alterações externas exigem escopo e confirmação.
+- Publicado commit d73c3c4 no container gd-apply-app, preservando a conexão existente. Backup anterior em /opt/backups/gd-apply/20261021T035524Z; 19 testes passaram também no build Linux e nginx -t foi aprovado.
+- Rota HTTPS autenticada validada após publicação: ok=true nas duas fontes e 17 etapas recebidas. Nenhum dado pessoal foi exposto nos logs de verificação. Interface verificada pelo código servido, sem inspeção visual autenticada nesta etapa.
+- Próximo passo: usuário consultar o painel e orientar a próxima etapa de implementação; alterações externas exigem escopo e confirmação.
 
 ### 20/10/2026 — Primeira conexão Amazon direta confirmada
 

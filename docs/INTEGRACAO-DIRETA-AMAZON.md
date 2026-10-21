@@ -4,7 +4,7 @@
 
 O GD Apply deve operar diretamente com a Amazon a partir do nosso servidor. A Apex é referência para entender telas, etapas e comportamento, sem usar sua API como intermediária. Não é necessário obter uma conta Apex para implementar esse objetivo.
 
-O código em src/apex.mjs e as rotas /api/apex preservam a direção anterior em telas separadas. A conexão manual direta está implementada em src/amazon.mjs e nas rotas /api/amazon/connect; operações diretas de onboarding continuam pendentes. O login administrativo do GD Apply continua independente do login Amazon.
+O código em src/apex.mjs e as rotas /api/apex preservam a direção anterior em telas separadas. A conexão manual direta está implementada em src/amazon.mjs e nas rotas /api/amazon/connect. A leitura de perfil/etapas está em src/amazon-read.mjs, publicada e validada com a conta autorizada; alterações de onboarding continuam pendentes. O login administrativo do GD Apply continua independente do login Amazon.
 
 ## Evidências disponíveis
 
