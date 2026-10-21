@@ -222,3 +222,11 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Conferência privada dos ambientes dos containers confirmou a mesma credencial do dlgenerator e OCR_PROVIDER=gemini/GEMINI_OCR_MODEL=gemini-3.8-flash, sem imprimir valores secretos. Serviço de origem não foi alterado.
 - Imagem de retorno: gd-apply-app:before-gemini-20261021; backup anterior em /opt/backups/gd-apply/20261021T051019Z. Retorno ao provedor local exige ajustar OCR_PROVIDER explicitamente.
 - Próximo passo: atualizar a página e usar Reler dados nas imagens já salvas, revisando a precisão em uma DL real. Não declarar precisão garantida a partir do teste sintético.
+
+### 21/10/2026 — Evidência de selfie Persona nos HARs existentes
+
+- Releitura offline dos HARs fornecidos confirmou que a foto de verificação/selfie aparece na Persona, distinta da foto de perfil account-management implementada atualmente. Não atribuir o endpoint S3 de foto de perfil ao fluxo de selfie mostrado na referência.
+- No segundo HAR, entrada 210 retorna etapa biométrica inicial; entrada 216 recebe POST /api/internal/verify/v1/inquiries/{id}/transition e passa a uma etapa government_id. Entradas 283 e 297 também usam transition; a resposta 297 identifica next-step.type=selfie e status=pending.
+- Corpos de envio das entradas 216, 283 e 297 não estão presentes em postData; possuem metadados _requestBodyStatus/comment e tamanhos de aproximadamente 2,5 MB, 2,6 MB e 559 KB. Portanto não é possível deduzir seus campos multipart ou afirmar que representam um envio completo de selfie somente pela URL e pelo tamanho.
+- Há chamadas a webrtc-consumer.withpersona.com/connect e callbacks Amazon; isso evidencia participação do fluxo Persona, não aprovação nem autorização para fabricar poses/callbacks.
+- Nenhuma chamada externa, reprodução de sessão ou alteração de produção. Próximo passo: nova captura autorizada do fluxo oficial incluindo os corpos de requisição relevantes, sem publicar tokens, imagens ou biometria; preservar selfie/liveness no fluxo oficial.
