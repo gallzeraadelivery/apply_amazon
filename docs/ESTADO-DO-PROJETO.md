@@ -50,6 +50,14 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 20/10/2026 — Serviço próprio de conexão manual localizado
+
+- O usuário identificou amazonteste.gdapps.online como serviço próprio já existente. Seu backend está em /opt/amazup, container amazup-web; código consultado somente em leitura.
+- Localizado fluxo PKCE próprio: connect/start gera tentativa e link Amazon; connect/finish valida retorno e tenta trocar código com verifier, salvando refresh token somente depois do sucesso.
+- Histórico Burp contém três start HTTP 200 seguidos de três finish HTTP 502 com errorCode=NETWORK. Não há confirmação de sessão salva nessas tentativas.
+- Análise em analysis/amazonteste-conexao-manual.md. URL de retorno, credenciais e capturas brutas não foram versionadas nem reproduzidas.
+- Próximo passo: diagnosticar transporte de saída/proxy/CA do serviço próprio e validar uma conexão nova antes de adaptar o fluxo para o GD Apply. Nenhuma alteração ou publicação de aplicação nesta revisão.
+
 ### 20/10/2026 — Vínculo observado pelo Burp MCP
 
 - MCP burp-suite 1.1.2 respondeu pelo bridge local configurado. Histórico consultado somente em leitura após o usuário realizar o vínculo.
