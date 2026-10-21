@@ -54,4 +54,4 @@ Persona aparece como fornecedor de identidade. O callback sdk-callback observado
 
 ## Estado desta revisão
 
-Revisão offline e correção das instruções concluídas. Nenhum HAR bruto foi encontrado na raiz D: ou em Downloads deste computador durante a busca inicial; isso não é uma busca completa do disco. Não há ferramenta Burp conectada nesta sessão. O usuário informou que está localizando a captura de login. Nenhuma integração direta foi publicada ou declarada funcional nesta revisão.
+Revisão offline e correção das instruções concluídas. Os dois HARs foram posteriormente fornecidos pelo usuário e lidos nos caminhos locais indicados. Ambos têm SHA-256 idêntico ao material original já inventariado. A [revisão dos arquivos recebidos](../analysis/revisao-hars-recebidos.md) confirma os dois mecanismos CSRF e as respostas, mas o fluxo completo de login continua ausente. Não há ferramenta Burp conectada nesta sessão. Nenhuma integração direta foi publicada ou declarada funcional nesta revisão.

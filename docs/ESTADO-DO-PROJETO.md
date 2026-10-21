@@ -50,6 +50,14 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 20/10/2026 — HARs recebidos e reanalisados
+
+- Os dois arquivos fornecidos foram lidos offline. SHA-256 idêntico aos inventários anteriores: 745 e 761 entradas, ambas capturas de 29/08/2026.
+- Confirmadas em memória as correspondências de token JSON → X-CSRF-Token e cabeçalho de resposta → anti-csrftoken-a2z nas dez chamadas selecionadas do segundo HAR. Nenhum valor secreto foi exportado.
+- Confirmado que personal-info pode retornar HTTP 200 sem corpo; registrados os esquemas de consulta e implicações para o adaptador direto em analysis/revisao-hars-recebidos.md.
+- A única chamada encontrada nos prefixos web de login Amazon é GET /ap/signin com HTTP 404; não há sequência completa de login/MFA nesses caminhos. O contexto de autenticação anterior permanece desconhecido.
+- Validação: comparação de hashes e inspeção estrutural local; nenhuma requisição externa ou publicação. Próximo passo: obter a navegação de autenticação desde uma sessão nova, identificando se ocorre em navegador ou aplicativo nativo.
+
 ### 20/10/2026 — Objetivo corrigido para integração direta
 
 - Revisados os dois inventários sanitizados, a comparação HAR/Apex, o mapa de API e a implementação atual.
