@@ -1,3 +1,4 @@
+import { adjustImage } from './image-adjust.mjs';
 import { renderAmazonDetail } from './amazon-detail.mjs';
 const root = document.querySelector('#app');
 const toastNode = document.querySelector('#toast');
@@ -18,7 +19,7 @@ async function api(path, options = {}) {
   const response = await fetch(path, { ...options, headers, credentials: 'same-origin', body: options.body instanceof FormData ? options.body : options.body ? JSON.stringify(options.body) : undefined });
   const data = await response.json();
   if (!response.ok) {
-    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.amazonRead = null; state.amazonDocuments = null; state.amazonDocList = []; state.documentDrafts = {}; state.caseFields = {}; state.ocr = {}; state.ocrFiles = {}; state.amazonDetail = null; state.account = null; render(); }
+    if (response.status === 401 && state.user) { state.user = null; state.csrf = ''; state.accounts = []; state.amazonAccounts = []; state.amazonPending = null; state.amazonRead = null; state.amazonDocuments = null; state.amazonDocList = []; state.documentDrafts = {}; state.caseFields = {}; state.formDirty = false; state.ocr = {}; state.ocrFiles = {}; state.amazonDetail = null; state.account = null; render(); }
     throw new Error(data.message || 'Não foi possível concluir a solicitação.');
   }
   return data;
@@ -117,7 +118,7 @@ async function loadAmazonDocuments() {
 }
 async function openAmazonApplication(id) {
   state.amazonDetail = id; state.amazonRead = null; state.amazonDocList = []; state.documentDrafts = {};
-  state.caseFields = {}; state.ocr = {}; state.ocrFiles = {}; state.formSavedAt = null; touchedFields = new Set();
+  state.caseFields = {}; state.formDirty = false; state.ocr = {}; state.ocrFiles = {}; state.formSavedAt = null; touchedFields = new Set();
   state.caseTab = 'documents'; state.page = 'amazon-detail'; state.amazonDetailLoading = true; render();
   try {
     const results = await Promise.allSettled([loadAmazonDocuments(), api(`/api/amazon/accounts/${id}/onboarding`), api('/api/audit'), api(`/api/amazon/accounts/${id}/form`)]);
@@ -149,6 +150,7 @@ function readAttachedLicense(kind, file) {
         state.caseFields[key] = value;
         const input = root.querySelector(`[data-case-field="${key}"]`); if (input) input.value = value;
       }
+      state.formSavedAt = null; state.formDirty = true;
       const status = document.querySelector('#case-form-state'); if (status) status.textContent = 'Leitura nova · revise e salve os dados.';
       showOcrStatus('Leitura concluída. Confira os campos preenchidos; suas correções manuais foram preservadas.');
     } catch (error) { if (state.page === 'amazon-detail' && state.amazonDetail === accountId && state.ocrFiles[kind] === file) showOcrStatus(error.message + ' Os dados já preenchidos foram mantidos.'); }
@@ -182,11 +184,11 @@ async function openAccount(id) {
 root.addEventListener('input', event => {
   if (event.target.id === 'account-search') { state.search = event.target.value; document.querySelector('#account-table').innerHTML = accountsTable(); }
   if (event.target.dataset.caseField) {
-    const key = event.target.dataset.caseField; state.caseFields ??= {}; state.caseFields[key] = event.target.value; touchedFields.add(key);
+    const key = event.target.dataset.caseField; state.caseFields ??= {}; state.caseFields[key] = event.target.value; touchedFields.add(key); state.formSavedAt = null; state.formDirty = true;
     const status = document.querySelector('#case-form-state'); if (status) status.textContent = 'Alterações ainda não salvas.';
   }
 });
-root.addEventListener('change', event => {
+root.addEventListener('change', async event => {
   const input = event.target;
   if (!input.dataset.amazonPreview) return;
   const preview = input.closest('label').querySelector('img'); const file = input.files?.[0];
@@ -196,20 +198,35 @@ root.addEventListener('change', event => {
     input.value = ''; if (input.closest('[data-document-save]')) { delete state.documentDrafts[input.dataset.amazonPreview]; if (state.ocrFiles) delete state.ocrFiles[input.dataset.amazonPreview]; render(); }
     return toast('Escolha JPG ou PNG de até 8 MB.');
   }
+  const accountId = state.amazonDetail, kind = input.dataset.amazonPreview;
+  let selected;
+  try { selected = input.closest('[data-document-save]') ? await adjustImage(file, kind) : file; }
+  catch(error) { input.value=''; toast(error.message); return; }
+  input.value='';
+  if (!selected || state.amazonDetail !== accountId || state.page !== 'amazon-detail') { render(); return; }
   const reader = new FileReader(); reader.onload = () => {
-    if (preview.isConnected && input.files?.[0] === file) {
-      preview.src = reader.result; preview.hidden = false;
-      if (input.closest('[data-document-save]')) {
-        const kind = input.dataset.amazonPreview; state.documentDrafts[kind] = { file, preview: reader.result };
-        input.closest('.case-document').querySelector('.case-badge').textContent = 'Não salvo';
-        const button = root.querySelector(`[data-send-saved="${kind === 'profile' ? 'profile-photo' : 'license'}"]`); if (button) button.disabled = true;
-        if (kind === 'front' || kind === 'back') readAttachedLicense(kind, file);
-      }
-    }
-  }; reader.onerror = () => toast('Não foi possível abrir a prévia desta imagem.'); reader.readAsDataURL(file);
+    if(state.amazonDetail !== accountId || state.page !== 'amazon-detail')return;
+    state.documentDrafts[kind] = { file: selected, preview: reader.result }; render();
+    if(kind==='front'||kind==='back')readAttachedLicense(kind, selected);
+  }; reader.onerror=()=>toast('Não foi possível abrir a prévia.'); reader.readAsDataURL(selected);
 });
 root.addEventListener('click', async event => {
   const button = event.target.closest('button'); if (!button || state.busy) return;
+  if (button.dataset.adjustDocument) {
+    const kind=button.dataset.adjustDocument, accountId=state.amazonDetail;
+    try {
+      let file=state.documentDrafts[kind]?.file;
+      if(!file){const response=await fetch(`/api/amazon/accounts/${accountId}/documents/${kind}`,{credentials:'same-origin'});if(!response.ok)throw Error('Não foi possível abrir a imagem salva.');file=await response.blob();}
+      const selected=await adjustImage(file,kind);if(!selected||state.amazonDetail!==accountId)return;
+      const reader=new FileReader();reader.onload=()=>{if(state.amazonDetail!==accountId)return;state.documentDrafts[kind]={file:selected,preview:reader.result};render();if(kind!=='profile')readAttachedLicense(kind,selected)};reader.readAsDataURL(selected);
+    }catch(error){toast(error.message)}return;
+  }
+  if (button.hasAttribute('data-send-personal')) {
+    if (!state.formSavedAt || state.formDirty) return toast('Salve os dados revisados antes de enviar.');
+    const fields=state.caseFields, name=[fields.firstName,fields.middleName,fields.lastName].filter(Boolean).join(' ');
+    if (!(await confirmation('Enviar dados pessoais à Amazon?', `Nome: ${name}. Serão enviados nome, endereço e telefone salvos desta conta. Documentos e outros cadastros têm envios separados.`, 'Enviar dados'))) return;
+    return work(async()=>{const r=await api(`/api/amazon/accounts/${state.amazonDetail}/personal-info`,{method:'POST',body:{confirm:true,savedAt:state.formSavedAt}});toast(r.notice);});
+  }
   if (button.dataset.openAmazon) return work(() => openAmazonApplication(button.dataset.openAmazon));
   if (button.dataset.readDocument) return work(async () => {
     const kind = button.dataset.readDocument;
@@ -289,7 +306,7 @@ root.addEventListener('submit', async event => {
   if (form.id === 'case-fields-form') return work(async () => {
     const fields = Object.fromEntries(new FormData(form));
     const result = await api(`/api/amazon/accounts/${state.amazonDetail}/form`, { method: 'POST', body: { fields } });
-    state.caseFields = result.draft.fields; state.formSavedAt = result.draft.savedAt; render(); toast(result.notice);
+    state.caseFields = result.draft.fields; state.formSavedAt = result.draft.savedAt; state.formDirty = false; render(); toast(result.notice);
   });
   if (form.dataset.documentSave) {
     const kind = form.dataset.documentSave;

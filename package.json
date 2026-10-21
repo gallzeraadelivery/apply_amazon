@@ -11,6 +11,6 @@
     "dev": "node --env-file=.env.development --disable-warning=ExperimentalWarning src/server.mjs",
     "start": "node --disable-warning=ExperimentalWarning src/server.mjs",
     "test": "node --disable-warning=ExperimentalWarning --test test/*.test.mjs",
-    "check": "node --check src/server.mjs && node --check src/app.mjs && node --check src/apex.mjs && node --check src/amazon.mjs && node --check src/amazon-read.mjs && node --check src/amazon-upload.mjs && node --check src/document-vault.mjs && node --check public/app.mjs && node --check public/amazon-detail.mjs && node --check src/local-ocr.mjs && node --check src/dl-ocr-parser.mjs"
+    "check": "node --check src/server.mjs && node --check src/app.mjs && node --check src/apex.mjs && node --check src/amazon.mjs && node --check src/amazon-read.mjs && node --check src/amazon-upload.mjs && node --check src/document-vault.mjs && node --check public/app.mjs && node --check public/amazon-detail.mjs && node --check src/local-ocr.mjs && node --check src/dl-ocr-parser.mjs && node --check public/image-adjust.mjs && node --check src/amazon-personal.mjs"
   }
 }

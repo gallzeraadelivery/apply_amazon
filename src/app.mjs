@@ -8,6 +8,7 @@ import { ApexClient, HttpError, applicationForm, redact } from './apex.mjs';
 import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } from './amazon.mjs';
 import { AmazonReadClient } from './amazon-read.mjs';
 import { AmazonUploadClient, validateUploadImage } from './amazon-upload.mjs';
+import { AmazonPersonalClient } from './amazon-personal.mjs';
 import { DocumentVault } from './document-vault.mjs';
 import { extractLicenseFields } from './local-ocr.mjs';
 
@@ -63,6 +64,7 @@ export function createApp(config) {
   const amazonReads = new Set();
   const amazonUploader = new AmazonUploadClient({ fetchImpl: config.amazonFetchImpl });
   const amazonUploads = new Set();
+  const amazonPersonal = new AmazonPersonalClient({ fetchImpl: config.amazonFetchImpl });
   const documentVault = new DocumentVault(db, key);
   let ocrBusy = false;
   db.prepare("UPDATE amazon_documents SET status='unconfirmed' WHERE status='sending'").run();
@@ -85,13 +87,13 @@ export function createApp(config) {
     const send = (status, data, headers = {}) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', ...headers }); res.end(JSON.stringify(data)); };
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('X-Frame-Options', 'DENY'); res.setHeader('X-Request-Id', requestId);
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'");
     try {
       const url = new URL(req.url, allowedOrigin); pathname = url.pathname;
       if (req.method === 'GET' && pathname === '/api/health') return send(200, { status: 'ok', component: 'application', applicationReady: true });
-      if (req.method === 'GET' && ['/', '/app.mjs', '/amazon-detail.mjs', '/style.css'].includes(pathname)) {
+      if (req.method === 'GET' && ['/', '/app.mjs', '/amazon-detail.mjs', '/image-adjust.mjs', '/style.css'].includes(pathname)) {
         const name = pathname === '/' ? 'index.html' : pathname.slice(1);
-        const types = { 'index.html': 'text/html; charset=utf-8', 'app.mjs': 'text/javascript; charset=utf-8', 'amazon-detail.mjs': 'text/javascript; charset=utf-8', 'style.css': 'text/css; charset=utf-8' };
+        const types = { 'index.html': 'text/html; charset=utf-8', 'app.mjs': 'text/javascript; charset=utf-8', 'amazon-detail.mjs': 'text/javascript; charset=utf-8', 'image-adjust.mjs': 'text/javascript; charset=utf-8', 'style.css': 'text/css; charset=utf-8' };
         res.writeHead(200, { 'Content-Type': types[name] }); return res.end(readFileSync(resolve(root, 'public', name)));
       }
       const unsafe = !['GET', 'HEAD', 'OPTIONS'].includes(req.method);
@@ -145,6 +147,7 @@ export function createApp(config) {
           catch { throw new HttpError(503, 'form_key_error', 'Não foi possível abrir os dados salvos neste painel.'); }
         }
         if (operation === 'form' && req.method === 'POST') {
+          if (amazonUploads.has(user.id)) throw new HttpError(409,'amazon_upload_busy','Aguarde o envio antes de alterar os dados salvos.');
           const data = await jsonBody(req);
           try { documentVault.saveForm(user.id, accountId, data.fields); }
           catch { throw new HttpError(400, 'invalid_form_fields', 'Os campos do formulário são inválidos.'); }
@@ -204,6 +207,24 @@ export function createApp(config) {
           } finally { amazonUploads.delete(user.id); }
         }
         throw new HttpError(405, 'method_not_allowed', 'Operação indisponível.');
+      }
+      const personalMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/personal-info$/);
+      if (req.method === 'POST' && personalMatch) {
+        const id = personalMatch[1];
+        if (!uuid(id)) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
+        const account = db.prepare('SELECT * FROM amazon_accounts WHERE id=? AND user_id=?').get(id,user.id);
+        if (!account) throw new HttpError(404,'not_found','Conta não encontrada.');
+        const data = await jsonBody(req);
+        if (data.confirm !== true) throw new HttpError(400,'confirmation_required','Confirme o envio dos dados revisados para a Amazon.');
+        if (amazonUploads.has(user.id)) throw new HttpError(409,'amazon_upload_busy','Aguarde a operação em andamento.');
+        const draft = documentVault.readForm(user.id,id);
+        if (!draft || draft.savedAt !== data.savedAt) throw new HttpError(409,'form_changed','Salve e revise a versão atual dos dados antes de enviar.');
+        let refresh;
+        try { refresh = unseal(account.token,key); } catch { throw new HttpError(503,'integration_key_error','Não foi possível abrir a conexão.'); }
+        amazonUploads.add(user.id);audit(user,'amazon.personal-info',id,'requested');
+        try { const result = await amazonPersonal.submit(refresh,draft.fields);audit(user,'amazon.personal-info',id,result.confirmed?'success':'http_success');return send(200,result); }
+        catch(error){audit(user,'amazon.personal-info',id,'not_confirmed');throw error;}
+        finally {amazonUploads.delete(user.id);}
       }
       const amazonReadMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/onboarding$/);
       const amazonUploadMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/uploads\/(license|profile-photo)$/);

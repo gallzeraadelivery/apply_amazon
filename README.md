@@ -60,6 +60,7 @@ Os botões de envio pedem confirmação separada e distinguem **salvo no painel*
 - GET `/api/amazon/accounts/{id}/documents/{front|back|profile}`: imagem privada para exibição/download.
 - POST na mesma rota: multipart com exatamente `file`; salva somente no painel, com Origin e CSRF.
 - DELETE na mesma rota: remove a cópia do banco ativo, sem remover arquivos já recebidos pelo provedor.
+- POST `/api/amazon/accounts/{id}/personal-info`: `{confirm:true,savedAt}` envia a versão salva de nome, endereço e telefone diretamente ao endpoint atual Amazon; exige sessão, propriedade, Origin e CSRF. Retorna `accepted` e `confirmed` separadamente. Não envia e-mail, nascimento, número/validade da carteira ou SSN por essa operação.
 - POST `/api/amazon/accounts/{id}/ocr`: multipart `file`; retorna campos reconhecidos, sem salvar a imagem ou o texto bruto. Exige propriedade da conta, Origin e CSRF.
 - GET/POST `/api/amazon/accounts/{id}/form`: consulta/salva `{fields:{...}}` no rascunho criptografado local. Campos aceitos são explícitos; SSN e credenciais não fazem parte deste formulário.
 
@@ -78,7 +79,7 @@ Todas as rotas de operação exigem sessão local. Escritas exigem Origin e toke
 
 Não há API pública/documentada Amazon fornecida neste projeto. HARs não substituem credenciais ou autorização. Não há reprodução de sessões dos HARs, geração de identidades, reenvio de callbacks de verificação nem bypasses. O conector não marca um trabalho como concluído só porque recebeu HTTP 200.
 
-Pagamentos/checkout, edição de preços, exclusão de contas, login Amazon intermediado, OCR automático, visualização remota e outras rotas do inventário ainda não são recursos desta versão. São descritos na análise, não expostos como um proxy genérico. Documentos são transmitidos à Apex sem armazenamento local; o contrato de aceitação dos arquivos é validado também pelo provedor.
+Pagamentos/checkout, edição de preços e operações restantes de onboarding não são recursos desta versão direta. OCR local, cofre de imagens e envio de dados pessoais estão disponíveis conforme as rotas acima; envio não equivale a aprovação.
 
 ## Arquivos
 
@@ -92,3 +93,9 @@ Pagamentos/checkout, edição de preços, exclusão de contas, login Amazon inte
 ## Dados e credenciais
 
 HARs originais, cookies, tokens, chaves privadas, documentos e capturas brutas não fazem parte deste repositório. A integração futura precisa de credenciais válidas e de uma forma autorizada de acesso a cada serviço. Endpoints encontrados em capturas não representam um contrato de API pública.
+
+## Ajuste dos anexos e cadastro direto
+
+Ao escolher frente, verso ou foto, ajuste posição, zoom e rotação antes de usar o recorte. O arquivo JPEG confirmado é a prévia, a imagem salva e o arquivo usado pelo envio. A guia oval não é incluída na foto. Imagens salvas podem ser ajustadas novamente. Carteiras passam pelo OCR após confirmar o recorte.
+
+Depois de revisar, use **Salvar dados no painel**; o nome salvo aparece no cabeçalho ao reabrir. **Enviar dados à Amazon** pede confirmação e envia a mesma versão salva de nome, endereço e telefone. O caminho atual foi reconstruído do serviço próprio: `get-personal-info` e `submit-personal-info` sob `/onboarding/account/data/`. Resposta HTML ou HTTP 200 sem confirmação estruturada não significa sucesso. Não há repetição automática. Documentos usam seus próprios botões; foto de perfil não substitui selfie/liveness.

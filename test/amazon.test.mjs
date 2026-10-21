@@ -173,3 +173,16 @@ test('local OCR fills only document fields and form drafts stay private without 
   assert.equal((await f.request(base + '/ocr', 'POST', fd())).status, 404);
   assert.equal((await f.request(base + '/form')).status, 404); assert.equal(reads, 1);
 });
+
+test('personal route binds confirmation to saved version, ownership and CSRF before any upstream call', async t => {
+  const f=await fixture(t); const pending=await f.start(); const connected=await f.request('/api/amazon/connect/finish','POST',f.finishBody(pending));
+  const id=connected.data.account.id,path=`/api/amazon/accounts/${id}/personal-info`;const before=f.calls.length;
+  assert.equal((await f.request(path,'POST',{confirm:true},{'X-CSRF-Token':''})).status,403);
+  assert.equal((await f.request(path,'POST',{confirm:false})).status,400);
+  assert.equal((await f.request(path,'POST',{confirm:true,savedAt:'old'})).status,409);
+  const fields={firstName:'SAMPLE',lastName:'TESTER',addressLine1:'123 EXAMPLE ST',city:'EXAMPLE',state:'MN',zipCode:'12345',phoneNumber:'2025550123'};
+  const save=await f.request(`/api/amazon/accounts/${id}/form`,'POST',{fields});assert.equal(save.status,200);
+  assert.equal((await f.request(path,'POST',{confirm:true,savedAt:'old'})).status,409);
+  const other='00000000-0000-4000-8000-000000000000';assert.equal((await f.request(`/api/amazon/accounts/${other}/personal-info`,'POST',{confirm:true,savedAt:save.data.draft.savedAt})).status,404);
+  assert.equal(f.calls.length,before);
+});
