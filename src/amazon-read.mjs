@@ -128,7 +128,12 @@ export class AmazonReadClient {
     }
     const tasks = Object.entries(status.taskStatusMap).filter(([key]) => /^[A-Z0-9_]{1,100}$/.test(key))
       .map(([key, value]) => ({ key, status: text(value) || text(value?.status) || 'Estado não reconhecido' }));
-    return { workflowStatus: text(status.workflowStatus), tasks };
+    let personalInfo = null;
+    try {
+      const data = await this.webJson('/onboarding/v2/data/personal-info', jar, signal);
+      personalInfo = Object.fromEntries(['firstName', 'middleName', 'lastName', 'phoneNumber', 'address', 'addressLine1', 'city', 'state', 'stateOrRegion', 'postalCode', 'dateOfBirth'].map(k => [k, text(data[k])]));
+    } catch { /* Optional personal fields do not erase a valid task map. */ }
+    return { workflowStatus: text(status.workflowStatus), tasks, personalInfo };
   }
   async read(refreshToken) {
     const signal = AbortSignal.timeout(this.timeout); const checkedAt = new Date().toISOString();

@@ -8,6 +8,7 @@ import { ApexClient, HttpError, applicationForm, redact } from './apex.mjs';
 import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } from './amazon.mjs';
 import { AmazonReadClient } from './amazon-read.mjs';
 import { AmazonUploadClient, validateUploadImage } from './amazon-upload.mjs';
+import { DocumentVault } from './document-vault.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -61,6 +62,8 @@ export function createApp(config) {
   const amazonReads = new Set();
   const amazonUploader = new AmazonUploadClient({ fetchImpl: config.amazonFetchImpl });
   const amazonUploads = new Set();
+  const documentVault = new DocumentVault(db, key);
+  db.prepare("UPDATE amazon_documents SET status='unconfirmed' WHERE status='sending'").run();
   const amazonBusy = new Set();
   const failedHash = passwordHash(randomBytes(32).toString('hex'));
   let busy = false;
@@ -84,9 +87,9 @@ export function createApp(config) {
     try {
       const url = new URL(req.url, allowedOrigin); pathname = url.pathname;
       if (req.method === 'GET' && pathname === '/api/health') return send(200, { status: 'ok', component: 'application', applicationReady: true });
-      if (req.method === 'GET' && ['/', '/app.mjs', '/style.css'].includes(pathname)) {
+      if (req.method === 'GET' && ['/', '/app.mjs', '/amazon-detail.mjs', '/style.css'].includes(pathname)) {
         const name = pathname === '/' ? 'index.html' : pathname.slice(1);
-        const types = { 'index.html': 'text/html; charset=utf-8', 'app.mjs': 'text/javascript; charset=utf-8', 'style.css': 'text/css; charset=utf-8' };
+        const types = { 'index.html': 'text/html; charset=utf-8', 'app.mjs': 'text/javascript; charset=utf-8', 'amazon-detail.mjs': 'text/javascript; charset=utf-8', 'style.css': 'text/css; charset=utf-8' };
         res.writeHead(200, { 'Content-Type': types[name] }); return res.end(readFileSync(resolve(root, 'public', name)));
       }
       const unsafe = !['GET', 'HEAD', 'OPTIONS'].includes(req.method);
@@ -130,6 +133,43 @@ export function createApp(config) {
       if (req.method === 'GET' && pathname === '/api/amazon/accounts') {
         return send(200, { accounts: db.prepare('SELECT id,label,connected_at FROM amazon_accounts WHERE user_id=? ORDER BY connected_at DESC').all(user.id) });
       }
+      const documentMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/documents(?:\/(front|back|profile))?$/);
+      if (documentMatch) {
+        const [, accountId, kind] = documentMatch;
+        if (!uuid(accountId)) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
+        const owner = db.prepare('SELECT id FROM amazon_accounts WHERE id=? AND user_id=?').get(accountId, user.id);
+        if (!owner) throw new HttpError(404, 'not_found', 'Conta não encontrada.');
+        if (req.method === 'GET' && !kind) return send(200, { documents: documentVault.list(accountId) });
+        if (req.method === 'GET' && kind) {
+          let file;
+          try { file = documentVault.read(user.id, accountId, kind); }
+          catch { throw new HttpError(503, 'document_key_error', 'Não foi possível abrir esta imagem.'); }
+          if (!file) throw new HttpError(404, 'not_found', 'Imagem não encontrada.');
+          res.writeHead(200, { 'Content-Type': file.mime, 'Content-Length': file.bytes.length,
+            'Content-Disposition': `inline; filename="${kind}.${file.mime === 'image/png' ? 'png' : 'jpg'}"`, 'Cross-Origin-Resource-Policy': 'same-origin' });
+          return res.end(file.bytes);
+        }
+        if (kind && ['POST', 'DELETE'].includes(req.method)) {
+          if (amazonUploads.has(user.id) || amazonUploads.size >= 2) throw new HttpError(409, 'amazon_upload_busy', 'Aguarde o envio em andamento antes de alterar as imagens.');
+          if (req.method === 'DELETE') {
+            await jsonBody(req); documentVault.delete(accountId, kind);
+            audit(user, 'amazon.document_removed', accountId, 'success'); return send(200, { documents: documentVault.list(accountId) });
+          }
+          amazonUploads.add(user.id);
+          try {
+            if (!/^multipart\/form-data\s*;/i.test(req.headers['content-type'] ?? '')) throw new HttpError(415, 'multipart_required', 'Envie a imagem por multipart/form-data.');
+            const payload = await bytes(req, 9 * 1024 * 1024); let form;
+            try { form = await new Request('https://localhost/document', { method: 'POST', headers: { 'content-type': req.headers['content-type'] }, body: payload }).formData(); }
+            catch { throw new HttpError(400, 'invalid_upload', 'Não foi possível ler a imagem.'); }
+            if ([...form.keys()].some(k => k !== 'file') || form.getAll('file').length !== 1) throw new HttpError(400, 'invalid_upload_fields', 'Envie exatamente uma imagem.');
+            const image = await validateUploadImage(form.get('file'));
+            documentVault.save(user.id, accountId, kind, image.type, Buffer.from(await image.arrayBuffer()));
+            audit(user, 'amazon.document_saved', accountId, 'success');
+            return send(200, { documents: documentVault.list(accountId), notice: 'Imagem salva no painel. Ainda não foi enviada para a Amazon.' });
+          } finally { amazonUploads.delete(user.id); }
+        }
+        throw new HttpError(405, 'method_not_allowed', 'Operação indisponível.');
+      }
       const amazonReadMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/onboarding$/);
       const amazonUploadMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/uploads\/(license|profile-photo)$/);
       if (req.method === 'POST' && amazonUploadMatch) {
@@ -157,11 +197,18 @@ export function createApp(config) {
           try { refresh = unseal(account.token, key); }
           catch { throw new HttpError(503, 'integration_key_error', 'Não foi possível abrir a credencial desta conta.'); }
           audit(user, `amazon.upload.${kind}`, account.id, 'requested');
+          const savedKinds = kind === 'license' ? ['front', 'back'] : ['profile'];
+          for (const [index, savedKind] of savedKinds.entries()) documentVault.save(user.id, account.id, savedKind, images[index].type, Buffer.from(await images[index].arrayBuffer()));
+          documentVault.mark(account.id, savedKinds, 'sending');
           try {
             const result = kind === 'license' ? await amazonUploader.uploadLicense(refresh, ...images) : await amazonUploader.uploadProfile(refresh, images[0]);
             audit(user, `amazon.upload.${kind}`, account.id, 'http_success');
+            documentVault.mark(account.id, savedKinds, 'transferred');
             return send(200, result);
-          } catch (error) { audit(user, `amazon.upload.${kind}`, account.id, 'not_confirmed'); throw error; }
+          } catch (error) {
+            documentVault.mark(account.id, savedKinds, ['amazon_identity_not_ready', 'persona_document_step_unavailable', 'amazon_photo_unavailable', 'amazon_upload_csrf', 'amazon_identity_session_unavailable', 'persona_invalid_fields'].includes(error.code) ? 'local' : 'unconfirmed');
+            audit(user, `amazon.upload.${kind}`, account.id, 'not_confirmed'); throw error;
+          }
         } finally { amazonUploads.delete(user.id); }
       }
       if (req.method === 'GET' && amazonReadMatch) {

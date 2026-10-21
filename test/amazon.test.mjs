@@ -23,8 +23,8 @@ async function fixture(t, upstream) {
       ...(cookie ? { Cookie: cookie } : {}), ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
       ...(body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...headers }, body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined });
     if (r.headers.get('set-cookie')) cookie = r.headers.get('set-cookie').split(';')[0];
-    const data = await r.json(); if (data.csrf) csrf = data.csrf;
-    return { status: r.status, data };
+    const data = r.headers.get('content-type')?.startsWith('image/') ? Buffer.from(await r.arrayBuffer()) : await r.json(); if (data.csrf) csrf = data.csrf;
+    return { status: r.status, data, headers: r.headers };
   };
   assert.equal((await request('/api/amazon/accounts')).status, 401);
   await request('/api/auth/login', 'POST', { email: 'admin@example.test', password: 'initial-password-123456' });
@@ -132,4 +132,24 @@ test('document routes enforce owner, confirmation, CSRF, exact multipart fields 
   f.app.db.prepare('UPDATE amazon_accounts SET user_id=?').run('other-document-owner');
   assert.equal((await f.request(path, 'POST', form(), { 'X-Confirm-Operation': 'upload-amazon' })).status, 404);
   assert.equal(f.calls.length, 1); // Only the original connection registration.
+});
+
+test('document storage is private, CSRF protected, encrypted and does not send saved drafts to Amazon', async t => {
+  const f = await fixture(t); const pending = await f.start();
+  const connected = await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(pending));
+  const base = `/api/amazon/accounts/${connected.data.account.id}/documents`;
+  const raw = Buffer.from([255,216,255,224,1,2,255,217]);
+  const form = () => { const fd = new FormData(); fd.set('file', new Blob([raw], { type: 'image/jpeg' }), 'private-name.jpg'); return fd; };
+  assert.equal((await f.request(base + '/front', 'POST', form(), { 'X-CSRF-Token': '' })).status, 403);
+  const saved = await f.request(base + '/front', 'POST', form());
+  assert.equal(saved.status, 200); assert.equal(saved.data.documents[0].status, 'local');
+  assert.ok(!JSON.stringify(saved.data).includes('private-name'));
+  assert.equal(f.calls.length, 1);
+  const image = await f.request(base + '/front');
+  assert.deepEqual(image.data, raw); assert.equal(image.headers.get('cache-control'), 'no-store');
+  const admin = f.app.db.prepare('SELECT password FROM users LIMIT 1').get();
+  f.app.db.prepare('INSERT INTO users VALUES(?,?,?,0)').run('other-doc-user', 'other-doc-user@example.test', admin.password);
+  f.app.db.prepare('UPDATE amazon_accounts SET user_id=?').run('other-doc-user');
+  assert.equal((await f.request(base + '/front')).status, 404);
+  assert.equal((await f.request(base + '/front', 'DELETE', {})).status, 404);
 });

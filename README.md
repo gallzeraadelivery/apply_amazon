@@ -44,7 +44,16 @@ Na aba **Amazon direta**, gere um link e abra o login. Copie a URL final `/ap/ma
 
 Nas conexões salvas, **Consultar perfil e etapas** lê o perfil por access token e abre uma sessão web temporária para ler o onboarding. Cookies respeitam domínio/caminho, expiração e uma lista restrita de destinos de SSO. A consulta tem orçamento de 30 segundos e não faz polling automático. A primeira conexão e a primeira leitura autenticada real foram validadas em 20/10/2026; isso não garante disponibilidade permanente do serviço externo.
 
-**Documentos e fotos** permite conferir prévias da frente/verso da carteira e foto de perfil antes de confirmar o envio para a conta selecionada. As imagens são transitórias em memória, sem gravação local, OCR ou transformação. Envio aceito não significa aprovação. Selfie/liveness continua no fluxo oficial; nenhum callback de conclusão ou pose é gerado. Os contratos de upload foram testados com respostas controladas; a aceitação real depende da etapa liberada e dos arquivos escolhidos pelo titular. Não repetir envio após resultado incerto sem consultar o estado.
+**Abrir aplicação** mostra uma tela escura por conta: etapas na lateral, documentos visíveis no topo, dados retornados pela Amazon abaixo e histórico separado. **Salvar imagem** guarda uma cópia criptografada no SQLite e não envia ao provedor. As imagens continuam visíveis ao reabrir a conta, com ações de ampliar, baixar, trocar ou remover. O armazenamento foi solicitado explicitamente pelo usuário; os arquivos permanecem fora do Git.
+
+Frente, verso e foto de perfil usam AES-256-GCM com associação autenticada ao usuário, conta, tipo e formato. O GET da imagem exige sessão e propriedade da conta, não permite cache e usa nomes de arquivo genéricos. A exclusão da conexão remove suas imagens do banco ativo por cascade; backups existentes seguem o procedimento privado de retenção. Preservar MASTER_KEY é necessário para recuperar as imagens, assim como os tokens.
+
+Os botões de envio pedem confirmação separada e distinguem **salvo no painel**, **recebido pelo provedor** e **envio não confirmado**. Envio aceito não significa aprovação. Selfie/liveness continua no fluxo oficial. Os contratos de upload foram testados com respostas controladas; a aceitação real depende da etapa liberada e dos arquivos escolhidos pelo titular. Não repetir envio após resultado incerto sem consultar o estado.
+
+- GET `/api/amazon/accounts/{id}/documents`: metadados dos arquivos salvos, sem corpos ou nomes originais.
+- GET `/api/amazon/accounts/{id}/documents/{front|back|profile}`: imagem privada para exibição/download.
+- POST na mesma rota: multipart com exatamente `file`; salva somente no painel, com Origin e CSRF.
+- DELETE na mesma rota: remove a cópia do banco ativo, sem remover arquivos já recebidos pelo provedor.
 
 - `/api/auth/login`, `/api/auth/session`, `/api/auth/logout`, `/api/auth/password`: autenticação local.
 - `/api/integrations`: estado das conexões; `/api/integrations/apex/connect`: login remoto; DELETE `/api/integrations/apex`: remoção do token local.

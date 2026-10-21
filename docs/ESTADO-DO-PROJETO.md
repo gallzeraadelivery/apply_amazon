@@ -50,6 +50,16 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## Como atualizar este registro
 
+### 21/10/2026 — Layout por conta e imagens persistentes
+
+- Usuário solicitou layout semelhante à referência e confirmou explicitamente manter as imagens salvas ao reabrir a conta.
+- Nova tela Abrir aplicação: tema escuro, etapas e progresso da consulta na lateral, três cartões de documentos, dados pessoais em leitura e histórico real da conta. Não há ações fictícias de início, geração de dados ou aprovação.
+- Implementado cofre de imagens no SQLite: AES-256-GCM com AAD para usuário/conta/tipo/formato, sessão/propriedade para cada leitura, cache desabilitado e remoção em cascade com a conexão. Chave de produção preservada. Backups privados passam a incluir as imagens criptografadas.
+- Salvar imagem é uma ação local; enviar à Amazon exige confirmação separada. Metadados distinguem cópia local, transferência confirmada e resultado incerto. Imagens novas não herdam a confirmação de uma versão anterior.
+- Adicionada leitura opcional dos campos pessoais de personal-info, sem SSN, tokens ou outros campos fora da lista explícita. Falha nessa consulta não apaga um mapa válido de etapas.
+- Check e 28 testes locais passaram. Layout conferido visualmente no navegador com dados de demonstração; persistência após reabertura, criptografia, vinculação de contexto, isolamento e cache testados.
+- Publicação e smoke HTTPS serão registrados após execução. Nenhuma imagem de referência do usuário foi utilizada como documento de uma conta.
+
 ### Documentos e fotos — implementação posterior à leitura direta
 
 - Analisadas as rotas do serviço próprio e distinguido o envio de carteira via Amazon/Persona v3 da foto de perfil via S3. A rota antiga Alexandria/driverLicense-info não foi reutilizada.
