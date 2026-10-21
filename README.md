@@ -1,6 +1,8 @@
 # Apply Amazon
 
-Painel e backend próprio para gerenciar a conexão Apex e acompanhar operações de onboarding.
+Painel e backend próprios para integrar diretamente com a Amazon e acompanhar operações de onboarding no nosso servidor. A Apex é referência funcional para análise; sua API não é a integração desejada.
+
+O código atual ainda contém o conector Apex da implementação anterior. Ele não atende ao objetivo corrigido. Consulte [reconstrução da integração direta](docs/INTEGRACAO-DIRETA-AMAZON.md) para o mapa de evidências, lacunas e sequência de implementação.
 
 ## Continuar em outro computador
 

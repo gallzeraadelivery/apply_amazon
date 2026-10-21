@@ -4,7 +4,7 @@ Atualizado em 20/10/2026, fuso America/Cuiaba.
 
 ## Objetivo
 
-Backend e painel próprios que usam a conta Apex do operador e, futuramente, uma integração Amazon autorizada. O usuário forneceu HARs de referência; não forneceu documentação/credenciais de API Amazon nem credenciais de login Apex para testes ao vivo.
+Backend e painel próprios que executam a integração diretamente com a Amazon no nosso servidor. A Apex serve como referência funcional de análise, sem dependência da sua API. Esse objetivo foi esclarecido pelo usuário em 20/10/2026; o conector Apex existente pertence à implementação anterior e ainda não foi substituído. O mapa de reconstrução está em docs/INTEGRACAO-DIRETA-AMAZON.md.
 
 ## O que existe
 
@@ -42,13 +42,28 @@ Backend e painel próprios que usam a conta Apex do operador e, futuramente, uma
 
 ## Pendente / não implementado
 
-- Validação autenticada do conector Apex com a conta real do usuário. Fazer primeiro consultas e só depois alterações autorizadas.
+- Substituir a dependência Apex pelo fluxo direto Amazon. Validar o conector Apex deixou de ser o próximo passo do projeto.
 - Integração direta Amazon: indisponível, retornando erro explícito. Não há API pública/credenciais concedidas neste projeto.
 - Checkout/pagamentos, preços, exclusão/arquivamento, login Amazon intermediado, OCR automático e tela remota não são recursos do nosso painel atual.
 - Módulo administrativo adicional da Apex e toda a lógica do backend externo não foram analisados.
 - Não foi capturado o tráfego de saída do backend Apex. Confirmar integração real exige código/logs desse backend ou rede do navegador remoto.
 
 ## Como atualizar este registro
+
+### 20/10/2026 — Objetivo corrigido para integração direta
+
+- Revisados os dois inventários sanitizados, a comparação HAR/Apex, o mapa de API e a implementação atual.
+- A integração desejada é GD Apply → Amazon, com execução no nosso servidor; a API Apex não deve ser requisito.
+- Registrado o mapa de reconstrução em docs/INTEGRACAO-DIRETA-AMAZON.md, distinguindo endpoints observados de autenticação e contratos ainda incompletos.
+- Usuário está localizando uma captura de login para complementar as evidências. Não houve reprodução das sessões antigas, alteração de código de produção nem publicação nesta etapa.
+
+### 20/10/2026 — Acesso administrativo atualizado
+
+- E-mail e senha do administrador atualizados diretamente no banco de produção, preservando o usuário e suas integrações. Credenciais não são registradas no Git.
+- Backup SQLite consistente criado antes da alteração; sessões anteriores revogadas.
+- Login HTTPS validado com HTTP 200 e sem exigência de troca da senha escolhida. Arquivo privado de acesso deste computador atualizado.
+- Não houve alteração de código nem nova implantação. A configuração de bootstrap continua sendo somente o registro inicial e não representa a senha atual do banco.
+- Próximo passo: usar as novas credenciais no painel.
 
 Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implantação efetiva e próximo passo. Não registrar senhas, tokens nem dados pessoais. Diferenciar testes com respostas controladas de chamadas reais e preservar o histórico de limitações até que evidência nova as resolva.
 
