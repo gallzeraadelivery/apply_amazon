@@ -57,7 +57,10 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 - Parser adaptado do serviço próprio; motor Tesseract nativo no container, entrada/saída em memória por pipes, sem OCR externo, logs de texto reconhecido ou gravação automática da imagem. Limite de 25 segundos, 6 megapixels e uma leitura por vez.
 - Rascunho do formulário salvo localmente com AES-GCM e contexto do usuário/conta. Não há envio automático dos dados reconhecidos para a Amazon. Imagem e formulário continuam com salvamentos próprios.
 - Check e 31 testes locais aprovados, incluindo parser, datas inválidas, execução sem shell, limites, OCR isolado, ausência de chamadas Amazon e persistência privada do formulário. Visual conferido em navegador com dados de demonstração e paleta original.
-- Validação do leitor nativo com imagem sintética e publicação serão registradas após execução. Nenhum documento pessoal foi usado como arquivo de teste.
+- Publicado commit 03c0f21 no container gd-apply-app. Os 31 testes passaram também no build Linux; nginx -t aprovado. Backup privado anterior em /opt/backups/gd-apply/20261021T043223Z.
+- Leitor nativo validado em container isolado, sem rede, credenciais ou volume de produção, sob os mesmos limites de CPU/memória: os três campos de nome e outros oito campos foram reconhecidos na imagem sintética. A imagem de teste foi removida do servidor; nenhum documento pessoal foi usado como teste.
+- Smoke HTTPS confirmou saúde, conexão preservada, paleta original servida, código de leitura automática e proteção de correções manuais publicados, e HTTP 401 para acesso ao rascunho sem sessão. Não foi salvo rascunho de teste na conta real.
+- Próximo passo: anexar uma carteira nítida ou usar Reler dados em uma imagem já salva, revisar os campos reconhecidos e salvar o rascunho local. A precisão em cada documento real depende da qualidade da imagem.
 
 ### 21/10/2026 — Layout por conta e imagens persistentes
 
