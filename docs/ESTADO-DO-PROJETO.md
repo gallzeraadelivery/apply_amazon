@@ -25,7 +25,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 - Volume: gd-apply_apply-data; arquivo: /data/app.sqlite no container.
 - Nginx: edge-nginx; configuração: /opt/edge/nginx/active.conf, bloco exclusivo do domínio.
 - HTTPS Let's Encrypt e renovação pelo agendamento já existente no servidor.
-- Versão da aplicação publicada corresponde ao commit `20a8e74`. Os commits posteriores de continuidade acrescentam documentação, regras e ferramentas locais; não implicam nova publicação automática.
+- Versão da aplicação publicada: `7779a50` (proxy obrigatório), em 22/10/2026. Registros abaixo descrevem a evolução e as validações de cada publicação.
 - Verificações na publicação: oito testes no computador e na imagem Linux, health check externo HTTP 200, cookie seguro, login inicial e bloqueio antes da troca da senha, nginx -t e container healthy.
 - Login inicial: admin@gdapps.online. A senha inicial existe somente em private/access.txt no computador original e no bootstrap privado de produção. Não está no Git e pode já ter sido alterada pelo usuário.
 
@@ -263,5 +263,7 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Login oficial abre no navegador: mesmo proxy deve ser configurado no AdsPower. Confirmação no painel não mede o IP do navegador. Retorno PKCE vinculado à revisão; trocar proxy exige novo link, e bloqueio de configuração não consome o código.
 - IP exibido é fotografia do teste, não prova do IP visto por Amazon em cada chamada ou da saída Apex → Amazon. Proxies rotativos podem variar.
 - npm run check e 47 testes locais aprovados; suíte HTTP/CONNECT precisou de acesso ao loopback fora do sandbox de rede. Prévia visual conferida com conta descartável sem dados reais.
-- Backup privado de produção criado em /opt/backups/gd-apply/20261022T180106Z. Código ainda em preparação para publicar neste registro; atualizar após build e smoke.
+- Backup privado de produção criado em /opt/backups/gd-apply/20261022T180106Z. Commit 7779a50 publicado: 47 testes aprovados no build Linux, nginx -t válido, container healthy e HTTPS health 200. Imagem de retorno gd-apply-app:before-proxy-20261022 e backup Nginx /opt/edge/nginx/active.conf.before-apply-app-20261022T181347Z.
 - Próximo passo do operador: cadastrar o proxy real no admin e testar IP. Nenhuma credencial de proxy fornecida, nenhuma chamada autenticada real Amazon/Apex feita nesta tarefa.
+
+- Smoke pós-publicação: API administrativa sem sessão retorna 401; módulo público contém a nova tela e confirmação AdsPower; migração proxy_revision presente. .env idêntico ao backup; preservados 1 usuário, 2 conexões Amazon, 1 documento e 1 rascunho. proxy_settings tem zero registros: saídas externas bloqueadas até o operador cadastrar e testar o proxy real. Nenhum teste com conta externa foi executado.
