@@ -53,6 +53,7 @@ No PowerShell:
 ```powershell
 git status --short
 git pull --ff-only
+npm ci --ignore-scripts
 npm run check
 npm test
 New-Item -ItemType Directory -Force ./private | Out-Null

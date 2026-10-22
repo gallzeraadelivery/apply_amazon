@@ -12,17 +12,20 @@ As orientações permanentes estão em [AGENTS.md](AGENTS.md): manter a evoluç�
 
 ## Estado atual
 
+- [Proxy obrigatório no admin](docs/PROXY.md) para chamadas deste backend à Amazon, Apex e Google OCR, com credenciais criptografadas, teste do IP e bloqueio de conexão direta. O login oficial aberto no AdsPower exige configurar o proxy no próprio perfil do navegador.
+
 - Login administrativo próprio, troca obrigatória da senha inicial e sessões HttpOnly/Secure.
 - Conector Apex implementado com chamadas HTTP reais, ativado somente depois do login válido do operador na Apex. Testes de contrato usam respostas controladas; chamadas autenticadas reais dependem de credenciais ainda não fornecidas.
 - Consulta de contas, créditos, detalhes e execuções; salvamento de cadastro, upload de documentos e solicitação de início de execução com confirmação explícita.
 - Tokens Apex criptografados no SQLite com AES-256-GCM; a senha Apex não é persistida. Auditoria local não registra corpos nem credenciais.
 - Conexão manual Amazon com PKCE: gerar link, fazer login na Amazon, colar o retorno e confirmar. Verifier e refresh token criptografados, tentativas de dez minutos e troca do código sem repetição automática. Validação autenticada real depende de uma tentativa nova realizada pelo titular.
 - Leitura direta do perfil e das etapas do onboarding disponível por conta conectada. Campos pessoais são apresentados somente ao usuário local dono da conexão; tokens e cookies não são devolvidos. Alterações de onboarding continuam indisponíveis; conectar a conta não significa aprovar o cadastro.
+
 - Análise offline dos HARs preservada em `analysis/`. Os fluxos de referência não comprovam o encadeamento interno Apex–Amazon.
 
 ## Executar
 
-Requer Node.js 22.18+ com `node:sqlite`; sem dependências npm externas. Gere uma chave de 32 bytes em hexadecimal e uma senha administrativa aleatória com pelo menos 14 caracteres. Copie `.env.example` para `.env` e configure os valores reais fora do Git.
+Requer Node.js 22.18+ com `node:sqlite`. Execute `npm ci --ignore-scripts` para instalar a versão fixada do Undici usada no proxy. Gere uma chave de 32 bytes em hexadecimal e uma senha administrativa aleatória com pelo menos 14 caracteres. Copie `.env.example` para `.env` e configure os valores reais fora do Git.
 
 Produção: `docker compose up -d --build`. O build executa testes antes de gerar a imagem de produção, sem usuário root. O volume SQLite e a MASTER_KEY precisam ser preservados nas atualizações e backups.
 
@@ -72,6 +75,7 @@ Os botões de envio pedem confirmação separada e distinguem **salvo no painel*
 - POST `/api/apex/accounts/{id}/start`: `{confirm:true}`; não gera dados ou modifica etapas para pular verificações.
 - GET `/api/audit`: últimas operações do usuário.
 - GET `/api/health`: disponibilidade da aplicação. Isso não afirma disponibilidade/autenticação dos provedores.
+- `/api/admin/proxy` (GET/PUT/DELETE), `/api/admin/proxy/test` (POST), `/api/admin/proxy/events` (GET): cadastro obrigatório, teste e observações de rede.
 
 Todas as rotas de operação exigem sessão local. Escritas exigem Origin e token CSRF corretos. O destino Apex é fixo; o backend não aceita URLs arbitrárias. Os dados retornados ao navegador têm campos sensíveis de acesso removidos. Formulários de cadastro continuam contendo dados pessoais autorizados e devem ser usados apenas na conta correta.
 

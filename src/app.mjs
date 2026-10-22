@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import { randomBytes, randomUUID, createHash, scryptSync, timingSafeEqual, createCipheriv, createDecipheriv } from 'node:crypto';
@@ -12,6 +13,7 @@ import { AmazonPersonalClient } from './amazon-personal.mjs';
 import { DocumentVault } from './document-vault.mjs';
 import { extractGeminiFields } from './gemini-ocr.mjs';
 import { extractLicenseFields } from './local-ocr.mjs';
+import { proxyConfig, proxyEndpoint, createProxyTransport } from './proxy.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -57,19 +59,39 @@ export function createApp(config) {
     CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id TEXT,action TEXT NOT NULL,target TEXT,status TEXT NOT NULL,created_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS amazon_pending (id TEXT PRIMARY KEY,user_id TEXT UNIQUE NOT NULL REFERENCES users(id),serial TEXT NOT NULL,verifier TEXT NOT NULL,challenge TEXT NOT NULL,expires INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS amazon_accounts (id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),label TEXT NOT NULL,serial TEXT NOT NULL,token TEXT NOT NULL,connected_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS proxy_settings (id INTEGER PRIMARY KEY CHECK(id=1),config TEXT NOT NULL,revision TEXT NOT NULL,last_test TEXT);
+    CREATE TABLE IF NOT EXISTS network_audit (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id TEXT,target TEXT,proxy_revision TEXT,proxy_endpoint TEXT,exit_ip_snapshot TEXT,exit_ip_checked_at TEXT,result TEXT,created_at TEXT);
   `);
+  if (!db.prepare('PRAGMA table_info(amazon_pending)').all().some(c => c.name === 'proxy_revision')) db.exec('ALTER TABLE amazon_pending ADD COLUMN proxy_revision TEXT');
+  const requestContext = new AsyncLocalStorage();
   if (!db.prepare('SELECT id FROM users LIMIT 1').get()) db.prepare('INSERT INTO users VALUES(?,?,?,1)').run(randomUUID(), adminEmail.toLowerCase(), passwordHash(adminPassword));
-  const apex = new ApexClient({ fetchImpl }); const attempts = new Map();
-  const amazon = new AmazonClient({ fetchImpl: config.amazonFetchImpl });
-  const amazonReader = new AmazonReadClient({ fetchImpl: config.amazonFetchImpl });
+  const savedProxy = () => {
+    const row = db.prepare('SELECT * FROM proxy_settings WHERE id=1').get();
+    if (!row) return null;
+    try { return { ...JSON.parse(unseal(row.config, key)), revision: row.revision, lastTest: row.last_test ? JSON.parse(row.last_test) : null }; }
+    catch { throw new HttpError(503, 'proxy_key_error', 'Não foi possível abrir a configuração do proxy. Cadastre-o novamente.'); }
+  };
+  const proxyStatus = () => {
+    const config = savedProxy();
+    return config ? { configured: true, required: true, protocol: config.protocol, host: config.host, port: config.port, hasCredentials: Boolean(config.username), revision: config.revision, lastTest: config.lastTest, verified: Boolean(config.lastTest?.success && config.lastTest.revision === config.revision), scope: 'Somente a saída deste backend. Apex → Amazon não verificado.' } : { configured: false, required: true, verified: false, lastTest: null };
+  };
+  const transport = createProxyTransport({ getConfig: savedProxy, fetchImpl, testFetchImpl: config.proxyTestFetchImpl ?? fetchImpl, onEvent: e => {
+    db.prepare('INSERT INTO network_audit(user_id,target,proxy_revision,proxy_endpoint,exit_ip_snapshot,exit_ip_checked_at,result,created_at) VALUES(?,?,?,?,?,?,?,?)').run(e.userId ?? null, e.target, e.revision, e.endpoint, e.exitIp, e.checkedAt, e.result, new Date().toISOString());
+  } });
+  const apexFor = user => new ApexClient({ fetchImpl: (url, options) => transport.fetch(url, options, user.id) });
+  const attempts = new Map();
+  const amazonFetch = (url, options) => transport.fetch(url, options, requestContext.getStore()?.userId, 'Amazon', config.amazonFetchImpl ?? fetch);
+  const amazon = new AmazonClient({ fetchImpl: amazonFetch });
+  const amazonReader = new AmazonReadClient({ fetchImpl: amazonFetch });
   const amazonReads = new Set();
-  const amazonUploader = new AmazonUploadClient({ fetchImpl: config.amazonFetchImpl });
+  const amazonUploader = new AmazonUploadClient({ fetchImpl: amazonFetch });
   const amazonUploads = new Set();
-  const amazonPersonal = new AmazonPersonalClient({ fetchImpl: config.amazonFetchImpl });
+  const amazonPersonal = new AmazonPersonalClient({ fetchImpl: amazonFetch });
   const documentVault = new DocumentVault(db, key);
   let ocrBusy = false;
   db.prepare("UPDATE amazon_documents SET status='unconfirmed' WHERE status='sending'").run();
   const amazonBusy = new Set();
+
   const failedHash = passwordHash(randomBytes(32).toString('hex'));
   let busy = false;
   const audit = (user, action, target, status) => db.prepare('INSERT INTO audit(user_id,action,target,status,created_at) VALUES(?,?,?,?,?)').run(user?.id ?? null, action, target ?? null, status, new Date().toISOString());
@@ -81,9 +103,10 @@ export function createApp(config) {
   const statusFor = user => {
     const row = db.prepare('SELECT email,connected_at FROM integrations WHERE user_id=?').get(user.id);
     const count = db.prepare('SELECT count(*) AS n FROM amazon_accounts WHERE user_id=?').get(user.id).n;
-    return { apex: { connected: Boolean(row), ...(row ?? {}), mode: 'live' }, amazon: { connected: count > 0, mode: 'manual_pkce', accounts: count, reason: 'Conexão manual disponível. Onboarding direto ainda não implementado.' } };
+    return { proxy: proxyStatus(), apex: { connected: Boolean(row), ...(row ?? {}), mode: 'live' }, amazon: { connected: count > 0, mode: 'manual_pkce', accounts: count, reason: 'Conexão manual disponível. Onboarding direto ainda não implementado.' } };
+
   };
-  const server = http.createServer(async (req, res) => {
+  const server = http.createServer((req, res) => requestContext.run({ userId: null }, async () => {
     const requestId = randomUUID(); let user; let pathname = '';
     const send = (status, data, headers = {}) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', ...headers }); res.end(JSON.stringify(data)); };
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'no-referrer');
@@ -119,6 +142,7 @@ export function createApp(config) {
         audit({ id: row.id }, 'auth.login', null, 'success');
         return send(200, { user: { email: row.email, mustChangePassword: Boolean(row.must_change) }, csrf }, { 'Set-Cookie': `${cookieName}=${raw}; HttpOnly; Path=/; SameSite=Strict; Max-Age=43200${production ? '; Secure' : ''}` });
       }
+      requestContext.getStore().userId = user?.id;
       if (!user) throw new HttpError(401, 'login_required', 'Entre para continuar.');
       if (unsafe && req.headers['x-csrf-token'] !== session.csrf) throw new HttpError(403, 'invalid_csrf', 'Sessão de segurança inválida. Atualize a página.');
       if (req.method === 'GET' && pathname === '/api/auth/session') return send(200, { user, csrf: session.csrf });
@@ -167,7 +191,7 @@ export function createApp(config) {
             const image = await validateUploadImage(form.get('file'));
             const imageBytes = Buffer.from(await image.arrayBuffer());
             const google = config.ocrProvider === 'gemini';
-            const fields = google ? await extractGeminiFields(imageBytes,image.type,{apiKey:config.geminiApiKey,model:config.geminiModel,fetchImpl:config.ocrFetchImpl}) : await extractLicenseFields(imageBytes, config.ocrRecognize);
+            const fields = google ? await extractGeminiFields(imageBytes,image.type,{apiKey:config.geminiApiKey,model:config.geminiModel,fetchImpl:(url, options) => transport.fetch(url, options, user.id, 'Google OCR', config.ocrFetchImpl ?? fetch)}) : await extractLicenseFields(imageBytes, config.ocrRecognize);
             audit(user, 'amazon.ocr', accountId, 'success');
             return send(200, { fields, engine: google ? 'google-gemini' : 'local-tesseract', notice: 'Leitura concluída. Revise os campos antes de salvar.' });
           } finally { ocrBusy = false; }
@@ -286,13 +310,15 @@ export function createApp(config) {
         } finally { amazonReads.delete(user.id); }
       }
       if (req.method === 'POST' && pathname === '/api/amazon/connect/start') {
-        await jsonBody(req);
+        const input = await jsonBody(req);
+        const proxyRevision = transport.assertReady();
+        if (input.browserProxyConfirmed !== true) throw new HttpError(400, 'browser_proxy_confirmation_required', 'Configure o mesmo proxy no AdsPower e confirme antes de abrir o login.');
         if (amazonBusy.has(user.id)) throw new HttpError(409, 'amazon_busy', 'Aguarde a conexão em andamento.');
         const id = randomUUID(); const pending = makeAmazonAttempt(); const expires = Date.now() + 10 * 60000;
         db.exec('BEGIN IMMEDIATE');
         try {
           db.prepare('DELETE FROM amazon_pending WHERE user_id=? OR expires<?').run(user.id, Date.now());
-          db.prepare('INSERT INTO amazon_pending VALUES(?,?,?,?,?,?)').run(id, user.id, pending.serial, seal(pending.verifier, key), pending.challenge, expires);
+          db.prepare('INSERT INTO amazon_pending(id,user_id,serial,verifier,challenge,expires,proxy_revision) VALUES(?,?,?,?,?,?,?)').run(id, user.id, pending.serial, seal(pending.verifier, key), pending.challenge, expires, proxyRevision);
           db.exec('COMMIT');
         } catch (error) { db.exec('ROLLBACK'); throw error; }
         audit(user, 'amazon.connect_started', id, 'success');
@@ -310,6 +336,7 @@ export function createApp(config) {
           if (pending) db.prepare('DELETE FROM amazon_pending WHERE id=?').run(pending.id);
           throw new HttpError(410, 'amazon_attempt_expired', 'A tentativa expirou ou já foi usada. Gere um novo link.');
         }
+        if (transport.assertReady() !== pending.proxy_revision) throw new HttpError(409, 'amazon_proxy_changed', 'O proxy mudou. Gere um novo link e confirme o proxy no navegador.');
         const code = parseAmazonReturn(data.url, pending.serial);
         let verifier;
         try { verifier = unseal(pending.verifier, key); }
@@ -337,11 +364,39 @@ export function createApp(config) {
         audit(user, 'amazon.disconnected', amazonAccountMatch[1], 'success');
         return send(200, { success: true });
       }
+      if (req.method === 'GET' && pathname === '/api/admin/proxy') return send(200, proxyStatus());
+      if (req.method === 'PUT' && pathname === '/api/admin/proxy') {
+        if (busy || amazonBusy.size || amazonReads.size || amazonUploads.size || ocrBusy) throw new HttpError(409, 'operation_in_progress', 'Aguarde a alteração de conta em andamento antes de trocar o proxy.');
+        const data = await jsonBody(req);
+        const config = proxyConfig(data, savedProxy());
+        db.prepare('INSERT INTO proxy_settings VALUES(1,?,?,NULL) ON CONFLICT(id) DO UPDATE SET config=excluded.config,revision=excluded.revision,last_test=NULL').run(seal(JSON.stringify(config), key), randomUUID());
+        audit(user, 'proxy.saved', null, 'success'); return send(200, proxyStatus());
+      }
+      if (req.method === 'DELETE' && pathname === '/api/admin/proxy') {
+        if (busy || amazonBusy.size || amazonReads.size || amazonUploads.size || ocrBusy) throw new HttpError(409, 'operation_in_progress', 'Aguarde a operação em andamento.');
+        db.prepare('DELETE FROM proxy_settings WHERE id=1').run(); transport.close();
+        audit(user, 'proxy.removed', null, 'success'); return send(200, proxyStatus());
+      }
+      if (req.method === 'POST' && pathname === '/api/admin/proxy/test') {
+        const revision = savedProxy()?.revision;
+        if (!revision) throw new HttpError(503, 'proxy_required', 'Salve o proxy antes de testar.');
+        try {
+          const result = await transport.test(user.id);
+          const updated = db.prepare('UPDATE proxy_settings SET last_test=? WHERE id=1 AND revision=?').run(JSON.stringify(result), result.revision);
+          if (!updated.changes) throw new HttpError(409, 'proxy_changed_during_test', 'O proxy foi alterado durante o teste. Teste a configuração atual.');
+          audit(user, 'proxy.test', null, 'success'); return send(200, proxyStatus());
+        } catch (error) {
+          db.prepare('UPDATE proxy_settings SET last_test=? WHERE id=1 AND revision=?').run(JSON.stringify({ revision, success: false, checkedAt: new Date().toISOString() }), revision);
+          audit(user, 'proxy.test', null, 'not_confirmed'); throw error;
+        }
+      }
+      if (req.method === 'GET' && pathname === '/api/admin/proxy/events') return send(200, { events: db.prepare('SELECT target,proxy_revision,proxy_endpoint,exit_ip_snapshot,exit_ip_checked_at,result,created_at FROM network_audit WHERE user_id=? ORDER BY id DESC LIMIT 40').all(user.id) });
+
       if (req.method === 'GET' && pathname === '/api/integrations') return send(200, statusFor(user));
       if (req.method === 'POST' && pathname === '/api/integrations/apex/connect') {
         const data = await jsonBody(req);
         if (typeof data.email !== 'string' || !data.email.includes('@') || data.email.length > 254 || typeof data.password !== 'string' || !data.password || data.password.length > 200) throw new HttpError(400, 'invalid_login', 'Informe as credenciais da sua conta Apex.');
-        const auth = await apex.login(data.email.trim(), data.password);
+        const auth = await apexFor(user).login(data.email.trim(), data.password);
         db.prepare('INSERT INTO integrations VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET token=excluded.token,email=excluded.email,connected_at=excluded.connected_at').run(user.id, seal(auth.token, key), data.email.trim(), new Date().toISOString());
         audit(user, 'apex.connected', null, 'success'); return send(200, statusFor(user));
       }
@@ -350,17 +405,17 @@ export function createApp(config) {
       }
       if (pathname.startsWith('/api/amazon/')) throw new HttpError(503, 'amazon_not_configured', 'Integração Amazon indisponível: acesso autorizado ainda não configurado.');
       if (req.method === 'GET' && pathname === '/api/audit') return send(200, { events: db.prepare('SELECT action,target,status,created_at FROM audit WHERE user_id=? ORDER BY id DESC LIMIT 100').all(user.id) });
-      if (req.method === 'GET' && pathname === '/api/apex/accounts') return send(200, redact(await apex.request('/api/accounts?include_archived=1', { token: tokenFor(user) })));
-      if (req.method === 'GET' && pathname === '/api/apex/credits') return send(200, redact(await apex.request('/api/credits', { token: tokenFor(user) })));
+      if (req.method === 'GET' && pathname === '/api/apex/accounts') return send(200, redact(await apexFor(user).request('/api/accounts?include_archived=1', { token: tokenFor(user) })));
+      if (req.method === 'GET' && pathname === '/api/apex/credits') return send(200, redact(await apexFor(user).request('/api/credits', { token: tokenFor(user) })));
       let match = pathname.match(/^\/api\/apex\/accounts\/([^/]+)(?:\/(application-data|start|documents))?$/);
       if (match) {
         const [, id, operation] = match;
         if (!uuid(id)) throw new HttpError(400, 'invalid_account_id', 'ID de conta inválido.');
         const token = tokenFor(user);
-        if (req.method === 'GET' && !operation) return send(200, redact(await apex.request(`/api/accounts/${id}`, { token })));
+        if (req.method === 'GET' && !operation) return send(200, redact(await apexFor(user).request(`/api/accounts/${id}`, { token })));
         if (req.method === 'POST' && operation && ['application-data', 'start', 'documents'].includes(operation)) {
           // Mutations are serialized. Never retry a potentially accepted upstream operation.
-          if (busy) throw new HttpError(409, 'operation_in_progress', 'Uma operação já está em andamento. Aguarde.');
+          if (busy || amazonBusy.size || amazonReads.size || amazonUploads.size || ocrBusy) throw new HttpError(409, 'operation_in_progress', 'Uma operação já está em andamento. Aguarde.');
           busy = true;
           try {
             let body; let upstreamPath = `/api/accounts/${id}/${operation}`;
@@ -386,7 +441,7 @@ export function createApp(config) {
               body = operation === 'application-data' ? applicationForm(data.fields) : {};
             }
             audit(user, `apex.${operation}`, id, 'requested');
-            const result = await apex.request(upstreamPath, { token, method: 'POST', body });
+            const result = await apexFor(user).request(upstreamPath, { token, method: 'POST', body });
             audit(user, `apex.${operation}`, id, 'http_success');
             return send(200, { data: redact(result), notice: 'A Apex respondeu com sucesso HTTP. Acompanhe o estado para confirmar o resultado da operação.' });
           } catch (error) { audit(user, `apex.${operation}`, id, 'not_confirmed'); throw error; }
@@ -396,7 +451,7 @@ export function createApp(config) {
       match = pathname.match(/^\/api\/apex\/runs\/([^/]+)$/);
       if (req.method === 'GET' && match) {
         if (!uuid(match[1])) throw new HttpError(400, 'invalid_run_id', 'ID de execução inválido.');
-        return send(200, redact(await apex.request(`/api/runs/${match[1]}`, { token: tokenFor(user) })));
+        return send(200, redact(await apexFor(user).request(`/api/runs/${match[1]}`, { token: tokenFor(user) })));
       }
       throw new HttpError(404, 'not_found', 'Rota não encontrada.');
     } catch (error) {
@@ -405,7 +460,7 @@ export function createApp(config) {
       if (!res.headersSent) send(status, { error: error instanceof HttpError ? error.code : 'internal_error', message: error instanceof HttpError ? error.message : 'Erro interno. Consulte o identificador da solicitação.', requestId });
       else res.end();
     }
-  });
+  }));
   server.requestTimeout = 45000; server.headersTimeout = 15000;
-  return { server, db, close: () => { server.close(); server.closeAllConnections(); db.close(); } };
+  return { server, db, close: () => { server.close(); server.closeAllConnections(); transport.close(); db.close(); } };
 }

@@ -30,7 +30,10 @@ export function redact(value) {
   return result;
 }
 export class ApexClient {
-  constructor({ fetchImpl = fetch, timeout = 30000 } = {}) { this.fetch = fetchImpl; this.timeout = timeout; }
+  constructor({ fetchImpl, timeout = 30000 } = {}) {
+    if (typeof fetchImpl !== 'function') throw new Error('ApexClient requires an explicit routed transport');
+    this.fetch = fetchImpl; this.timeout = timeout;
+  }
   async request(path, { token, method = 'GET', body } = {}) {
     if (!path.startsWith('/api/') || path.includes('://') || /[\r\n]/.test(path)) throw new Error('Invalid upstream path');
     const headers = { Accept: 'application/json' };
@@ -39,7 +42,7 @@ export class ApexClient {
     let response;
     try {
       response = await this.fetch(`${APEX_ORIGIN}${path}`, { method, headers, body, redirect: 'error', signal: AbortSignal.timeout(this.timeout) });
-    } catch { throw new HttpError(502, 'apex_unreachable', 'Não foi possível alcançar a Apex. Nenhuma repetição automática foi feita.'); }
+    } catch (error) { if (error instanceof HttpError) throw error; throw new HttpError(502, 'apex_unreachable', 'Não foi possível alcançar a Apex. Nenhuma repetição automática foi feita.'); }
     if (Number(response.headers.get('content-length') || 0) > 12 * 1024 * 1024) throw new HttpError(502, 'response_too_large', 'Resposta da Apex excede o limite.');
     let size = 0; const chunks = [];
     for await (const chunk of response.body ?? []) {

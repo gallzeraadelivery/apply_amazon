@@ -1,6 +1,6 @@
 # Estado do projeto
 
-Atualizado em 20/10/2026, fuso America/Cuiaba.
+Atualizado em 22/10/2026, fuso America/Cuiaba.
 
 ## Objetivo
 
@@ -8,7 +8,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## O que existe
 
-- Aplicação Node.js com módulos nativos e SQLite; sem dependências npm externas.
+- Aplicação Node.js com SQLite e Undici fixado em package-lock.json para proxy obrigatório. Instalar dependências com npm ci --ignore-scripts.
 - Login administrativo próprio, troca inicial de senha obrigatória, cookie Secure/HttpOnly/SameSite, CSRF e limitação de tentativas de login.
 - Token Apex criptografado em repouso com AES-256-GCM; senha Apex não persistida.
 - Consulta de contas, detalhes, créditos e execuções. Escritas para dados cadastrais, documentos e início de execução exigem confirmação.
@@ -154,6 +154,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implantação efetiva e próximo passo. Não registrar senhas, tokens nem dados pessoais. Diferenciar testes com respostas controladas de chamadas reais e preservar o histórico de limitações até que evidência nova as resolva.
 
+
 ### 20/10/2026 — Continuidade em outros computadores
 
 - Adicionados AGENTS.md, regra sempre ativa, guias de clonagem, operação, backup e histórico.
@@ -252,3 +253,15 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - npm run check e 41 testes passaram. Backup anterior /opt/backups/gd-apply/20261021T052556Z. Implantação em andamento.
 
 - Publicação concluída: e2163c8 implantado, 41 testes aprovados no build Linux e nginx -t válido. Smoke HTTPS confirmou dupla DL, ausência do cartão/botão de foto de perfil, presença das três selfies e health 200.
+
+
+### 22/10/2026 — Proxy obrigatório no admin
+
+- Atualizado checkout por fast-forward até 45b57e7 antes de integrar o proxy; preservados conexão manual Amazon, perfil/etapas, dados cadastrais, cofre de documentos, três selfies e Gemini OCR das atualizações do outro computador.
+- Proxy HTTP/HTTPS global, CONNECT e autenticação Basic, credenciais AES-GCM no SQLite, teste fixo HTTPS ipify, revisão invalidada a cada salvamento e histórico sem corpos/cookies/tokens.
+- Backend Amazon, Apex e Google OCR passam pelo transporte obrigatório. Sem configuração/teste ou em falha não há fallback direto. Redirect manual Amazon permanece disponível para o fluxo controlado de cookies, sem seguir destinos automaticamente.
+- Login oficial abre no navegador: mesmo proxy deve ser configurado no AdsPower. Confirmação no painel não mede o IP do navegador. Retorno PKCE vinculado à revisão; trocar proxy exige novo link, e bloqueio de configuração não consome o código.
+- IP exibido é fotografia do teste, não prova do IP visto por Amazon em cada chamada ou da saída Apex → Amazon. Proxies rotativos podem variar.
+- npm run check e 47 testes locais aprovados; suíte HTTP/CONNECT precisou de acesso ao loopback fora do sandbox de rede. Prévia visual conferida com conta descartável sem dados reais.
+- Backup privado de produção criado em /opt/backups/gd-apply/20261022T180106Z. Código ainda em preparação para publicar neste registro; atualizar após build e smoke.
+- Próximo passo do operador: cadastrar o proxy real no admin e testar IP. Nenhuma credencial de proxy fornecida, nenhuma chamada autenticada real Amazon/Apex feita nesta tarefa.
