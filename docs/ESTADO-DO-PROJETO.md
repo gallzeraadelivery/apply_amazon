@@ -254,6 +254,14 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 
 - Publicação concluída: e2163c8 implantado, 41 testes aprovados no build Linux e nginx -t válido. Smoke HTTPS confirmou dupla DL, ausência do cartão/botão de foto de perfil, presença das três selfies e health 200.
 
+### 24/10/2026 — Conferência real do nome na conta indicada pelo operador
+
+- Usuário indicou uma conta para validar se o nome revisado da DL efetivamente muda na Amazon. Identificador, nome completo e credenciais omitidos deste registro público.
+- Consulta HTTPS autenticada encontrou duas conexões; uma delas possui rascunho cujo nome completo corresponde exatamente ao indicado. Nome salvo localmente difere do nome retornado pelo perfil Amazon e pelo onboarding.
+- Nova consulta direta ao endpoint atual /onboarding/account/data/get-personal-info, usando a credencial criptografada da conexão no servidor, retornou nameEditable=false com campos de nome presentes. Evidência atual de 24/10, independente do HAR antigo.
+- Nenhum POST de alteração foi executado; endereço, telefone, documentos e etapas permaneceram intactos. A conta consultada está WAITLISTED_ON_REGION. Não inferir que a lista de espera causa o bloqueio: são dois estados observados, sem prova causal.
+- Código da referência Apex mostra salvamento application-data seguido de nova leitura da própria Apex; não revela o endpoint interno usado por seu servidor para trocar o nome na Amazon. O serviço próprio anterior contém submitLegalName via submit-attributes/name, mas isso não comprova que esse caminho possa ser usado quando o cadastro atual bloqueia a edição, nem autoriza forçar nameEditable.
+- Resultado: alteração real do nome não validada nesta conta; pré-condição atual de edição está bloqueada. Necessário seguir o procedimento oficial de correção ou realizar teste autorizado numa conta em que a Amazon permita essa operação. Sem alteração de código ou implantação nesta conferência.
 
 ### 22/10/2026 — Proxy obrigatório no admin
 
@@ -275,3 +283,10 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Corrigida atribuição temporal: application-data era de 20/10. O start atual de 24/10 contém apenas from_step selfie. Dados preparados mudaram entre consultas, mas current_name não mudou nessas duas respostas; operador relata nome novo no app Amazon.
 - Nenhum endpoint interno Apex → Amazon identificado de forma conclusiva. Rotas account/data do conector próprio são candidatas funcionais, sem atribuição à Apex. Sem replay, credenciais de HAR ou alterações externas.
 - Validação documental: rotas/funções conferidas no script público e resultados MCP; dados pessoais omitidos. Documentação somente, sem nova implantação ou necessidade de repetir testes da aplicação.
+### 24/10/2026 — Rastreio do envio de nome nos dois HARs fornecidos
+
+- Reanálise offline das entradas equivalentes nos dois HARs, sem replay ou exportação de dados pessoais.
+- Entrada 70: POST /onboarding/v2/data/personal-info retorna 400 com errorCode=MailingAddress_PostalCode. Entrada 80: mesma rota retorna 200 sem corpo; entrada 81: POST /onboarding/v3/submit-attributes com addressInformation retorna 200 e objeto vazio. Nenhum desses corpos envia nameEditable=true.
+- Entrada 89: GET /onboarding/v2/data/personal-info retorna firstName e lastName diferentes dos enviados na entrada 80; middleName está vazio em ambos. Comparação estrutural em memória, sem valores de nome no Git. Leituras subsequentes preservam o mesmo nome da entrada 89 e nameEditable=false.
+- Esses arquivos não demonstram persistência do nome enviado no cadastro personal-info. HTTP 200 e salvamento na Apex não bastam para comprovar mudança na Amazon. Não inferir que inexiste outro fluxo funcional; apenas que não está comprovado nestas capturas.
+- Para reproduzir fielmente o comportamento desejado, falta evidência da chamada que realmente altera o cadastro e de uma leitura Amazon posterior correspondente à mesma conta. Tráfego navegador→Apex não revela automaticamente o tráfego interno servidor Apex→Amazon. Sem mudança de código ou produção nesta análise.
