@@ -267,3 +267,11 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Próximo passo do operador: cadastrar o proxy real no admin e testar IP. Nenhuma credencial de proxy fornecida, nenhuma chamada autenticada real Amazon/Apex feita nesta tarefa.
 
 - Smoke pós-publicação: API administrativa sem sessão retorna 401; módulo público contém a nova tela e confirmação AdsPower; migração proxy_revision presente. .env idêntico ao backup; preservados 1 usuário, 2 conexões Amazon, 1 documento e 1 rascunho. proxy_settings tem zero registros: saídas externas bloqueadas até o operador cadastrar e testar o proxy real. Nenhum teste com conta externa foi executado.
+
+
+### 24/10/2026 — Cruzamento passivo da nova captura Apex
+
+- Ver docs/CAPTURA-APEX-2026-10-24.md: scripts públicos atuais, uploads/OCR, leitura cadastral e execução em fila cruzados com datas do histórico.
+- Corrigida atribuição temporal: application-data era de 20/10. O start atual de 24/10 contém apenas from_step selfie. Dados preparados mudaram entre consultas, mas current_name não mudou nessas duas respostas; operador relata nome novo no app Amazon.
+- Nenhum endpoint interno Apex → Amazon identificado de forma conclusiva. Rotas account/data do conector próprio são candidatas funcionais, sem atribuição à Apex. Sem replay, credenciais de HAR ou alterações externas.
+- Validação documental: rotas/funções conferidas no script público e resultados MCP; dados pessoais omitidos. Documentação somente, sem nova implantação ou necessidade de repetir testes da aplicação.
