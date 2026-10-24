@@ -6,17 +6,18 @@ Abra https://apply.gdapps.online em qualquer computador. Use seu e-mail e a senh
 
 O e-mail administrativo inicial é `admin@gdapps.online`. A senha inicial foi salva somente no arquivo privado do computador que fez a implantação e deixa de valer depois que você a altera. Guarde a senha atual em um gerenciador de senhas. O GitHub não contém senhas nem uma forma de recuperá-las.
 
-Na aba Integrações, conecte sua conta Apex. Essa é uma conta separada do login GD Apply. A ligação direta Amazon ainda não está configurada; os HARs não habilitam acesso a serviços externos.
+Primeiro cadastre e teste o proxy em **Proxy · Admin**. Para o login oficial Amazon, configure também o mesmo proxy no perfil AdsPower e confirme a opção na aba Amazon direta. Chamadas do backend à Amazon, Apex e Google OCR usam o proxy obrigatório; abrir o login no navegador depende da configuração do próprio navegador. Leia [PROXY.md](PROXY.md) para interpretar o IP e os limites. O conector Apex é opcional e usa uma conta separada do login GD Apply. Nenhuma sessão de HAR é reutilizada.
 
 ## Baixar o projeto para desenvolver
 
-Instale Git e Node.js 22.18 ou mais recente da série 22; para administrar o servidor, instale também o cliente OpenSSH. Docker é necessário no servidor ou se optar por desenvolvimento em container. O projeto não tem dependências npm externas; não é necessário npm install para executar a versão atual.
+Instale Git e Node.js 22.18 ou mais recente da série 22; para administrar o servidor, instale também o cliente OpenSSH. Docker é necessário no servidor ou se optar por desenvolvimento em container. As dependências estão fixadas em package-lock.json; use npm ci.
 
 No terminal, escolha uma pasta local e execute:
 
 ```sh
 git clone https://github.com/gallzeraadelivery/apply_amazon.git
 cd apply_amazon
+npm ci --ignore-scripts
 npm run dev:setup
 npm run check
 npm test

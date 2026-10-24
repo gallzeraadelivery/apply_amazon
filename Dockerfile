@@ -1,6 +1,7 @@
 FROM node:22-alpine AS validation
 WORKDIR /app
-COPY package.json ./
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 COPY src ./src
 COPY public ./public
 COPY test ./test
@@ -12,6 +13,8 @@ ENV NODE_ENV=production PORT=8080 DB_PATH=/data/app.sqlite
 WORKDIR /app
 RUN apk add --no-cache tesseract-ocr tesseract-ocr-data-eng
 COPY --from=validation --chown=node:node /app/package.json ./
+COPY --from=validation --chown=node:node /app/package-lock.json ./
+COPY --from=validation --chown=node:node /app/node_modules ./node_modules
 COPY --from=validation --chown=node:node /app/src ./src
 COPY --from=validation --chown=node:node /app/public ./public
 RUN mkdir /data && chown node:node /data

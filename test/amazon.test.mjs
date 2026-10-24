@@ -10,7 +10,9 @@ async function fixture(t, upstream, extraConfig = {}) {
   const calls = [];
   const app = createApp({ dbPath: ':memory:', masterKey: randomBytes(32).toString('hex'),
     adminEmail: 'admin@example.test', adminPassword: 'initial-password-123456', production: false, origin: 'http://localhost',
+    proxyTestFetchImpl: async () => Response.json({ ip: '203.0.113.10' }),
     amazonFetchImpl: async (url, opts) => {
+      assert.ok(opts.dispatcher);
       calls.push({ url, opts });
       if (upstream) return upstream(url, opts);
       return Response.json({ response: { success: { tokens: { bearer: { refresh_token: token } } } } });
@@ -29,7 +31,9 @@ async function fixture(t, upstream, extraConfig = {}) {
   assert.equal((await request('/api/amazon/accounts')).status, 401);
   await request('/api/auth/login', 'POST', { email: 'admin@example.test', password: 'initial-password-123456' });
   await request('/api/auth/password', 'POST', { currentPassword: 'initial-password-123456', newPassword: 'updated-password-123456' });
-  const start = async () => (await request('/api/amazon/connect/start', 'POST', {})).data;
+  await request('/api/admin/proxy', 'PUT', { protocol: 'http', host: 'proxy.example.test', port: 8080, authMode: 'none' });
+  await request('/api/admin/proxy/test', 'POST', {});
+  const start = async () => (await request('/api/amazon/connect/start', 'POST', { browserProxyConfirmed: true })).data;
   const finishBody = pending => ({ connectId: pending.connectId, label: 'Synthetic account', confirm: true,
     url: `https://www.amazon.com/ap/maplanding?serial=${new URL(new URL(pending.link).searchParams.get('openid.return_to')).searchParams.get('serial')}&openid.oa2.authorization_code=synthetic-code` });
   return { app, request, start, finishBody, calls };
@@ -75,7 +79,7 @@ test('connection requires CSRF, origin and confirmation; encrypts credentials an
 test('network failure never persists a token or replays the same authorization code', async t => {
   const f = await fixture(t, () => { throw new TypeError('fetch failed', { cause: { code: 'ECONNREFUSED' } }); });
   const p = await f.start(); const body = f.finishBody(p);
-  assert.equal((await f.request('/api/amazon/connect/finish', 'POST', body)).data.error, 'amazon_network_econnrefused');
+  assert.equal((await f.request('/api/amazon/connect/finish', 'POST', body)).data.error, 'proxy_connection_failed');
   assert.equal((await f.request('/api/amazon/connect/finish', 'POST', body)).status, 410);
   assert.equal(f.calls.length, 1);
   assert.equal((await f.request('/api/amazon/accounts')).data.accounts.length, 0);
@@ -208,4 +212,20 @@ test('selfie preparation saves three separate private slots without Google or Pe
  }
  assert.equal((await f.request(`/api/amazon/accounts/${id}/documents`)).data.documents.length,3);assert.equal(f.calls.length,before);
  assert.equal((await f.request(`/api/amazon/accounts/${id}/uploads/selfie-front`,'POST',{confirm:true})).status,503);assert.equal(f.calls.length,before);
+});
+
+
+test('Amazon login requires tested proxy and browser confirmation, and changed proxy cannot consume a code', async t => {
+  const f = await fixture(t);
+  assert.equal((await f.request('/api/amazon/connect/start', 'POST', {})).data.error, 'browser_proxy_confirmation_required');
+  const pending = await f.start();
+  await f.request('/api/admin/proxy', 'DELETE');
+  assert.equal((await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(pending))).data.error, 'proxy_required');
+  assert.equal(f.app.db.prepare('SELECT count(*) AS n FROM amazon_pending').get().n, 1);
+  assert.equal(f.calls.length, 0);
+  await f.request('/api/admin/proxy', 'PUT', { protocol: 'http', host: 'changed.example.test', port: 8080, authMode: 'none' });
+  assert.equal((await f.request('/api/amazon/connect/start', 'POST', {browserProxyConfirmed:true})).data.error, 'proxy_not_tested');
+  await f.request('/api/admin/proxy/test', 'POST', {});
+  assert.equal((await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(pending))).data.error, 'amazon_proxy_changed');
+  assert.equal(f.calls.length, 0);
 });

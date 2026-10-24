@@ -1,6 +1,6 @@
 # Estado do projeto
 
-Atualizado em 20/10/2026, fuso America/Cuiaba.
+Atualizado em 22/10/2026, fuso America/Cuiaba.
 
 ## Objetivo
 
@@ -8,7 +8,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 ## O que existe
 
-- Aplicação Node.js com módulos nativos e SQLite; sem dependências npm externas.
+- Aplicação Node.js com SQLite e Undici fixado em package-lock.json para proxy obrigatório. Instalar dependências com npm ci --ignore-scripts.
 - Login administrativo próprio, troca inicial de senha obrigatória, cookie Secure/HttpOnly/SameSite, CSRF e limitação de tentativas de login.
 - Token Apex criptografado em repouso com AES-256-GCM; senha Apex não persistida.
 - Consulta de contas, detalhes, créditos e execuções. Escritas para dados cadastrais, documentos e início de execução exigem confirmação.
@@ -25,7 +25,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 - Volume: gd-apply_apply-data; arquivo: /data/app.sqlite no container.
 - Nginx: edge-nginx; configuração: /opt/edge/nginx/active.conf, bloco exclusivo do domínio.
 - HTTPS Let's Encrypt e renovação pelo agendamento já existente no servidor.
-- Versão da aplicação publicada corresponde ao commit `20a8e74`. Os commits posteriores de continuidade acrescentam documentação, regras e ferramentas locais; não implicam nova publicação automática.
+- Versão da aplicação publicada: `7779a50` (proxy obrigatório), em 22/10/2026. Registros abaixo descrevem a evolução e as validações de cada publicação.
 - Verificações na publicação: oito testes no computador e na imagem Linux, health check externo HTTP 200, cookie seguro, login inicial e bloqueio antes da troca da senha, nginx -t e container healthy.
 - Login inicial: admin@gdapps.online. A senha inicial existe somente em private/access.txt no computador original e no bootstrap privado de produção. Não está no Git e pode já ter sido alterada pelo usuário.
 
@@ -154,6 +154,7 @@ Backend e painel próprios que executam a integração diretamente com a Amazon 
 
 Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implantação efetiva e próximo passo. Não registrar senhas, tokens nem dados pessoais. Diferenciar testes com respostas controladas de chamadas reais e preservar o histórico de limitações até que evidência nova as resolva.
 
+
 ### 20/10/2026 — Continuidade em outros computadores
 
 - Adicionados AGENTS.md, regra sempre ativa, guias de clonagem, operação, backup e histórico.
@@ -261,3 +262,16 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Nenhum POST de alteração foi executado; endereço, telefone, documentos e etapas permaneceram intactos. A conta consultada está WAITLISTED_ON_REGION. Não inferir que a lista de espera causa o bloqueio: são dois estados observados, sem prova causal.
 - Código da referência Apex mostra salvamento application-data seguido de nova leitura da própria Apex; não revela o endpoint interno usado por seu servidor para trocar o nome na Amazon. O serviço próprio anterior contém submitLegalName via submit-attributes/name, mas isso não comprova que esse caminho possa ser usado quando o cadastro atual bloqueia a edição, nem autoriza forçar nameEditable.
 - Resultado: alteração real do nome não validada nesta conta; pré-condição atual de edição está bloqueada. Necessário seguir o procedimento oficial de correção ou realizar teste autorizado numa conta em que a Amazon permita essa operação. Sem alteração de código ou implantação nesta conferência.
+
+### 22/10/2026 — Proxy obrigatório no admin
+
+- Atualizado checkout por fast-forward até 45b57e7 antes de integrar o proxy; preservados conexão manual Amazon, perfil/etapas, dados cadastrais, cofre de documentos, três selfies e Gemini OCR das atualizações do outro computador.
+- Proxy HTTP/HTTPS global, CONNECT e autenticação Basic, credenciais AES-GCM no SQLite, teste fixo HTTPS ipify, revisão invalidada a cada salvamento e histórico sem corpos/cookies/tokens.
+- Backend Amazon, Apex e Google OCR passam pelo transporte obrigatório. Sem configuração/teste ou em falha não há fallback direto. Redirect manual Amazon permanece disponível para o fluxo controlado de cookies, sem seguir destinos automaticamente.
+- Login oficial abre no navegador: mesmo proxy deve ser configurado no AdsPower. Confirmação no painel não mede o IP do navegador. Retorno PKCE vinculado à revisão; trocar proxy exige novo link, e bloqueio de configuração não consome o código.
+- IP exibido é fotografia do teste, não prova do IP visto por Amazon em cada chamada ou da saída Apex → Amazon. Proxies rotativos podem variar.
+- npm run check e 47 testes locais aprovados; suíte HTTP/CONNECT precisou de acesso ao loopback fora do sandbox de rede. Prévia visual conferida com conta descartável sem dados reais.
+- Backup privado de produção criado em /opt/backups/gd-apply/20261022T180106Z. Commit 7779a50 publicado: 47 testes aprovados no build Linux, nginx -t válido, container healthy e HTTPS health 200. Imagem de retorno gd-apply-app:before-proxy-20261022 e backup Nginx /opt/edge/nginx/active.conf.before-apply-app-20261022T181347Z.
+- Próximo passo do operador: cadastrar o proxy real no admin e testar IP. Nenhuma credencial de proxy fornecida, nenhuma chamada autenticada real Amazon/Apex feita nesta tarefa.
+
+- Smoke pós-publicação: API administrativa sem sessão retorna 401; módulo público contém a nova tela e confirmação AdsPower; migração proxy_revision presente. .env idêntico ao backup; preservados 1 usuário, 2 conexões Amazon, 1 documento e 1 rascunho. proxy_settings tem zero registros: saídas externas bloqueadas até o operador cadastrar e testar o proxy real. Nenhum teste com conta externa foi executado.

@@ -16,6 +16,7 @@ async function fixture(t, override) {
   const mock = async (url, options) => {
     calls.push({ url, ...options });
     const custom = await override?.(url, options); if (custom) return custom;
+    if (url.startsWith('https://api.ipify.org')) return response({ ip: '203.0.113.10' });
     if (url.endsWith('/api/auth/login')) return response({ token: upstreamToken, user: { email: 'operator@example.test' } });
     if (url.endsWith('/api/me')) return response({ user: { id: 'remote-user' } });
     if (url.includes('/api/accounts?')) return response({ accounts: [{ id: accountId, amazon_label: 'Test account', token: 'private', last_known_status: { application_data: { basic_info: { firstName: 'Test', ssn: 'private' } } } }] });
@@ -44,7 +45,11 @@ async function fixture(t, override) {
     await login();
     await request('/api/auth/password', { method: 'POST', body: { currentPassword: initialPassword, newPassword: updatedPassword } });
   }
-  async function connect() { return request('/api/integrations/apex/connect', { method: 'POST', body: { email: 'operator@example.test', password: 'apex-test-password' } }); }
+  async function configureProxy() {
+    await request('/api/admin/proxy', { method: 'PUT', body: { host: 'proxy.example.test', port: 8080, protocol: 'http', authMode: 'none' } });
+    return request('/api/admin/proxy/test', { method: 'POST', body: {} });
+  }
+  async function connect() { await configureProxy(); return request('/api/integrations/apex/connect', { method: 'POST', body: { email: 'operator@example.test', password: 'apex-test-password' } }); }
   return { app, request, login, ready, connect, calls };
 }
 
@@ -74,7 +79,8 @@ test('real Apex contract is mapped; tokens are encrypted and never sent to the b
   const accounts = await f.request('/api/apex/accounts'); assert.equal(accounts.status, 200);
   assert.equal(accounts.data.accounts[0].id, accountId);
   assert.ok(!JSON.stringify(accounts.data).includes('private'));
-  assert.ok(f.calls.every(c => c.url.startsWith('https://apply.apexbot.app/api/')));
+  assert.ok(f.calls.every(c => c.url.startsWith('https://apply.apexbot.app/api/') || c.url.startsWith('https://api.ipify.org')));
+  assert.ok(f.calls.every(c => c.dispatcher));
   assert.equal(f.calls.at(-1).headers.Authorization, `Bearer ${upstreamToken}`);
   assert.equal((await f.request('/api/amazon/onboarding')).data.error, 'amazon_not_configured');
   await f.request('/api/integrations/apex', { method: 'DELETE' });
