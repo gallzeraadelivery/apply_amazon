@@ -275,3 +275,11 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Próximo passo do operador: cadastrar o proxy real no admin e testar IP. Nenhuma credencial de proxy fornecida, nenhuma chamada autenticada real Amazon/Apex feita nesta tarefa.
 
 - Smoke pós-publicação: API administrativa sem sessão retorna 401; módulo público contém a nova tela e confirmação AdsPower; migração proxy_revision presente. .env idêntico ao backup; preservados 1 usuário, 2 conexões Amazon, 1 documento e 1 rascunho. proxy_settings tem zero registros: saídas externas bloqueadas até o operador cadastrar e testar o proxy real. Nenhum teste com conta externa foi executado.
+
+### 24/10/2026 — Rastreio do envio de nome nos dois HARs fornecidos
+
+- Reanálise offline das entradas equivalentes nos dois HARs, sem replay ou exportação de dados pessoais.
+- Entrada 70: POST /onboarding/v2/data/personal-info retorna 400 com errorCode=MailingAddress_PostalCode. Entrada 80: mesma rota retorna 200 sem corpo; entrada 81: POST /onboarding/v3/submit-attributes com addressInformation retorna 200 e objeto vazio. Nenhum desses corpos envia nameEditable=true.
+- Entrada 89: GET /onboarding/v2/data/personal-info retorna firstName e lastName diferentes dos enviados na entrada 80; middleName está vazio em ambos. Comparação estrutural em memória, sem valores de nome no Git. Leituras subsequentes preservam o mesmo nome da entrada 89 e nameEditable=false.
+- Esses arquivos não demonstram persistência do nome enviado no cadastro personal-info. HTTP 200 e salvamento na Apex não bastam para comprovar mudança na Amazon. Não inferir que inexiste outro fluxo funcional; apenas que não está comprovado nestas capturas.
+- Para reproduzir fielmente o comportamento desejado, falta evidência da chamada que realmente altera o cadastro e de uma leitura Amazon posterior correspondente à mesma conta. Tráfego navegador→Apex não revela automaticamente o tráfego interno servidor Apex→Amazon. Sem mudança de código ou produção nesta análise.
