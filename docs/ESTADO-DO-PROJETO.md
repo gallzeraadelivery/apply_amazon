@@ -252,3 +252,12 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - npm run check e 41 testes passaram. Backup anterior /opt/backups/gd-apply/20261021T052556Z. Implantação em andamento.
 
 - Publicação concluída: e2163c8 implantado, 41 testes aprovados no build Linux e nginx -t válido. Smoke HTTPS confirmou dupla DL, ausência do cartão/botão de foto de perfil, presença das três selfies e health 200.
+
+### 24/10/2026 — Conferência real do nome na conta indicada pelo operador
+
+- Usuário indicou uma conta para validar se o nome revisado da DL efetivamente muda na Amazon. Identificador, nome completo e credenciais omitidos deste registro público.
+- Consulta HTTPS autenticada encontrou duas conexões; uma delas possui rascunho cujo nome completo corresponde exatamente ao indicado. Nome salvo localmente difere do nome retornado pelo perfil Amazon e pelo onboarding.
+- Nova consulta direta ao endpoint atual /onboarding/account/data/get-personal-info, usando a credencial criptografada da conexão no servidor, retornou nameEditable=false com campos de nome presentes. Evidência atual de 24/10, independente do HAR antigo.
+- Nenhum POST de alteração foi executado; endereço, telefone, documentos e etapas permaneceram intactos. A conta consultada está WAITLISTED_ON_REGION. Não inferir que a lista de espera causa o bloqueio: são dois estados observados, sem prova causal.
+- Código da referência Apex mostra salvamento application-data seguido de nova leitura da própria Apex; não revela o endpoint interno usado por seu servidor para trocar o nome na Amazon. O serviço próprio anterior contém submitLegalName via submit-attributes/name, mas isso não comprova que esse caminho possa ser usado quando o cadastro atual bloqueia a edição, nem autoriza forçar nameEditable.
+- Resultado: alteração real do nome não validada nesta conta; pré-condição atual de edição está bloqueada. Necessário seguir o procedimento oficial de correção ou realizar teste autorizado numa conta em que a Amazon permita essa operação. Sem alteração de código ou implantação nesta conferência.
