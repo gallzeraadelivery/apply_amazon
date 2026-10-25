@@ -299,3 +299,10 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Executado exatamente um POST ao formulário oficial /ap/profile/mobilephone com os campos frescos da sessão e o número fornecido. HTTP 200; nenhum código, senha, fator MFA ou remoção foi enviado. Não houve repetição automática.
 - HTTP 200 não comprovou persistência. Nova consulta somente de leitura à mesma área ainda oferece adicionar número, não apresenta o número fornecido e não oferece excluir telefone. Resultado da alteração não confirmado; não anunciar cadastro ou verificação concluídos nem presumir SMS entregue.
 - Sem alteração de código, implantação, nome, documentos ou etapas do Flex. Próximo passo: acompanhar a resposta completa no navegador oficial e eventual validação exigida pelo provedor antes de qualquer novo envio.
+
+### 24/10/2026 — Exclusão de telefone confirmada na captura completa
+
+- XML Burp fornecido pelo usuário analisado offline, 2.438 itens; arquivo bruto não copiado para o Git e nenhuma requisição repetida.
+- Identificado POST /ap/profile/mobilephone com appAction=REMOVE_MOBILE_PHONE e campos do formulário oficial, incluindo deleteMobilePhone. Não é limpeza do número por campo vazio.
+- Antes: CNEP exibe editar telefone. Depois do POST HTTP 302 e GET CNEP HTTP 200: exibe adicionar telefone, sem editar. Evidência confirma exclusão em Login & Security da sessão capturada; não afirmar mudança no contato Flex/MFA.
+- Detalhamento sanitizado em analysis/exclusao-telefone-20261024.md. Sem alteração de código ou publicação nesta análise. Inclusão/troca não foi validada por esse fluxo de exclusão.
