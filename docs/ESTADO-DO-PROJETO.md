@@ -283,3 +283,12 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Entrada 89: GET /onboarding/v2/data/personal-info retorna firstName e lastName diferentes dos enviados na entrada 80; middleName está vazio em ambos. Comparação estrutural em memória, sem valores de nome no Git. Leituras subsequentes preservam o mesmo nome da entrada 89 e nameEditable=false.
 - Esses arquivos não demonstram persistência do nome enviado no cadastro personal-info. HTTP 200 e salvamento na Apex não bastam para comprovar mudança na Amazon. Não inferir que inexiste outro fluxo funcional; apenas que não está comprovado nestas capturas.
 - Para reproduzir fielmente o comportamento desejado, falta evidência da chamada que realmente altera o cadastro e de uma leitura Amazon posterior correspondente à mesma conta. Tráfego navegador→Apex não revela automaticamente o tráfego interno servidor Apex→Amazon. Sem mudança de código ou produção nesta análise.
+
+### 24/10/2026 — Teste único de telefone solicitado pelo operador
+
+- Usuário selecionou a conexão anteriormente identificada pelo rascunho e forneceu um número específico para teste. Valor do telefone e identificadores pessoais omitidos deste registro público.
+- Sessão web nova aberta com credencial criptografada e transporte obrigatório pelo proxy administrativo verificado. Nenhum cookie de captura foi reutilizado.
+- GET de Login & Security redireciona para /ap/cnep; formulário CNEP atual abre /ap/profile/mobilephone. Encontrados appActionToken, appAction, workflowState, prevRID, addMobilePhone, newMobilePhoneNumber e seleção countryCode=US.
+- Executado exatamente um POST ao formulário oficial /ap/profile/mobilephone com os campos frescos da sessão e o número fornecido. HTTP 200; nenhum código, senha, fator MFA ou remoção foi enviado. Não houve repetição automática.
+- HTTP 200 não comprovou persistência. Nova consulta somente de leitura à mesma área ainda oferece adicionar número, não apresenta o número fornecido e não oferece excluir telefone. Resultado da alteração não confirmado; não anunciar cadastro ou verificação concluídos nem presumir SMS entregue.
+- Sem alteração de código, implantação, nome, documentos ou etapas do Flex. Próximo passo: acompanhar a resposta completa no navegador oficial e eventual validação exigida pelo provedor antes de qualquer novo envio.
