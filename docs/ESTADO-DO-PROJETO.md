@@ -330,3 +330,11 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Listener LAN do Burp ativo e conexão estabelecida. Comando MCP set_proxy_intercept_state(false) respondeu Intercept has been disabled. Campo do_intercept exportado nas regras não comprova sozinho o estado anterior da pausa global; não atribuir a causa a esse campo.
 - Leitura do Event Log pelo computer-use identificou às 21:43:52 de 24/10/2026 falha de negociação TLS do cliente para tas-na-extern.amazon.com:443 com Received fatal alert: certificate_unknown. Há erros semelhantes em outros serviços. Isso é evidência de rejeição do certificado no caminho de interceptação, anterior à camada HTTP; não prova isoladamente certificate pinning ou bloqueio imposto pela Amazon.
 - Nenhuma alteração na confiança de certificados, proteção TLS do app ou configurações de segurança do sistema. Próximo diagnóstico: comparar HTTPS no navegador do celular pelo mesmo proxy e confirmar sistema/versão do aparelho. Sem nova exclusão de telefone e sem implantação de backend nesta investigação.
+
+### 24/10/2026 — Comparação do certificado disponível no celular
+
+- Acesso USB de leitura autorizado pelo usuário, utilizando ADB já instalado. Confirmado Android 16, sem expor serial ou identificadores do aparelho.
+- Arquivo cacert.der encontrado em Downloads e comparado, em memória, com a CA pública obtida da interface do listener Burp atual. As impressões SHA-256 diferem: o arquivo baixado corresponde a outra CA PortSwigger. Ambos são certificados CA dentro do período de validade; igualdade de nome PortSwigger CA não significa igualdade da chave/certificado.
+- Diretório de certificados instalados protegido pelo Android (Permission denied). Não afirmar qual certificado está instalado nem que essa divergência, isoladamente, explique todo o erro do Flex.
+- Cópia da CA pública atual preparada em Downloads/GD-Burp-atual-20261024.cer no celular, sem instalar ou modificar confiança. Somente certificado público; nenhuma chave privada transferida. Arquivos de diagnóstico permanecem em private/, fora do Git.
+- Próxima etapa depende da instalação/confirmação manual no aparelho e de testar HTTPS pelo navegador com o mesmo proxy. Não foram alterados TLS, pinning, permissões de segurança ou APK do Flex. Nenhuma implantação do GD Apply nesta verificação.
