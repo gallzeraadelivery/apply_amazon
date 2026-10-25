@@ -111,3 +111,11 @@ Produção usa Gemini, com a mesma API e credencial autorizadas do serviço dlge
 ## Preparação de selfies
 
 A aplicação possui três anexos locais: frente, rosto para sua esquerda e rosto para sua direita. São cópias criptografadas por conta e posição, com revisão e ajuste. Não acionam OCR nem o envio de foto de perfil. A interface não envia essas imagens à Persona: falta capturar e validar o contrato da sessão oficial. Não substituem a verificação de presença exigida pelo provedor.
+
+## Remover telefone de Login e Segurança
+
+No detalhe da conexão Amazon, use **Consultar telefone na Amazon**. A consulta identifica a conta pelo perfil remoto e lê o formulário de Login e Segurança por sessão nova e pelo proxy administrativo. Se a página oferecer adicionar telefone, nenhuma exclusão é disponibilizada. Se oferecer remoção, o operador confirma a conta e o efeito sobre acesso/recuperação antes do envio.
+
+POST `/api/amazon/accounts/{id}/phone/prepare` retorna somente nome remoto, estado e identificador opaco de tentativa. A sessão e os campos do formulário ficam em memória no servidor, com tentativa válida por dois minutos, vinculada ao usuário, conta e revisão do proxy. POST `/api/amazon/accounts/{id}/phone/remove` recebe `{confirm:true,attemptId}` e consome a tentativa antes do envio único. Cookies e tokens não são devolvidos ao navegador.
+
+O backend usa somente o formulário oficial `auth-remove-phone-claim` com `appAction=REMOVE_MOBILE_PHONE`; não envia telefone vazio, não inventa tokens, não contorna senha/MFA e não repete operações incertas. Sucesso exige nova leitura CNEP com **Adicionar telefone**, após estado anterior **Editar telefone**. Isso não afirma alteração no contato do Flex ou em fatores MFA independentes.

@@ -9,6 +9,7 @@ import { ApexClient, HttpError, applicationForm, redact } from './apex.mjs';
 import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } from './amazon.mjs';
 import { AmazonReadClient } from './amazon-read.mjs';
 import { AmazonUploadClient, validateUploadImage } from './amazon-upload.mjs';
+import { AmazonPhoneClient } from './amazon-phone.mjs';
 import { AmazonPersonalClient } from './amazon-personal.mjs';
 import { DocumentVault } from './document-vault.mjs';
 import { extractGeminiFields } from './gemini-ocr.mjs';
@@ -87,6 +88,8 @@ export function createApp(config) {
   const amazonUploader = new AmazonUploadClient({ fetchImpl: amazonFetch });
   const amazonUploads = new Set();
   const amazonPersonal = new AmazonPersonalClient({ fetchImpl: amazonFetch });
+  const amazonPhone = new AmazonPhoneClient({ fetchImpl: amazonFetch });
+  const phoneAttempts = new Map();
   const documentVault = new DocumentVault(db, key);
   let ocrBusy = false;
   db.prepare("UPDATE amazon_documents SET status='unconfirmed' WHERE status='sending'").run();
@@ -234,6 +237,37 @@ export function createApp(config) {
           } finally { amazonUploads.delete(user.id); }
         }
         throw new HttpError(405, 'method_not_allowed', 'Operação indisponível.');
+      }
+      const phoneMatch=pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/phone\/(prepare|remove)$/);
+      if (req.method==='POST' && phoneMatch) {
+        const [,id,operation]=phoneMatch;
+        if(!uuid(id))throw new HttpError(400,'invalid_account_id','Conta inválida.');
+        const account=db.prepare('SELECT * FROM amazon_accounts WHERE id=? AND user_id=?').get(id,user.id);
+        if(!account)throw new HttpError(404,'not_found','Conta não encontrada.');
+        const data=await jsonBody(req),revision=transport.assertReady();
+        if(amazonUploads.has(user.id))throw new HttpError(409,'operation_in_progress','Aguarde a operação atual.');
+        if(operation==='remove'&&data.confirm!==true)throw new HttpError(400,'confirmation_required','Confirme a remoção de telefone desta conta Amazon.');
+        for(const [owner,entry] of phoneAttempts)if(entry.expires<Date.now())phoneAttempts.delete(owner);
+        let attempt;
+        if(operation==='remove'){
+          attempt=phoneAttempts.get(user.id);
+          if(!attempt||attempt.id!==data.attemptId||attempt.accountId!==id||attempt.revision!==revision)throw new HttpError(409,'phone_attempt_invalid','Consulte o telefone novamente e confirme a conta.');
+          phoneAttempts.delete(user.id);
+        } else phoneAttempts.delete(user.id);
+        amazonUploads.add(user.id);
+        try{
+          if(operation==='prepare'){
+            let refresh;try{refresh=unseal(account.token,key)}catch{throw new HttpError(503,'integration_key_error','Não foi possível abrir esta conexão.')}
+            const result=await amazonPhone.prepare(refresh);
+            const publicResult={state:result.state,amazonName:result.amazonName};
+            if(result.session){const entry={id:randomUUID(),accountId:id,revision,expires:Date.now()+120000,session:result.session};phoneAttempts.set(user.id,entry);publicResult.attemptId=entry.id;publicResult.expiresAt=new Date(entry.expires).toISOString();}
+            audit(user,'amazon.phone.prepare',id,'success');return send(200,publicResult);
+          }
+          audit(user,'amazon.phone.remove',id,'requested');
+          const result=await amazonPhone.remove(attempt.session);
+          audit(user,'amazon.phone.remove',id,result.confirmed?'success':'not_confirmed');return send(200,result);
+        }catch(error){audit(user,`amazon.phone.${operation}`,id,'not_confirmed');throw error;}
+        finally{amazonUploads.delete(user.id);}
       }
       const personalMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/personal-info$/);
       if (req.method === 'POST' && personalMatch) {

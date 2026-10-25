@@ -229,3 +229,16 @@ test('Amazon login requires tested proxy and browser confirmation, and changed p
   assert.equal((await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(pending))).data.error, 'amazon_proxy_changed');
   assert.equal(f.calls.length, 0);
 });
+
+test('phone removal requires ownership, CSRF, confirmation and a one-use prepared session through proxy',async t=>{
+ const {phoneFixture}=await import('./helpers/phone-fixture.mjs');const upstream=phoneFixture();const f=await fixture(t,upstream.fetchImpl);
+ const p=await f.start();const id=(await f.request('/api/amazon/connect/finish','POST',f.finishBody(p))).data.account.id;const base=`/api/amazon/accounts/${id}/phone`;
+ assert.equal((await f.request(base+'/prepare','POST',{}, {'X-CSRF-Token':''})).status,403);
+ assert.equal((await f.request(base+'/remove','POST',{confirm:true,attemptId:'unknown'})).status,409);
+ const prepared=await f.request(base+'/prepare','POST',{});assert.equal(prepared.status,200);assert.equal(prepared.data.state,'present');assert.ok(!JSON.stringify(prepared).includes('synthetic-cookie'));assert.ok(!JSON.stringify(prepared).includes('synthetic-token'));
+ assert.equal((await f.request(base+'/remove','POST',{confirm:false,attemptId:prepared.data.attemptId})).status,400);
+ const r=await f.request(base+'/remove','POST',{confirm:true,attemptId:prepared.data.attemptId});assert.equal(r.status,200);assert.equal(r.data.confirmed,true);
+ assert.equal((await f.request(base+'/remove','POST',{confirm:true,attemptId:prepared.data.attemptId})).status,409);
+ assert.equal(upstream.calls.filter(x=>x.opts.method==='POST'&&x.url.includes('/ap/profile/mobilephone')).length,1);
+ const other='00000000-0000-4000-8000-000000000000';assert.equal((await f.request(`/api/amazon/accounts/${other}/phone/prepare`,'POST',{})).status,404);
+});

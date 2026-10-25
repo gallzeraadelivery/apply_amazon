@@ -306,3 +306,12 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Identificado POST /ap/profile/mobilephone com appAction=REMOVE_MOBILE_PHONE e campos do formulário oficial, incluindo deleteMobilePhone. Não é limpeza do número por campo vazio.
 - Antes: CNEP exibe editar telefone. Depois do POST HTTP 302 e GET CNEP HTTP 200: exibe adicionar telefone, sem editar. Evidência confirma exclusão em Login & Security da sessão capturada; não afirmar mudança no contato Flex/MFA.
 - Detalhamento sanitizado em analysis/exclusao-telefone-20261024.md. Sem alteração de código ou publicação nesta análise. Inclusão/troca não foi validada por esse fluxo de exclusão.
+
+### 24/10/2026 — Remoção de telefone integrada ao GD Apply
+
+- Usuário indicou uma conta para teste; identificação conferida pelo perfil Amazon, sem registrar nome/telefone no Git. A sessão atual oferece adicionar telefone e não oferece exclusão: nenhuma remoção real é necessária/disponível nessa conta. Não foi adicionado um número para fabricar o cenário de teste.
+- Implementados AmazonPhoneClient e rotas phone/prepare e phone/remove: sessão web nova, formulários oficiais, destinos HTTPS restritos, bloqueio de senha/código/redirect inesperado, proxy administrativo obrigatório e revisão de proxy vinculada à tentativa.
+- Consulta retorna nome da conta Amazon e estado, sem cookies ou campos secretos. Preparação fica em memória, expira em dois minutos e é consumida antes de qualquer POST. Propriedade/Origin/CSRF e serialização com outras operações mantidas.
+- Painel permite consultar telefone e só disponibiliza remoção quando o formulário oficial é encontrado; confirmação explicita conta remota e impacto no acesso/recuperação. Nova leitura CNEP confirma a ausência; HTTP 200/302 isolado não basta. Falhas não repetem a exclusão nem caem em rota alternativa.
+- Testes controlados cobrem GET sem mutação, POST único com campos oficiais, ausência de telefone, redirects hostis/autenticação, contrato divergente, leitura sem mudança, segredo não exposto, propriedade/CSRF/confirmação e uso único da tentativa. Sem reutilizar cookies da captura.
+- Implantação pendente neste registro. Teste real em conta com telefone ainda pendente; a conta indicada foi verificada somente em leitura e não tem exclusão disponível.

@@ -118,7 +118,7 @@ function render() {
     const account = state.amazonAccounts.find(a => a.id === state.amazonDetail);
     if (account) { root.innerHTML = renderAmazonDetail({ account,
       result: state.amazonRead?.account?.id === account.id ? state.amazonRead : null,
-      documents: state.amazonDocList, events: state.audit, loading: state.amazonDetailLoading, tab: state.caseTab, drafts: state.documentDrafts, formFields: state.caseFields || {}, ocr: state.ocr || {}, formSavedAt: state.formSavedAt }); return; }
+      documents: state.amazonDocList, events: state.audit, loading: state.amazonDetailLoading, tab: state.caseTab, drafts: state.documentDrafts, formFields: state.caseFields || {}, ocr: state.ocr || {}, formSavedAt: state.formSavedAt, phone: state.amazonPhone }); return; }
     state.page = 'amazon';
   }
   const content = ({ amazon: amazonPage, overview, proxy: proxyPage, accounts: accountsPage, detail: detailPage, integrations: integrationsPage, audit: auditPage }[state.page] ?? amazonPage)();
@@ -129,7 +129,7 @@ async function loadAmazonDocuments() {
   state.amazonDocList = (await api(`/api/amazon/accounts/${state.amazonDetail}/documents`)).documents;
 }
 async function openAmazonApplication(id) {
-  state.amazonDetail = id; state.amazonRead = null; state.amazonDocList = []; state.documentDrafts = {};
+  state.amazonPhone = null; state.amazonDetail = id; state.amazonRead = null; state.amazonDocList = []; state.documentDrafts = {};
   state.caseFields = {}; state.formDirty = false; state.ocr = {}; state.ocrFiles = {}; state.formSavedAt = null; touchedFields = new Set();
   state.caseTab = 'documents'; state.page = 'amazon-detail'; state.amazonDetailLoading = true; render();
   try {
@@ -239,6 +239,20 @@ root.addEventListener('click', async event => {
     const fields=state.caseFields, name=[fields.firstName,fields.middleName,fields.lastName].filter(Boolean).join(' ');
     if (!(await confirmation('Enviar dados pessoais à Amazon?', `Nome: ${name}. Serão enviados nome, endereço e telefone salvos desta conta. Documentos e outros cadastros têm envios separados.`, 'Enviar dados'))) return;
     return work(async()=>{const r=await api(`/api/amazon/accounts/${state.amazonDetail}/personal-info`,{method:'POST',body:{confirm:true,savedAt:state.formSavedAt}});toast(r.notice);});
+  }
+  if (button.hasAttribute('data-phone-prepare')) return work(async()=>{
+    state.amazonPhone=null;state.amazonPhone=await api(`/api/amazon/accounts/${state.amazonDetail}/phone/prepare`,{method:'POST',body:{}});render();
+  });
+  if (button.hasAttribute('data-phone-remove')) {
+    const phone=state.amazonPhone,accountId=state.amazonDetail;
+    if(!phone?.attemptId)return toast('Consulte o telefone primeiro.');
+    if(!(await confirmation('Remover telefone da Amazon?',`Conta Amazon: ${phone.amazonName}. Isso remove o telefone de Login e Segurança e pode afetar o acesso e a recuperação da conta. Confirme somente para a conta correta.`, 'Remover telefone')))return;
+    const attemptId=phone.attemptId;delete phone.attemptId;
+    return work(async()=>{
+      try{const result=await api(`/api/amazon/accounts/${accountId}/phone/remove`,{method:'POST',body:{confirm:true,attemptId}});state.amazonPhone={...result,amazonName:phone.amazonName};toast(result.notice);}
+      catch(error){state.amazonPhone={state:'unconfirmed',amazonName:phone.amazonName};throw error;}
+      finally{render();}
+    });
   }
   if (button.dataset.openAmazon) return work(() => openAmazonApplication(button.dataset.openAmazon));
   if (button.dataset.readDocument) return work(async () => {
