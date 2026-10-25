@@ -315,3 +315,10 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Painel permite consultar telefone e só disponibiliza remoção quando o formulário oficial é encontrado; confirmação explicita conta remota e impacto no acesso/recuperação. Nova leitura CNEP confirma a ausência; HTTP 200/302 isolado não basta. Falhas não repetem a exclusão nem caem em rota alternativa.
 - Testes controlados cobrem GET sem mutação, POST único com campos oficiais, ausência de telefone, redirects hostis/autenticação, contrato divergente, leitura sem mudança, segredo não exposto, propriedade/CSRF/confirmação e uso único da tentativa. Sem reutilizar cookies da captura.
 - Implantação pendente neste registro. Teste real em conta com telefone ainda pendente; a conta indicada foi verificada somente em leitura e não tem exclusão disponível.
+
+### 24/10/2026 — Publicação e consulta real de telefone pelo GD Apply
+
+- Commit ccedb80 implantado em /opt/gd-apply. Os 50 testes passaram no build Linux, nginx -t aprovado e container running/healthy.
+- Backup anterior /opt/backups/gd-apply/20261025T013629Z; imagem de retorno gd-apply-app:before-phone-removal-20261024. Ambiente, credenciais, proxy e dados preservados.
+- Teste HTTPS autenticado de phone/prepare na conta escolhida: HTTP 200, identidade remota corresponde à indicada, state=absent, sem attemptId e sem remoção disponibilizada. Nenhum POST de exclusão foi executado na Amazon.
+- Funcionalidade de consulta/remoção agora está no painel. Remoção real em conta com telefone continua não validada pelo novo backend; testes de exclusão usaram respostas controladas e o fluxo foi fundamentado na captura oficial fornecida.
