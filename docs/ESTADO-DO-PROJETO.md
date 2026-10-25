@@ -322,3 +322,11 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Backup anterior /opt/backups/gd-apply/20261025T013629Z; imagem de retorno gd-apply-app:before-phone-removal-20261024. Ambiente, credenciais, proxy e dados preservados.
 - Teste HTTPS autenticado de phone/prepare na conta escolhida: HTTP 200, identidade remota corresponde à indicada, state=absent, sem attemptId e sem remoção disponibilizada. Nenhum POST de exclusão foi executado na Amazon.
 - Funcionalidade de consulta/remoção agora está no painel. Remoção real em conta com telefone continua não validada pelo novo backend; testes de exclusão usaram respostas controladas e o fluxo foi fundamentado na captura oficial fornecida.
+
+### 24/10/2026 — Diagnóstico do erro de rede no Flex do celular
+
+- Usuário reportou código de suporte 531 no app Amazon Flex. Não foi encontrada documentação oficial que permita atribuir significado específico a esse código; não tratá-lo como HTTP 531 ou prova de bloqueio de conta/IP.
+- GD Apply saudável; últimas operações do backend pelo proxy administrativo registraram HTTP 200/302, sem falha de transporte nas consultas examinadas.
+- Listener LAN do Burp ativo e conexão estabelecida. Comando MCP set_proxy_intercept_state(false) respondeu Intercept has been disabled. Campo do_intercept exportado nas regras não comprova sozinho o estado anterior da pausa global; não atribuir a causa a esse campo.
+- Leitura do Event Log pelo computer-use identificou às 21:43:52 de 24/10/2026 falha de negociação TLS do cliente para tas-na-extern.amazon.com:443 com Received fatal alert: certificate_unknown. Há erros semelhantes em outros serviços. Isso é evidência de rejeição do certificado no caminho de interceptação, anterior à camada HTTP; não prova isoladamente certificate pinning ou bloqueio imposto pela Amazon.
+- Nenhuma alteração na confiança de certificados, proteção TLS do app ou configurações de segurança do sistema. Próximo diagnóstico: comparar HTTPS no navegador do celular pelo mesmo proxy e confirmar sistema/versão do aparelho. Sem nova exclusão de telefone e sem implantação de backend nesta investigação.
