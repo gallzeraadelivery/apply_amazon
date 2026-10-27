@@ -21,3 +21,5 @@ Estas orientações valem para todo o repositório e para trabalho em qualquer c
 - Não depender de caminhos locais Y: ou Z: em novas ferramentas. Usar caminhos relativos ao checkout ou parâmetros explícitos.
 
 - O usuário autorizou reutilizar no GD Apply a credencial Gemini do dlgenerator e enviar as imagens da carteira ao Google para leitura. Manter a chave somente no servidor; sem logs do texto extraído, segredo ou imagem. Falha/quota do Google não deve cair silenciosamente no parser local. Não inferir dados ausentes nem afirmar precisão real com base apenas em imagens sintéticas.
+
+- Seguro implementado com revisão dos termos atuais, confirmação explícita vinculada ao usuário/conta/hash/revisão do proxy e identificador de uso único. HTTP 200 vazio confirma recebimento; somente leitura posterior COMMERCIAL_INSURANCE=Complete confirma conclusão. Não aceitar termos como teste nem repetir após resultado incerto. Aceitação real pelo conector depende de confirmação do titular no painel.

@@ -14,6 +14,7 @@ As orientações permanentes estão em [AGENTS.md](AGENTS.md): manter a evoluç�
 
 - [Proxy obrigatório no admin](docs/PROXY.md) para chamadas deste backend à Amazon, Apex e Google OCR, com credenciais criptografadas, teste do IP e bloqueio de conexão direta. O login oficial aberto no AdsPower exige configurar o proxy no próprio perfil do navegador.
 
+- Seguro: termos atuais por conta, confirmação explícita e envio único, com consulta posterior da etapa; aceitação real pelo novo conector ainda depende da operação confirmada pelo titular.
 - Login administrativo próprio, troca obrigatória da senha inicial e sessões HttpOnly/Secure.
 - Conector Apex implementado com chamadas HTTP reais, ativado somente depois do login válido do operador na Apex. Testes de contrato usam respostas controladas; chamadas autenticadas reais dependem de credenciais ainda não fornecidas.
 - Consulta de contas, créditos, detalhes e execuções; salvamento de cadastro, upload de documentos e solicitação de início de execução com confirmação explícita.
