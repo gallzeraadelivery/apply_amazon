@@ -365,3 +365,11 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - npm run check e 56 testes aprovados localmente. Prévia visual não verificada: CUA falhou ao iniciar o kernel com erro do ambiente de segurança do Windows. Nenhum teste autenticado real nem aceite em conta externa foi realizado.
 - Captura oficial do operador confirmou transition com current_selfie, callback success, PENDING_VERIFICATION e IN_PROGRESS. Quantidade de imagens ainda não confirmada por truncamento MCP; envio de três selfies continua indisponível. Conector de carteira existente precisa ser confrontado com multipart iOS completo antes de afirmar equivalência.
 - Detalhes e próximos passos em docs/SEGURO-E-CAPTURA-PERSONA.md. Commit d58a6ba implantado: 56 testes aprovados também no build Linux, nginx -t válido, container healthy e health HTTPS 200. API de revisão sem sessão retorna 401; módulos publicados contêm a nova etapa. Backup privado /opt/backups/gd-apply/20261027T165649Z; imagem de retorno gd-apply-app:before-insurance-20261027; backup Nginx /opt/edge/nginx/active.conf.before-apply-app-20261027T165808Z. .env idêntico ao backup e contagens preservadas: 1 usuário, 2 conexões, 1 documento e 1 rascunho. insurance_reviews vazio após smoke: nenhum termo real consultado/aceito como teste.
+
+
+### 27/10/2026 — Contagem de mídias da selfie pelo histórico Burp completo
+
+- Corrigida a limitação anterior: os corpos eram truncados na exibição MCP, mas consultas do próprio Burp pesquisam a requisição completa.
+- Na chamada Persona transition com current_selfie, confirmadas quatro partes de arquivo: três imagens JPEG e um vídeo. Limites negativos conferidos: nenhuma quinta parte filename, nenhum quarto image e nenhum segundo video.
+- Isso confirma a quantidade de mídias nesta captura, não suas poses, integridade binária ou contrato universal. Carteira também contém múltiplas imagens e vídeo; mapeamento exato ainda pendente. Não habilitado envio de três imagens estáticas como liveness.
+- Documentação sanitizada atualizada, sem extração/reenvio de biometria, segredos ou nova implantação. Ver docs/SEGURO-E-CAPTURA-PERSONA.md.

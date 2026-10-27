@@ -15,13 +15,22 @@ Resposta HTTP 200 vazia é registrada como recebimento; uma consulta posterior a
 ## Identidade: o que foi observado
 
 - Amazon: POST /onboarding/v3/identity-verification/session abriu sessão para Persona.
-- Persona: POST /api/internal/verify/v1/inquiries/{id}/transition, em inquiry.withpersona.com, recebeu multipart para carteira e para current_selfie. A leitura MCP truncou os corpos; coleção files[] não comprova a quantidade total de fotos.
+- Persona: POST /api/internal/verify/v1/inquiries/{id}/transition, em inquiry.withpersona.com, recebeu multipart para carteira e para current_selfie. A exibição MCP truncou os corpos. Pesquisa posterior diretamente no histórico completo confirmou na requisição current_selfie quatro partes com filename: três image/jpeg e uma video, com extensão de arquivo MP4 ou MOV. Isso confirma a quantidade de mídias nesta captura, não uma regra universal do fornecedor.
 - Após a selfie oficial do operador: callback /onboarding/v3/identity-verification/session/sdk-callback respondeu status success. task-state retornou PENDING_VERIFICATION e workflowStatus IN_PROGRESS. Isso confirma fluxo encaminhado, não aprovação.
 - Há preparação local de três selfies e um conector de carteira já implementado com testes controlados. O corpo nativo iOS observado contém campos diferentes do multipart presumido no conector atual; não declarar equivalência nem aceitação real sem validar o contrato completo.
 - Nenhum novo envio de selfies foi implementado. Preservar o fluxo oficial de presença, sem fabricar poses, timestamps, extrações do documento, resultados ou callbacks. Não enviar fotos locais como se fossem uma captura oficial validada.
 
-Para fechar o contrato de frente/verso e contar selfies, inspecionar a requisição multipart completa no Burp ou exportar privadamente as entradas selecionadas. Contar as partes de imagem reais, distinguindo-as de metadados e frames. Exportações contêm documentos e segredos: guardar fora do Git/logs/artefatos públicos. Esta tarefa não valida um contrato público da Persona ou da Amazon.
+A contagem de mídias da selfie foi confirmada por pesquisa no histórico completo: no mínimo três cabeçalhos image/jpeg e nenhum quarto image; um cabeçalho video e nenhum segundo; quatro partes filename e nenhuma quinta. Para fechar o contrato de frente/verso, mapear cada parte e os requisitos da sessão, inspecionar a requisição completa no Burp ou exportar privadamente as entradas selecionadas. Contar as partes de imagem reais, distinguindo-as de metadados e frames. Exportações contêm documentos e segredos: guardar fora do Git/logs/artefatos públicos. Esta tarefa não valida um contrato público da Persona ou da Amazon.
 
 ## Validação e operação
 
 Testes usam respostas sintéticas, incluindo termos alterados, CSRF, propriedade, proxy, consumo único, erro de transporte, resposta HTML inesperada e leitura divergente. Nenhum aceite real foi executado como teste. Orientações de publicação e versão efetivamente implantada ficam em ESTADO-DO-PROJETO.md.
+
+
+## Conferência adicional no histórico completo
+
+- O corte de 5.015 caracteres era da resposta exibida pelo MCP, não prova de perda do corpo no Burp. As buscas regex do próprio Burp conseguem consultar conteúdo após esse corte.
+- Endpoint da selfie: POST https://inquiry.withpersona.com/api/internal/verify/v1/inquiries/{id}/transition. Multipart com current_selfie, coleção files[], captureStartedAt, captureMethod, capturedAt e cameraProperties.
+- Confirmadas três imagens JPEG e um vídeo em quatro partes de arquivo. A contagem não determina sozinha quais poses estão nas imagens, não valida os bytes/decodificação nem permite substituir captura oficial por imagens estáticas.
+- As duas requisições de carteira encontradas também contêm múltiplos cabeçalhos de imagem e vídeo; contagem e mapeamento exatos dessas partes ainda não concluídos. Não reduzir o contrato a dois anexos arbitrários nem marcar o conector antigo como compatível com base nessa contagem.
+- Nenhuma imagem ou vídeo extraído, publicado ou reenviado; nenhum callback fabricado. Continuidade: mapear o contrato nativo completo em ambiente privado e manter a verificação de presença no fluxo oficial.
