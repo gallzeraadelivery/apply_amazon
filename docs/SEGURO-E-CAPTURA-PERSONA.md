@@ -32,5 +32,25 @@ Testes usam respostas sintéticas, incluindo termos alterados, CSRF, propriedade
 - O corte de 5.015 caracteres era da resposta exibida pelo MCP, não prova de perda do corpo no Burp. As buscas regex do próprio Burp conseguem consultar conteúdo após esse corte.
 - Endpoint da selfie: POST https://inquiry.withpersona.com/api/internal/verify/v1/inquiries/{id}/transition. Multipart com current_selfie, coleção files[], captureStartedAt, captureMethod, capturedAt e cameraProperties.
 - Confirmadas três imagens JPEG e um vídeo em quatro partes de arquivo. A contagem não determina sozinha quais poses estão nas imagens, não valida os bytes/decodificação nem permite substituir captura oficial por imagens estáticas.
-- As duas requisições de carteira encontradas também contêm múltiplos cabeçalhos de imagem e vídeo; contagem e mapeamento exatos dessas partes ainda não concluídos. Não reduzir o contrato a dois anexos arbitrários nem marcar o conector antigo como compatível com base nessa contagem.
+- As duas requisições de carteira encontradas contêm seis partes JPEG e uma de vídeo. Busca delimitada pelos campos page confirmou três imagens no grupo front e três no grupo back; ver mapeamento abaixo. Não reduzir o contrato a dois anexos arbitrários nem marcar o conector antigo como compatível com base nessa contagem.
 - Nenhuma imagem ou vídeo extraído, publicado ou reenviado; nenhum callback fabricado. Continuidade: mapear o contrato nativo completo em ambiente privado e manter a verificação de presença no fluxo oficial.
+
+
+## Mapeamento frente/verso no multipart iOS
+
+O operador informou captura primeiro da frente, depois do verso com código. A análise foi somente de leitura no Burp; nenhum documento foi extraído, decodificado, alterado ou reenviado.
+
+Endpoint: POST https://inquiry.withpersona.com/api/internal/verify/v1/inquiries/{id}/transition, multipart/form-data com boundary persona-ios-form-boundary.
+
+- Grupo de frente: campo data[attributes][fields][current_government_id][files][][page] com valor front. Três cabeçalhos Content-Type de imagem ocorrem dentro desse grupo, antes do próximo campo page.
+- Grupo de verso: mesmo campo page com valor back. Três cabeçalhos Content-Type de imagem ocorrem dentro desse grupo, antes de um eventual próximo page.
+- Coleção de imagens: confirmado o nome data[attributes][fields][current_government_id][files][][frames][]. Confirmado também o campo irmão captureMethod, em camelCase.
+- Total por requisição de carteira encontrada: seis image/jpeg, nenhuma sétima imagem; um cabeçalho video e nenhum segundo. Confirmada a presença do delimitador multipart de encerramento. Isso confirma estrutura/contagem no histórico, não valida a decodificação e integridade de cada arquivo.
+- O vídeo faz parte do envio nativo. A função exata dele e de cada um dos três frames de cada lado não foi identificada apenas pelos cabeçalhos. Não afirmar que as imagens são duplicatas, recortes ou poses específicas.
+- O verso é o lado com código descrito pelo operador; não foi decodificado nem classificado como QR ou PDF417. Campos clientExtractionRaws estão presentes, mas seus valores pessoais não são copiados para este registro.
+
+### Diferença para o conector existente
+
+O conector atual de carteira monta um frame por lado e usa campos capture_method/meta[from_step], enquanto o envio nativo observado possui coleção frames[], captureMethod e metadados camelCase. A captura de seis imagens e vídeo não comprova que todos sejam obrigatórios em qualquer sessão ou que arquivos estáticos adicionais possam ser fabricados para substituí-los. Portanto, esta análise não altera o conector nem o marca como validado contra o iOS. Manter a captura oficial e requisitos da sessão sem inventar metadados, mídia ou resultados.
+
+Selfie é outro grupo, current_selfie: três JPEG e um vídeo, conforme a conferência anterior. Não confundir os seis frames da carteira com as três imagens da selfie.

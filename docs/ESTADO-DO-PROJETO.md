@@ -373,3 +373,11 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Na chamada Persona transition com current_selfie, confirmadas quatro partes de arquivo: três imagens JPEG e um vídeo. Limites negativos conferidos: nenhuma quinta parte filename, nenhum quarto image e nenhum segundo video.
 - Isso confirma a quantidade de mídias nesta captura, não suas poses, integridade binária ou contrato universal. Carteira também contém múltiplas imagens e vídeo; mapeamento exato ainda pendente. Não habilitado envio de três imagens estáticas como liveness.
 - Documentação sanitizada atualizada, sem extração/reenvio de biometria, segredos ou nova implantação. Ver docs/SEGURO-E-CAPTURA-PERSONA.md.
+
+
+### 27/10/2026 — Mapeamento das mídias de frente e verso no iPhone
+
+- Histórico completo da Persona: carteira contém seis JPEG e um vídeo por requisição encontrada; nenhuma sétima imagem nem segundo vídeo. Campo files[][page]=front delimita três imagens; files[][page]=back delimita outras três. Coleção files[][frames][] e captureMethod confirmados, assim como encerramento multipart.
+- Operador informou frente seguida do verso com código. Sem inspeção das imagens, não atribuir função específica aos frames nem classificar/decodificar o código do verso. Metadados/documentos/tokens não foram extraídos nem versionados.
+- Conector existente envia um frame por lado e possui diferenças de campos com o iOS. Nenhuma mudança de envio, fabricação de frames/vídeo/metadados ou nova implantação nesta análise. Selfie permanece distinta: três JPEG e um vídeo no grupo current_selfie.
+- Validação por buscas estruturais no corpo completo dentro do Burp, incluindo limites negativos de contagem, fronteiras entre grupos e encerramento. Detalhes em docs/SEGURO-E-CAPTURA-PERSONA.md. Documentação somente; suíte da aplicação não repetida.
