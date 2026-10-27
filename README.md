@@ -35,6 +35,8 @@ Verificação: `npm run check` e `npm test`. Os testes incluem autenticação/CS
 
 ## API do painel
 
+- Seguro: `POST /api/amazon/accounts/{id}/insurance/review` consulta a etapa e os termos atuais; `POST /api/amazon/accounts/{id}/insurance/accept` recebe `{reviewId,confirm:true}` depois da revisão explícita no painel. Confirmação de dez minutos, vinculada à conta, conteúdo dos termos e revisão do proxy; uso único mesmo após falha. [Orientações do seguro e captura Persona](docs/SEGURO-E-CAPTURA-PERSONA.md).
+
 - POST `/api/amazon/connect/start`: gera tentativa e link de login; exige sessão, Origin e CSRF.
 - POST `/api/amazon/connect/finish`: `{connectId,url,label,confirm:true}`; recebe somente o retorno do link gerado nesta tentativa. A tentativa é consumida antes da troca do código, inclusive quando o resultado é incerto. Gere um link novo para tentar novamente.
 - GET `/api/amazon/accounts`: lista conexões do usuário, sem tokens.

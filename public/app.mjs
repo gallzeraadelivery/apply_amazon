@@ -118,7 +118,7 @@ function render() {
     const account = state.amazonAccounts.find(a => a.id === state.amazonDetail);
     if (account) { root.innerHTML = renderAmazonDetail({ account,
       result: state.amazonRead?.account?.id === account.id ? state.amazonRead : null,
-      documents: state.amazonDocList, events: state.audit, loading: state.amazonDetailLoading, tab: state.caseTab, drafts: state.documentDrafts, formFields: state.caseFields || {}, ocr: state.ocr || {}, formSavedAt: state.formSavedAt, phone: state.amazonPhone }); return; }
+      documents: state.amazonDocList, events: state.audit, loading: state.amazonDetailLoading, tab: state.caseTab, drafts: state.documentDrafts, formFields: state.caseFields || {}, ocr: state.ocr || {}, formSavedAt: state.formSavedAt, phone: state.amazonPhone, insurance: state.insuranceResult?.accountId === account.id ? state.insuranceResult : null }); return; }
     state.page = 'amazon';
   }
   const content = ({ amazon: amazonPage, overview, proxy: proxyPage, accounts: accountsPage, detail: detailPage, integrations: integrationsPage, audit: auditPage }[state.page] ?? amazonPage)();
@@ -129,7 +129,7 @@ async function loadAmazonDocuments() {
   state.amazonDocList = (await api(`/api/amazon/accounts/${state.amazonDetail}/documents`)).documents;
 }
 async function openAmazonApplication(id) {
-  state.amazonPhone = null; state.amazonDetail = id; state.amazonRead = null; state.amazonDocList = []; state.documentDrafts = {};
+  state.amazonPhone = null; state.insuranceResult = null; state.amazonDetail = id; state.amazonRead = null; state.amazonDocList = []; state.documentDrafts = {};
   state.caseFields = {}; state.formDirty = false; state.ocr = {}; state.ocrFiles = {}; state.formSavedAt = null; touchedFields = new Set();
   state.caseTab = 'documents'; state.page = 'amazon-detail'; state.amazonDetailLoading = true; render();
   try {
@@ -234,6 +234,20 @@ root.addEventListener('click', async event => {
       const reader=new FileReader();reader.onload=()=>{if(state.amazonDetail!==accountId)return;state.documentDrafts[kind]={file:selected,preview:reader.result};render();if(['front','back'].includes(kind))readAttachedLicense(kind,selected)};reader.readAsDataURL(selected);
     }catch(error){toast(error.message)}return;
   }
+  if (button.hasAttribute('data-review-insurance')) return work(async () => {
+    const id = state.amazonDetail, account = state.amazonAccounts.find(a => a.id === id);
+    const review = await api(`/api/amazon/accounts/${id}/insurance/review`, { method: 'POST', body: {} });
+    if (state.amazonDetail !== id) return;
+    if (review.alreadyComplete) { state.insuranceResult = { accountId: id, ...review, notice: 'A Amazon já informa o seguro concluído. Nenhum aceite foi enviado.' }; render(); return; }
+    if (!(await confirmInsuranceTerms(account, review))) return;
+    if (state.amazonDetail !== id) return;
+    try {
+      const result = await api(`/api/amazon/accounts/${id}/insurance/accept`, { method: 'POST', body: { reviewId: review.reviewId, confirm: true } });
+      state.insuranceResult = { accountId: id, ...result }; toast(result.notice);
+    } catch (error) {
+      state.insuranceResult = { accountId: id, notice: error.message + ' Não reenvie sem consultar a situação atual.' }; throw error;
+    } finally { render(); }
+  });
   if (button.hasAttribute('data-send-personal')) {
     if (!state.formSavedAt || state.formDirty) return toast('Salve os dados revisados antes de enviar.');
     const fields=state.caseFields, name=[fields.firstName,fields.middleName,fields.lastName].filter(Boolean).join(' ');
@@ -405,3 +419,31 @@ async function refreshProxy() {
 }
 try { const data = await api('/api/auth/session'); state.user = data.user; state.csrf = data.csrf; render(); if (!state.user.mustChangePassword) await loadData(); }
 catch (error) { if (state.user) state.error = error.message; render(); }
+
+function confirmInsuranceTerms(account, review) {
+  return new Promise(resolve => {
+    const dialog = document.createElement('dialog'); dialog.className = 'insurance-dialog';
+    dialog.setAttribute('aria-labelledby', 'insurance-dialog-title');
+    dialog.innerHTML = `<h2 id="insurance-dialog-title">Termos do seguro · Amazon</h2><p>Conta: <strong>${esc(account?.label)}</strong></p><p>Versão consultada agora, válida para confirmação até ${esc(date(review.expiresAt))}. Revise o documento completo antes de aceitar.</p><article class="insurance-terms" tabindex="0" aria-label="Termos atuais enviados pela Amazon"></article><label class="insurance-confirm"><input type="checkbox"> Li os termos acima e confirmo o aceite para esta conta Amazon.</label><div class="form-actions"><button type="button" class="btn" data-insurance-cancel>Cancelar</button><button type="button" class="btn primary" data-insurance-confirm disabled>Aceitar e enviar à Amazon</button></div>`;
+    const parsed = new DOMParser().parseFromString(review.html, 'text/html');
+    const allowed = new Set(['P','DIV','SPAN','STRONG','B','EM','I','U','UL','OL','LI','H1','H2','H3','H4','BR','TABLE','THEAD','TBODY','TR','TD','TH','BLOCKQUOTE','SUP','SUB','HR']);
+    // Reconstruct only inert text/formatting; never copy attributes, handlers, scripts or active links.
+    const copy = (node, target) => {
+      if (node.nodeType === 3) { target.append(document.createTextNode(node.textContent)); return; }
+      if (node.nodeType !== 1 || ['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','FORM','IMG','SVG','MATH'].includes(node.tagName)) return;
+      const element = document.createElement(allowed.has(node.tagName) ? node.tagName.toLowerCase() : 'span');
+      for (const child of node.childNodes) copy(child, element);
+      if (node.tagName === 'A') { const href = node.getAttribute('href'); if (href && /^https?:\/\//i.test(href)) element.append(document.createTextNode(' (' + href + ')')); }
+      target.append(element);
+    };
+    const target = dialog.querySelector('.insurance-terms');
+    for (const child of parsed.body.childNodes) copy(child, target);
+    let accepted = false;
+    const checkbox = dialog.querySelector('input'), confirm = dialog.querySelector('[data-insurance-confirm]');
+    checkbox.addEventListener('change', () => { confirm.disabled = !checkbox.checked; });
+    confirm.addEventListener('click', () => { if (!checkbox.checked) return; accepted = true; dialog.close(); });
+    dialog.querySelector('[data-insurance-cancel]').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => { dialog.remove(); resolve(accepted); }, { once: true });
+    document.body.append(dialog); dialog.showModal(); target.focus();
+  });
+}

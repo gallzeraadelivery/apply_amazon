@@ -10,6 +10,7 @@ import { AmazonClient, makeAmazonAttempt, amazonSigninLink, parseAmazonReturn } 
 import { AmazonReadClient } from './amazon-read.mjs';
 import { AmazonUploadClient, validateUploadImage } from './amazon-upload.mjs';
 import { AmazonPhoneClient } from './amazon-phone.mjs';
+import { AmazonInsuranceClient } from './amazon-insurance.mjs';
 import { AmazonPersonalClient } from './amazon-personal.mjs';
 import { DocumentVault } from './document-vault.mjs';
 import { extractGeminiFields } from './gemini-ocr.mjs';
@@ -60,6 +61,7 @@ export function createApp(config) {
     CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id TEXT,action TEXT NOT NULL,target TEXT,status TEXT NOT NULL,created_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS amazon_pending (id TEXT PRIMARY KEY,user_id TEXT UNIQUE NOT NULL REFERENCES users(id),serial TEXT NOT NULL,verifier TEXT NOT NULL,challenge TEXT NOT NULL,expires INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS amazon_accounts (id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),label TEXT NOT NULL,serial TEXT NOT NULL,token TEXT NOT NULL,connected_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS insurance_reviews (id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),account_id TEXT NOT NULL REFERENCES amazon_accounts(id) ON DELETE CASCADE,digest TEXT NOT NULL,proxy_revision TEXT NOT NULL,expires INTEGER NOT NULL,status TEXT NOT NULL,created_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS proxy_settings (id INTEGER PRIMARY KEY CHECK(id=1),config TEXT NOT NULL,revision TEXT NOT NULL,last_test TEXT);
     CREATE TABLE IF NOT EXISTS network_audit (id INTEGER PRIMARY KEY AUTOINCREMENT,user_id TEXT,target TEXT,proxy_revision TEXT,proxy_endpoint TEXT,exit_ip_snapshot TEXT,exit_ip_checked_at TEXT,result TEXT,created_at TEXT);
   `);
@@ -87,6 +89,7 @@ export function createApp(config) {
   const amazonReads = new Set();
   const amazonUploader = new AmazonUploadClient({ fetchImpl: amazonFetch });
   const amazonUploads = new Set();
+  const amazonInsurance = new AmazonInsuranceClient({ fetchImpl: amazonFetch });
   const amazonPersonal = new AmazonPersonalClient({ fetchImpl: amazonFetch });
   const amazonPhone = new AmazonPhoneClient({ fetchImpl: amazonFetch });
   const phoneAttempts = new Map();
@@ -268,6 +271,49 @@ export function createApp(config) {
           audit(user,'amazon.phone.remove',id,result.confirmed?'success':'not_confirmed');return send(200,result);
         }catch(error){audit(user,`amazon.phone.${operation}`,id,'not_confirmed');throw error;}
         finally{amazonUploads.delete(user.id);}
+      }
+      const insuranceMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/insurance\/(review|accept)$/);
+      if (req.method === 'POST' && insuranceMatch) {
+        const [, id, action] = insuranceMatch;
+        if (!uuid(id)) throw new HttpError(400, 'invalid_account_id', 'Conta inválida.');
+        const account = db.prepare('SELECT * FROM amazon_accounts WHERE id=? AND user_id=?').get(id, user.id);
+        if (!account) throw new HttpError(404, 'not_found', 'Conta não encontrada.');
+        const data = await jsonBody(req);
+        const revision = transport.assertReady();
+        if (amazonUploads.has(user.id) || amazonBusy.has(user.id)) throw new HttpError(409, 'amazon_upload_busy', 'Aguarde a operação em andamento.');
+        let review;
+        if (action === 'accept') {
+          if (data.confirm !== true) throw new HttpError(400, 'confirmation_required', 'Revise os termos e confirme explicitamente o aceite do seguro.');
+          review = db.prepare('SELECT * FROM insurance_reviews WHERE id=? AND user_id=? AND account_id=?').get(typeof data.reviewId === 'string' ? data.reviewId : '', user.id, id);
+          if (!review || review.status !== 'pending' || review.expires <= Date.now()) throw new HttpError(409, 'insurance_review_required', 'Carregue e revise os termos atuais. Esta confirmação expirou ou já foi usada.');
+          if (review.proxy_revision !== revision) throw new HttpError(409, 'insurance_proxy_changed', 'O proxy mudou. Carregue os termos novamente.');
+        }
+        let refresh;
+        try { refresh = unseal(account.token, key); } catch { throw new HttpError(503, 'integration_key_error', 'Não foi possível abrir a conexão.'); }
+        amazonUploads.add(user.id);
+        try {
+          if (action === 'review') {
+            const result = await amazonInsurance.review(refresh);
+            audit(user, 'amazon.insurance_review', id, 'success');
+            if (result.alreadyComplete) return send(200, result);
+            const reviewId = randomUUID(), expires = Date.now() + 10 * 60000;
+            db.prepare("UPDATE insurance_reviews SET status='superseded' WHERE user_id=? AND account_id=? AND status='pending'").run(user.id, id);
+            db.prepare('INSERT INTO insurance_reviews VALUES(?,?,?,?,?,?,?,?)').run(reviewId, user.id, id, result.digest, revision, expires, 'pending', new Date().toISOString());
+            return send(200, { ...result, reviewId, expiresAt: new Date(expires).toISOString() });
+          }
+          // Consume before awaiting any network: no reuse after an uncertain result or restart.
+          db.prepare("UPDATE insurance_reviews SET status='sending' WHERE id=?").run(review.id);
+          audit(user, 'amazon.insurance_accept', id, 'requested');
+          try {
+            const result = await amazonInsurance.accept(refresh, review.digest);
+            db.prepare('UPDATE insurance_reviews SET status=? WHERE id=?').run(result.confirmed ? 'confirmed' : 'received', review.id);
+            audit(user, 'amazon.insurance_accept', id, result.confirmed ? 'success' : 'http_success');
+            return send(200, result);
+          } catch (error) {
+            db.prepare("UPDATE insurance_reviews SET status='not_confirmed' WHERE id=?").run(review.id);
+            audit(user, 'amazon.insurance_accept', id, 'not_confirmed'); throw error;
+          }
+        } finally { amazonUploads.delete(user.id); }
       }
       const personalMatch = pathname.match(/^\/api\/amazon\/accounts\/([^/]+)\/personal-info$/);
       if (req.method === 'POST' && personalMatch) {

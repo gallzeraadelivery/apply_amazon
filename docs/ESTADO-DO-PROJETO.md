@@ -355,3 +355,13 @@ Ao concluir cada tarefa, acrescentar data, mudança, testes executados, implanta
 - Configuração conferida: regras explícitas de TLS pass-through desativadas pelo operador, inclusão automática desligada e protocolos dos listeners em modo padrão, sem lista customizada ativa. Não atribuir o caso a protocolos TLS todos desabilitados.
 - Orientação: retomar o onboarding pelo cliente/contexto autorizado pela Amazon; capturar os fluxos permitidos. Simulação de tamanho de tela não comprova autorização. Não forçar identificação de dispositivo, nameEditable ou outros controles para contornar a resposta do serviço.
 - Sem alteração de código, nova implantação ou mutação em conta nesta conferência.
+
+
+### 27/10/2026 — Aceite explícito do seguro e captura Persona
+
+- Atualizado checkout até d7dbc98 antes da implementação, preservando preparação do telefone e diagnósticos do outro computador.
+- Implementados revisão dos termos atuais e envio confirmado InsuranceAgreement, usando sessão atual, proxy obrigatório, CSRF fresco e hash do documento. Identificador de confirmação por usuário/conta com validade de dez minutos, revisão do proxy e uso único antes da rede; sem repetição após falha.
+- Painel distingue recebimento HTTP 200 vazio de conclusão confirmada por COMMERCIAL_INSURANCE=Complete. HTML do documento reconstruído com formatação inerte; sem scripts, atributos e links ativos. Conteúdo incompatível é bloqueado.
+- npm run check e 56 testes aprovados localmente. Prévia visual não verificada: CUA falhou ao iniciar o kernel com erro do ambiente de segurança do Windows. Nenhum teste autenticado real nem aceite em conta externa foi realizado.
+- Captura oficial do operador confirmou transition com current_selfie, callback success, PENDING_VERIFICATION e IN_PROGRESS. Quantidade de imagens ainda não confirmada por truncamento MCP; envio de três selfies continua indisponível. Conector de carteira existente precisa ser confrontado com multipart iOS completo antes de afirmar equivalência.
+- Detalhes e próximos passos em docs/SEGURO-E-CAPTURA-PERSONA.md. Implantação pendente neste registro; atualizar após publicação e smoke.

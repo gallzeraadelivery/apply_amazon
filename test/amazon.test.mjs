@@ -1,3 +1,4 @@
+import { insuranceFixture } from './helpers/insurance-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
@@ -241,4 +242,41 @@ test('phone removal requires ownership, CSRF, confirmation and a one-use prepare
  assert.equal((await f.request(base+'/remove','POST',{confirm:true,attemptId:prepared.data.attemptId})).status,409);
  assert.equal(upstream.calls.filter(x=>x.opts.method==='POST'&&x.url.includes('/ap/profile/mobilephone')).length,1);
  const other='00000000-0000-4000-8000-000000000000';assert.equal((await f.request(`/api/amazon/accounts/${other}/phone/prepare`,'POST',{})).status,404);
+});
+
+
+test('insurance routes require owner, CSRF and explicit one-use review before signing', async t => {
+  const upstream = insuranceFixture(), f = await fixture(t, upstream.fetchImpl);
+  const p = await f.start(), id = (await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(p))).data.account.id;
+  const root = `/api/amazon/accounts/${id}/insurance`, count = () => upstream.calls.filter(c => c.url.endsWith('/InsuranceAgreement/signed')).length;
+  assert.equal((await f.request(root + '/review', 'POST', {}, { 'X-CSRF-Token': '' })).status, 403);
+  assert.equal((await f.request(root + '/accept', 'POST', {})).data.error, 'confirmation_required');
+  const review = (await f.request(root + '/review', 'POST', {})).data;
+  assert.ok(review.html); assert.equal(count(), 0);
+  const accepted = await f.request(root + '/accept', 'POST', { confirm: true, reviewId: review.reviewId });
+  assert.equal(accepted.data.confirmed, true); assert.equal(count(), 1);
+  assert.equal((await f.request(root + '/accept', 'POST', { confirm: true, reviewId: review.reviewId })).status, 409);
+  assert.equal(count(), 1);
+  const owner = f.app.db.prepare('SELECT user_id FROM amazon_accounts WHERE id=?').get(id).user_id;
+  f.app.db.prepare('INSERT INTO users VALUES(?,?,?,0)').run('other', 'other@example.test', 'not-a-login-hash');
+  f.app.db.prepare('UPDATE amazon_accounts SET user_id=? WHERE id=?').run('other', id);
+  assert.equal((await f.request(root + '/review', 'POST', {})).status, 404);
+  f.app.db.prepare('UPDATE amazon_accounts SET user_id=? WHERE id=?').run(owner, id);
+});
+test('insurance failure consumes review; proxy changes and expired reviews block before sending', async t => {
+  const upstream = insuranceFixture(), f = await fixture(t, upstream.fetchImpl);
+  const p = await f.start(), id = (await f.request('/api/amazon/connect/finish', 'POST', f.finishBody(p))).data.account.id;
+  const root = `/api/amazon/accounts/${id}/insurance`, sign = reviewId => f.request(root + '/accept', 'POST', { confirm: true, reviewId });
+  let review = (await f.request(root + '/review', 'POST', {})).data;
+  f.app.db.prepare('UPDATE insurance_reviews SET expires=0 WHERE id=?').run(review.reviewId);
+  assert.equal((await sign(review.reviewId)).data.error, 'insurance_review_required');
+  review = (await f.request(root + '/review', 'POST', {})).data;
+  await f.request('/api/admin/proxy', 'PUT', { protocol: 'http', host: 'changed.example.test', port: 8080, authMode: 'none' });
+  await f.request('/api/admin/proxy/test', 'POST', {});
+  assert.equal((await sign(review.reviewId)).data.error, 'insurance_proxy_changed');
+  review = (await f.request(root + '/review', 'POST', {})).data; upstream.control.mode = 'network';
+  assert.equal((await sign(review.reviewId)).status, 502);
+  assert.equal((await sign(review.reviewId)).data.error, 'insurance_review_required');
+  assert.equal(upstream.calls.filter(c => c.url.endsWith('/InsuranceAgreement/signed')).length, 1);
+  assert.equal(f.app.db.prepare('SELECT status FROM insurance_reviews WHERE id=?').get(review.reviewId).status, 'not_confirmed');
 });
