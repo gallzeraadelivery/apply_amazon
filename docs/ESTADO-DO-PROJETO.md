@@ -79,3 +79,8 @@ npm test       → 56/56 passando
 - `README.md`
 - `docs/CONTINUAR-EM-OUTRO-PC.md`
 - `docs/ANALISE-BURP-SELFIE-PERSONA.md` (registro factual da captura, com nota de segurança)
+
+## 09/11/2026 — Grafo do sistema
+
+- Graphify gerou 193 nós e 489 relações em 13 comunidades a partir de 17 módulos versionados (base f34f7fe). Veja [relatório e arquivos do grafo](../graphify-out/GRAPH_REPORT.md).
+- Conferidos os nós referenciados pelas relações e a ausência de caminhos privados nas referências. Apenas documentação e visualização; sem mudança de código, implantação ou verificação da produção. Atualizar a extração quando a arquitetura mudar.
