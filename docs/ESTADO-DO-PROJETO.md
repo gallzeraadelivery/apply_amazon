@@ -84,3 +84,10 @@ npm test       → 56/56 passando
 
 - Graphify gerou 193 nós e 489 relações em 13 comunidades a partir de 17 módulos versionados (base f34f7fe). Veja [relatório e arquivos do grafo](../graphify-out/GRAPH_REPORT.md).
 - Conferidos os nós referenciados pelas relações e a ausência de caminhos privados nas referências. Apenas documentação e visualização; sem mudança de código, implantação ou verificação da produção. Atualizar a extração quando a arquitetura mudar.
+
+## 09/11/2026 — Ponto de restauração antes da evolução
+
+- Código de referência: tag `restore/pre-evolucao-2026-11-09`, commit `74164d8`, conferida no GitHub. Bundle local verificado em `private/gd-apply-pre-evolucao-2026-11-09.bundle`, fora do Git.
+- Produção: backup privado `/opt/backups/gd-apply/20261109T152704Z` com SQLite, ambiente original, imagem em execução, Compose e bloco Nginx do domínio. A imagem preserva o runtime real independentemente da tag de código.
+- SQLite passou no integrity_check, arquivo da imagem foi listado com tar, configuração de ambiente comparada e todos os hashes de SHA256SUMS conferidos. Health HTTPS retornou OK; sem implantação, reinício ou restauração executada.
+- Para evolução, use uma branch nova a partir da tag. Para recuperar produção, siga [Operação e backup](OPERACAO-E-BACKUP.md), valide SHA256SUMS antes de usar o conjunto e preserve os demais serviços. O backup está no próprio servidor; mantenha uma segunda cópia privada fora dele se precisar recuperar após perda do host.
